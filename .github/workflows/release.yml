@@ -1,0 +1,90 @@
+name: Release
+
+# On every push to main: for each engine whose package.json version is not yet
+# on the npm registry, publish it (npm CLI) and create the matching git tag +
+# GitHub Release (e.g. `hyper-down-v0.4.0`). Re-runnable: already-published
+# versions are skipped, so a rerun after fixing secrets is safe.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write # create tags + releases
+  id-token: write # ready for npm Trusted Publishing (OIDC)
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - dir: packages/HyperDown
+            pkg: "@virtus/hyper-down"
+            tag_prefix: hyper-down-v
+          - dir: packages/HyperJson
+            pkg: "@virtus/hyper-json"
+            tag_prefix: hyper-json-v
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      # npm CLI handles auth/publish; Node is preinstalled on the runner.
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Read version
+        id: meta
+        working-directory: ${{ matrix.dir }}
+        run: |
+          VERSION=$(bun -e 'console.log(JSON.parse(await Bun.file("package.json").text()).version)')
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=${{ matrix.tag_prefix }}$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Check if already published
+        id: published
+        run: |
+          if npm view "${{ matrix.pkg }}@${{ steps.meta.outputs.version }}" version >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build
+        if: steps.published.outputs.exists == 'false'
+        working-directory: ${{ matrix.dir }}
+        run: bun run build
+
+      - name: Publish to npm
+        if: steps.published.outputs.exists == 'false'
+        working-directory: ${{ matrix.dir }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" > "$HOME/.npmrc"
+          npm publish --access public
+
+      - name: Create tag + GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.meta.outputs.tag }}
+          PKG: ${{ matrix.pkg }}
+          VERSION: ${{ steps.meta.outputs.version }}
+        run: |
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "Release $TAG already exists — skipping."
+            exit 0
+          fi
+          gh release create "$TAG" \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --title "$PKG v$VERSION" \
+            --notes "https://www.npmjs.com/package/$PKG/v/$VERSION"
