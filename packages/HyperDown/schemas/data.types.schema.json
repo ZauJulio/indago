@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "description": "Defines the settings for Front Matter data type",
+  "lastModified": "2026-05-21T18:05:20.761Z",
+  "type": "object",
+  "title": "Front Matter - data type",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Your unique ID you want to use for your data type."
+    },
+    "schema": {
+      "$ref": "data.files.schema.json#/properties/schema"
+    }
+  },
+  "required": ["id", "schema"]
+}

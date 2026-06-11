@@ -1,0 +1,31 @@
+{
+  "$schema": "./node_modules/@virtus/hyper-down/schemas/hyperdown.config.schema.json",
+  "database": {
+    "contentDir": "./content",
+    "frontmatterJsonPath": "./frontmatter.json"
+  },
+  "sitemap": {
+    "siteUrl": "http://localhost:3000",
+    "outputPath": "./public/sitemap.xml",
+    "staticRoutes": [
+      { "path": "/", "priority": "1.0", "changefreq": "weekly" },
+      { "path": "/pt", "priority": "1.0", "changefreq": "weekly" },
+      { "path": "/articles", "priority": "0.8", "changefreq": "weekly" },
+      { "path": "/pt/articles", "priority": "0.8", "changefreq": "weekly" },
+      { "path": "/cooking", "priority": "0.8", "changefreq": "weekly" },
+      { "path": "/pt/cooking", "priority": "0.8", "changefreq": "weekly" },
+      { "path": "/projects", "priority": "0.6", "changefreq": "monthly" },
+      { "path": "/pt/projects", "priority": "0.6", "changefreq": "monthly" }
+    ],
+    "contentTypes": [
+      { "name": "article", "basePath": "/articles", "priority": "0.7", "changefreq": "monthly" },
+      { "name": "recipe", "basePath": "/cooking", "priority": "0.6", "changefreq": "monthly" }
+    ]
+  },
+  "i18n": {
+    "defaultLocale": "en",
+    "locales": ["en", "pt-BR"],
+    "strategy": "folder",
+    "filePattern": {}
+  }
+}

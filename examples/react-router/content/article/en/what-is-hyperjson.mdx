@@ -1,0 +1,52 @@
+---
+draft: false
+title: "What is HyperJson? Schema-First JSON Content for Vite"
+description: "HyperJson turns JSON Schema files into validated, type-safe content at build time. Learn how it generates TypeScript types, validates every content file, and ships headless data hooks — with zero backend."
+date: "2026-06-05"
+tags: ["HyperJson", "JSON Schema", "TypeScript", "Vite", "Codegen", "Validation", "Headless CMS"]
+categories: ["Engineering"]
+author: "Zau Julio"
+readingTime: "6 min read"
+canonical: ""
+cover: ""
+---
+
+# What is HyperJson?
+
+**HyperJson** (`@virtus/hyper-json`) is a JSON-Schema-first content engine for Vite projects. You describe a content type once with a `schema.json`, drop locale-aware JSON files next to it, and HyperJson takes care of the rest: it **validates every file at build time** and **generates ambient TypeScript types** so your data is fully typed end-to-end — no backend, no database, no runtime cost.
+
+It is one of two independent engines in this portfolio. HyperJson owns **structured JSON** (skills, education, music, photography), while [HyperDown](/articles/what-is-hyperdown) owns **Markdown/MDX** content. The two share no code.
+
+## The problem it solves
+
+Hand-maintained JSON content rots. A typo in a key, a missing field, a string where a number belongs — none of it surfaces until something breaks at runtime. And consuming that JSON from TypeScript means either hand-writing interfaces that drift out of sync, or casting to `any` and losing every guarantee.
+
+HyperJson closes both gaps with the schema as the single source of truth.
+
+## How it works
+
+1. **Author a schema.** Each content type lives in its own folder with a `schema.json` (standard JSON Schema) and per-locale data folders (`en/`, `pt-BR/`).
+2. **Validate at build.** The `hyperjsonValidationPlugin` (from `@virtus/hyper-json/plugins`) checks every content file against its sibling schema. In `strict` mode, a single invalid file fails the build.
+3. **Generate types.** `bun run gen:types` runs the codegen — a parallel worker pool over `bunx json-schema-to-typescript` — emitting ambient module declarations so every imported JSON file is typed.
+4. **Consume with hooks.** `@virtus/hyper-json/hooks` provides headless helpers to filter, sort, search, paginate, and compose over the in-memory JSON. No UI is imposed; you bring your own components.
+
+## Try it from the CLI
+
+```bash
+# Scaffold a new content type (schema.json + i18n folders)
+hyperjson create-content-type --name education \
+  --fields "id:string:required;institution:string;skills:string[]" \
+  --locales en,pt-BR
+
+# Validate config + every content file
+hyperjson validate both
+
+# Regenerate TypeScript types
+hyperjson generate
+```
+
+There is also an **MCP server** (`hyperjson-mcp`) that exposes `hyperjson_init`, `hyperjson_validate`, `hyperjson_generate`, and `hyperjson_create_content_type` so an AI agent can manage content types directly.
+
+## Why it stays simple
+
+HyperJson deliberately has **no dependency on frontmatter** — all Markdown concerns live in HyperDown. It does one thing: take JSON Schema and make your JSON content trustworthy and typed. That focus is what keeps it a drop-in for any Vite + TypeScript project.

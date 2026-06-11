@@ -1,0 +1,37 @@
+{
+  "$schema": "https://v2-9-16.turborepo.dev/schema.json",
+  "ui": "tui",
+  "tasks": {
+    "check": {
+      "dependsOn": ["^build"]
+    },
+    "build": {
+      "env": ["--disable-warning=DEP0205"],
+      "dependsOn": ["check", "^build"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "outputs": ["dist/**", "build/**"]
+    },
+    "typecheck": {
+      "cache": true,
+      "dependsOn": ["build"]
+    },
+    "test": {
+      "dependsOn": ["typecheck"]
+    },
+    "test:e2e": {
+      "dependsOn": ["build"],
+      "cache": false
+    },
+    "lint": {},
+    "dev": {
+      "cache": false,
+      "interactive": true,
+      "persistent": true
+    },
+    "preview": {
+      "cache": false,
+      "interactive": true,
+      "persistent": true
+    }
+  }
+}

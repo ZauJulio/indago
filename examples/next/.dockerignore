@@ -1,0 +1,16 @@
+node_modules
+dist
+build
+.output
+.next
+out
+.git
+.turbo
+test-results
+playwright-report
+coverage
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store

@@ -1,0 +1,18 @@
+{
+  "extends": "../configs/tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["node", "bun"],
+    "lib": ["ESNext"],
+    "target": "ESNext",
+    "moduleDetection": "force",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "noEmit": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "resolveJsonModule": true,
+    "typeRoots": ["./node_modules/@types", "../../node_modules/@types", "../../node_modules"]
+  },
+  "include": ["src/**/*", "scripts/**/*", "__tests__/**/*"],
+  "exclude": ["node_modules", "dist", "templates"]
+}

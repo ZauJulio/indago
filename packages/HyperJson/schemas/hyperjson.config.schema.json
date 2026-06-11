@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "HyperJsonConfiguration",
+  "description": "Configuration file for HyperJson — JSON content validation and type generation.",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Path to the JSON schema file for IDE intellisense."
+    },
+    "contentDir": {
+      "type": "string",
+      "description": "Base directory for JSON content files, relative to the app root.",
+      "default": "src/content"
+    },
+    "validation": {
+      "type": "object",
+      "description": "Options that control how content validation behaves.",
+      "properties": {
+        "strict": {
+          "type": "boolean",
+          "description": "Fail on additional properties not defined in the schema.",
+          "default": true
+        },
+        "failOnError": {
+          "type": "boolean",
+          "description": "Exit with a non-zero code when any validation error is found.",
+          "default": true
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "required": ["contentDir"],
+  "additionalProperties": false
+}

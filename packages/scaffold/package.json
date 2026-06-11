@@ -1,0 +1,70 @@
+{
+  "name": "create-virtus-app",
+  "version": "0.1.0",
+  "description": "Scaffold a Vite/Vike/React-Router/TanStack/Next.js app wired to the HyperDown (Markdown → SQLite FTS5) and HyperJson (JSON Schema → typed content) engines.",
+  "keywords": [
+    "cli",
+    "create-app",
+    "hyperdown",
+    "hyperjson",
+    "mdx",
+    "nextjs",
+    "react-router",
+    "scaffold",
+    "sqlite",
+    "ssr",
+    "starter",
+    "tanstack",
+    "template",
+    "vike"
+  ],
+  "homepage": "https://github.com/ZauJulio/zaujulio.github.io/tree/main/packages/scaffold",
+  "bugs": {
+    "url": "https://github.com/ZauJulio/zaujulio.github.io/issues"
+  },
+  "license": "MIT",
+  "author": "Zau Julio <zaujulio.dev@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ZauJulio/zaujulio.github.io.git",
+    "directory": "packages/scaffold"
+  },
+  "bin": {
+    "create-virtus-app": "./dist/index.mjs"
+  },
+  "files": [
+    "dist",
+    "templates",
+    "README.md",
+    "LICENSE"
+  ],
+  "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "dev": "bun src/index.ts",
+    "lint": "oxlint .",
+    "format": "oxfmt . --write",
+    "check": "bun run lint && bun run format",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "bun test __tests__/scaffold",
+    "test:templates": "bun scripts/test-templates.ts",
+    "gen:examples": "bun scripts/gen-examples.ts"
+  },
+  "dependencies": {
+    "@clack/prompts": "^1.4.0",
+    "commander": "^14.0.3"
+  },
+  "devDependencies": {
+    "@repo/configs": "*",
+    "@types/node": "^25.9.1",
+    "bun-types": "latest",
+    "tsdown": "^0.22.0",
+    "typescript": "^6.0.3"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

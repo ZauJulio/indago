@@ -1,0 +1,128 @@
+import type { FrontmatterField } from "./config.ts";
+
+/**
+ * Derives every SQL statement for one content collection from its field
+ * definitions. It is **pure** — it produces SQL strings and column metadata but
+ * never touches a database, separating "what the schema is" from "how it runs"
+ * (the `CollectionDbBuilder` executes it).
+ */
+export class CollectionSchema {
+  /** Frontmatter columns indexed by FTS (every non-draft, non-datetime field). */
+  readonly ftsColumns: string[];
+  /** Fields whose values are arrays (tags/categories), stored in the bridge. */
+  readonly arrayFields: string[];
+
+  /** `name TYPE` column definitions for the main table. */
+  private readonly columnDefs: string[];
+  /** FTS columns whose source value is an array (flattened to space tokens). */
+  private readonly arrayFtsColumns: Set<string>;
+
+  constructor(
+    readonly name: string,
+    private readonly fields: FrontmatterField[],
+  ) {
+    this.columnDefs = fields.map((f) => `${f.name} ${f.type === "draft" ? "INTEGER" : "TEXT"}`);
+    this.ftsColumns = fields
+      .filter((f) => f.type !== "draft" && f.type !== "datetime")
+      .map((f) => f.name);
+    this.arrayFields = fields
+      .filter((f) => f.type === "tags" || f.type === "categories")
+      .map((f) => f.name);
+    // Every array field that also lands in an FTS column must be flattened to
+    // tokens (tags AND categories) — binding a raw array throws in bun:sqlite.
+    this.arrayFtsColumns = new Set(this.ftsColumns.filter((c) => this.arrayFields.includes(c)));
+  }
+
+  get ftsTable(): string {
+    return `${this.name}_fts`;
+  }
+
+  get tagsTable(): string {
+    return `${this.name}_tags`;
+  }
+
+  get hasArrayFields(): boolean {
+    return this.arrayFields.length > 0;
+  }
+
+  /** Whether this FTS column's value must be flattened from an array to tokens. */
+  isArrayFtsColumn(column: string): boolean {
+    return this.arrayFtsColumns.has(column);
+  }
+
+  createTableSql(): string {
+    return (
+      `CREATE TABLE IF NOT EXISTS ${this.name} ` +
+      `(id INTEGER PRIMARY KEY AUTOINCREMENT, slug TEXT NOT NULL, locale TEXT NOT NULL, ` +
+      `${this.columnDefs.join(", ")}, UNIQUE(slug, locale));`
+    );
+  }
+
+  /** Contentless FTS5 (content="") stores only the inverted index — not the
+   *  original text — keeping the `.db` compact. The extra `body` column indexes
+   *  the MD/MDX body so search reaches article content, not just frontmatter. */
+  createFtsSql(): string {
+    return (
+      `CREATE VIRTUAL TABLE IF NOT EXISTS ${this.ftsTable} ` +
+      `USING fts5(${this.ftsColumns.join(", ")}, body, content="", tokenize="unicode61");`
+    );
+  }
+
+  /** Bridge table for array fields — one row per (content, field, value) makes
+   *  membership filters sargable (indexed) instead of a `LIKE '%"x"%'` scan. */
+  createTagsTableSql(): string | null {
+    if (!this.hasArrayFields) return null;
+    return (
+      `CREATE TABLE IF NOT EXISTS ${this.tagsTable} ` +
+      `(content_id INTEGER NOT NULL, field TEXT NOT NULL, value TEXT NOT NULL);`
+    );
+  }
+
+  insertRowSql(): string {
+    const names = this.fields.map((f) => f.name);
+    const placeholders = names.map((n) => `$${n}`).join(", ");
+    return (
+      `INSERT INTO ${this.name} (slug, locale, ${names.join(", ")}) ` +
+      `VALUES ($slug, $locale, ${placeholders}) RETURNING id;`
+    );
+  }
+
+  insertFtsSql(): string {
+    const placeholders = this.ftsColumns.map((c) => `$${c}`).join(", ");
+    return (
+      `INSERT INTO ${this.ftsTable} (rowid, ${this.ftsColumns.join(", ")}, body) ` +
+      `VALUES ($content_rowid, ${placeholders}, $body);`
+    );
+  }
+
+  insertTagSql(): string | null {
+    if (!this.hasArrayFields) return null;
+    return `INSERT INTO ${this.tagsTable} (content_id, field, value) VALUES ($cid, $field, $value);`;
+  }
+
+  /** `UNIQUE(slug, locale)` already autoindexes `slug` (leftmost), and the composite
+   *  `(locale, <col>)` indexes are `locale`-leftmost (covering bare `locale = ?`), so
+   *  standalone `(slug)`/`(locale)` indexes would be redundant. We index only
+   *  `(locale, <sortKey | facet>)`: `title`, datetime (date sort), choice (facet). */
+  createIndexSqls(): string[] {
+    const sqls = [
+      `CREATE INDEX IF NOT EXISTS idx_${this.name}_locale_title ON ${this.name}(locale, title);`,
+    ];
+
+    for (const field of this.fields) {
+      if (field.type === "datetime" || field.type === "choice") {
+        sqls.push(
+          `CREATE INDEX IF NOT EXISTS idx_${this.name}_locale_${field.name} ON ${this.name}(locale, ${field.name});`,
+        );
+      }
+    }
+
+    if (this.hasArrayFields) {
+      sqls.push(
+        `CREATE INDEX IF NOT EXISTS idx_${this.name}_tags ON ${this.tagsTable}(field, value);`,
+      );
+    }
+
+    return sqls;
+  }
+}

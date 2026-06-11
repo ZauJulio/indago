@@ -1,0 +1,78 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "description": "Defines the settings for Front Matter page folder",
+  "lastModified": "2026-05-21T18:05:20.761Z",
+  "type": "object",
+  "title": "Front Matter - page folder",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Name of the folder"
+    },
+    "path": {
+      "type": "string",
+      "description": "Path of the folder"
+    },
+    "excludeSubdir": {
+      "type": "boolean",
+      "default": false,
+      "description": "Exclude sub-directories"
+    },
+    "excludePaths": {
+      "type": "array",
+      "default": false,
+      "description": "Exclude paths (e.g. api, _*.*)",
+      "items": {
+        "type": "string"
+      }
+    },
+    "previewPath": {
+      "type": ["null", "string"],
+      "default": null,
+      "description": "Defines a custom preview path for the folder."
+    },
+    "trailingSlash": {
+      "type": "boolean",
+      "description": "Specify if you want to add a trailing slash to the preview URL."
+    },
+    "filePrefix": {
+      "type": ["null", "string"],
+      "description": "Defines a prefix for the file name."
+    },
+    "contentTypes": {
+      "type": "array",
+      "description": "Defines which content types can be used for the current location. If not defined, all content types will be available.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "disableCreation": {
+      "type": "boolean",
+      "default": false,
+      "description": "Disable the creation of new content in the folder."
+    },
+    "defaultLocale": {
+      "type": "string",
+      "description": "Set the default locale ID for the page folder. All content from this folder is translatable to the languages defined in the `frontMatter.content.i18n` setting."
+    },
+    "locales": {
+      "type": "array",
+      "description": "Define the locales for the page folder. This will be used for the translation of the content.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "locale": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "required": ["title", "path"]
+}

@@ -1,0 +1,17 @@
+{
+  "extends": "../configs/vite.json",
+  "include": [
+    "src/**/*",
+    "lib/**/*",
+    "cli/**/*",
+    "mcp/**/*",
+    "scripts/**/*",
+    "src/plugins/**/*",
+    "types.d.ts",
+    "__tests__/**/*"
+  ],
+  "compilerOptions": {
+    "types": ["@types/bun", "node"],
+    "typeRoots": ["./node_modules/@types", "../../node_modules/@types", "../../node_modules"]
+  }
+}

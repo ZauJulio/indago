@@ -1,0 +1,41 @@
+{
+  "common": {
+    "home": "Início",
+    "backToHome": "Voltar ao início"
+  },
+  "nav": {
+    "articles": "Artigos",
+    "cooking": "Receitas",
+    "projects": "Projetos"
+  },
+  "home": {
+    "title": "create-virtus-app",
+    "subtitle": "Um starter integrado ao HyperDown (Markdown → SQLite FTS) e HyperJson (JSON Schema → tipos).",
+    "explore": "Explorar"
+  },
+  "articles": {
+    "title": "Artigos",
+    "description": "Conteúdo Markdown com busca full-text, indexado em SQLite e consultado no servidor.",
+    "search": "Buscar artigos…",
+    "searchAction": "Buscar",
+    "backTo": "Voltar aos artigos",
+    "empty": "Nenhum artigo encontrado.",
+    "readMore": "Ler mais",
+    "notFound": "Artigo não encontrado"
+  },
+  "recipes": {
+    "title": "Receitas",
+    "description": "Receitas em MDX indexadas pelo mesmo motor que alimenta a seção de artigos.",
+    "backTo": "Voltar às receitas",
+    "empty": "Nenhuma receita encontrada.",
+    "notFound": "Receita não encontrada"
+  },
+  "projects": {
+    "title": "Projetos",
+    "description": "Conteúdo JSON validado por schema, tipado de ponta a ponta pelo HyperJson.",
+    "stars": "estrelas"
+  },
+  "lang": {
+    "switchTo": "English"
+  }
+}

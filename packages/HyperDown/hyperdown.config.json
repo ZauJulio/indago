@@ -1,0 +1,21 @@
+{
+  "$schema": "./schemas/hyperdown.config.schema.json",
+  "database": {
+    "outputPath": ".hyper-down/metadata.db",
+    "contentDir": "src/content",
+    "compress": true,
+    "frontmatterJsonPath": "frontmatter.json"
+  },
+  "sitemap": {
+    "siteUrl": "http://localhost:3000",
+    "outputPath": "public/sitemap.xml",
+    "staticRoutes": [],
+    "contentTypes": []
+  },
+  "i18n": {
+    "defaultLocale": "en",
+    "locales": ["en"],
+    "strategy": "folder",
+    "filePattern": {}
+  }
+}

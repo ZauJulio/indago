@@ -1,0 +1,7 @@
+{
+  "extends": ["../../packages/configs/.oxlintrc.json"],
+  "env": {
+    "browser": true,
+    "node": true
+  }
+}

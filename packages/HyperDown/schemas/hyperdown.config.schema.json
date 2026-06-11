@@ -1,0 +1,141 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "HyperDown Configuration",
+  "description": "Schema for hyperdown.config.json — centralized configuration for database generation, sitemap, and i18n.",
+  "type": "object",
+  "required": ["database", "sitemap", "i18n"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Path to the JSON schema file for IDE intellisense."
+    },
+    "database": {
+      "type": "object",
+      "description": "SQLite database generation configuration.",
+      "required": ["contentDir", "frontmatterJsonPath"],
+      "additionalProperties": false,
+      "properties": {
+        "contentDir": {
+          "type": "string",
+          "description": "The base directory for all content, relative to the app working directory."
+        },
+        "frontmatterJsonPath": {
+          "type": "string",
+          "description": "Absolute or relative path to the frontmatter.json file."
+        },
+        "outputPath": {
+          "type": "string",
+          "description": "Output path for the generated SQLite database, relative to the config file."
+        }
+      }
+    },
+    "sitemap": {
+      "type": "object",
+      "description": "Sitemap generation configuration.",
+      "required": ["siteUrl", "outputPath", "staticRoutes", "contentTypes"],
+      "additionalProperties": false,
+      "properties": {
+        "siteUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "Base URL of the site (no trailing slash)."
+        },
+        "outputPath": {
+          "type": "string",
+          "description": "Relative path from this config file to the output sitemap.xml."
+        },
+        "staticRoutes": {
+          "type": "array",
+          "description": "Static routes to include in the sitemap.",
+          "items": {
+            "$ref": "#/$defs/sitemapRoute"
+          }
+        },
+        "contentTypes": {
+          "type": "array",
+          "description": "Content types to scan for dynamic sitemap entries.",
+          "items": {
+            "$ref": "#/$defs/sitemapContentType"
+          }
+        }
+      }
+    },
+    "i18n": {
+      "type": "object",
+      "description": "Internationalization configuration.",
+      "required": ["defaultLocale", "locales", "strategy"],
+      "additionalProperties": false,
+      "properties": {
+        "defaultLocale": {
+          "type": "string",
+          "description": "The default locale code (e.g. 'en')."
+        },
+        "locales": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "All supported locale codes."
+        },
+        "strategy": {
+          "type": "string",
+          "enum": ["folder"],
+          "description": "The i18n detection strategy (currently supports folder)."
+        },
+        "filePattern": {
+          "type": "object",
+          "description": "File pattern for i18n detection."
+        }
+      }
+    }
+  },
+  "$defs": {
+    "sitemapRoute": {
+      "type": "object",
+      "description": "A static route entry for the sitemap.",
+      "required": ["path", "priority", "changefreq"],
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "URL path relative to siteUrl."
+        },
+        "priority": {
+          "type": "string",
+          "pattern": "^[01]\\.\\d$",
+          "description": "Priority value between 0.0 and 1.0."
+        },
+        "changefreq": {
+          "type": "string",
+          "enum": ["always", "hourly", "daily", "weekly", "monthly", "yearly", "never"],
+          "description": "How frequently the page is likely to change."
+        }
+      }
+    },
+    "sitemapContentType": {
+      "type": "object",
+      "description": "Configuration for a dynamic content type in the sitemap.",
+      "required": ["name", "basePath", "priority", "changefreq"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Content type name."
+        },
+        "basePath": {
+          "type": "string",
+          "description": "URL path prefix for this content type."
+        },
+        "priority": {
+          "type": "string",
+          "pattern": "^[01]\\.\\d$",
+          "description": "Priority value between 0.0 and 1.0."
+        },
+        "changefreq": {
+          "type": "string",
+          "enum": ["always", "hourly", "daily", "weekly", "monthly", "yearly", "never"],
+          "description": "How frequently the page is likely to change."
+        }
+      }
+    }
+  }
+}

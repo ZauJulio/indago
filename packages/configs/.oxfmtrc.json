@@ -1,0 +1,46 @@
+{
+  "$schema": "../../node_modules/oxfmt/configuration_schema.json",
+  "indentStyle": "space",
+  "indentWidth": 2,
+  "lineEnding": "lf",
+  "lineWidth": 120,
+  "arrowParentheses": "always",
+  "bracketSameLine": false,
+  "bracketSpacing": true,
+  "jsxQuoteStyle": "single",
+  "quoteProperties": "asNeeded",
+  "quoteStyle": "single",
+  "semicolons": "always",
+  "trailingCommas": "all",
+  "sortImports": {
+    "enabled": true,
+    "customGroups": [
+      { "groupName": "node", "elementNamePattern": ["node:**"] },
+      { "groupName": "bun", "elementNamePattern": ["bun:**"] },
+      {
+        "groupName": "react",
+        "elementNamePattern": [
+          "react",
+          "react-router",
+          "react-dom",
+          "react-dom/**",
+          "react-i18next"
+        ]
+      },
+      { "groupName": "value-external", "elementNamePattern": ["**"] },
+      { "groupName": "scoped", "elementNamePattern": ["@**"] },
+      { "groupName": "local", "elementNamePattern": ["@/**"] },
+      { "groupName": "css", "elementNamePattern": ["**.css"] }
+    ],
+    "groups": [
+      "node",
+      "bun",
+      "react",
+      "value-external",
+      "scoped",
+      "local",
+      ["value-parent", "value-sibling", "value-index"],
+      "css"
+    ]
+  }
+}

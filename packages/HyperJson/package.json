@@ -1,0 +1,110 @@
+{
+  "name": "@virtus/hyper-json",
+  "version": "1.0.0",
+  "description": "JSON Schema → strict validation + auto-generated TypeScript types + ambient module declarations for typed JSON content imports.",
+  "keywords": [
+    "ajv",
+    "cms",
+    "codegen",
+    "headless-cms",
+    "json",
+    "json-schema",
+    "mcp",
+    "react",
+    "schema",
+    "typescript",
+    "validation",
+    "vite",
+    "vite-plugin"
+  ],
+  "homepage": "https://github.com/ZauJulio/zaujulio.github.io/tree/main/packages/HyperJson",
+  "bugs": {
+    "url": "https://github.com/ZauJulio/zaujulio.github.io/issues"
+  },
+  "license": "MIT",
+  "author": "Zau Julio <zaujulio.dev@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ZauJulio/zaujulio.github.io.git",
+    "directory": "packages/HyperJson"
+  },
+  "bin": {
+    "hyperjson": "./dist/bin/hyperjson.js",
+    "hyperjson-mcp": "./dist/bin/hyperjson-mcp.js"
+  },
+  "files": [
+    "dist",
+    "schemas",
+    ".agents",
+    "assets",
+    "README.md",
+    "LICENSE"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./hooks": {
+      "types": "./dist/hooks.d.ts",
+      "import": "./dist/hooks.js"
+    },
+    "./plugins": {
+      "types": "./dist/plugins.d.ts",
+      "import": "./dist/plugins.js"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "prebuild": "bun run gen:types",
+    "build": "tsdown",
+    "cli": "bun cli/hyperjson.ts",
+    "cli:init": "bun cli/hyperjson.ts init",
+    "cli:validate": "bun cli/hyperjson.ts validate",
+    "cli:generate": "bun cli/hyperjson.ts generate",
+    "cli:create": "bun cli/hyperjson.ts create-content-type",
+    "gen:types": "bun scripts/gen-types.ts",
+    "lint": "oxlint .",
+    "format": "oxfmt . --write",
+    "check": "bun run lint && bun run format",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@clack/prompts": "^1.4.0",
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1",
+    "commander": "^14.0.3",
+    "json-schema-to-typescript": "^15.0.4",
+    "pino": "^10.3.1",
+    "pino-pretty": "^13.1.3"
+  },
+  "devDependencies": {
+    "@happy-dom/global-registrator": "^20.9.0",
+    "@repo/configs": "*",
+    "@testing-library/react": "^16.3.2",
+    "@types/node": "^25.9.1",
+    "@types/react": "^19.2.15",
+    "@types/react-dom": "^19.2.3",
+    "bun-types": "latest",
+    "happy-dom": "^20.9.0",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "tsdown": "^0.22.0",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.14"
+  },
+  "peerDependencies": {
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "vite": "^8.0.14"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

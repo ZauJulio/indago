@@ -1,0 +1,8 @@
+{
+  "$schema": "./node_modules/@virtus/hyper-json/schemas/hyperjson.config.schema.json",
+  "contentDir": "content",
+  "validation": {
+    "strict": true,
+    "failOnError": true
+  }
+}

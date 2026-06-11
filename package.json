@@ -1,0 +1,34 @@
+{
+  "name": "virtus",
+  "private": true,
+  "license": "MIT",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "test:templates": "bun --cwd packages/scaffold run test:templates",
+    "gen:examples": "bun --cwd packages/scaffold run gen:examples",
+    "lint": "oxlint -c packages/configs/.oxlintrc.json .",
+    "format": "oxfmt -c packages/configs/.oxfmtrc.json --write .",
+    "check": "bun run lint && bun run format",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.3.14",
+    "@types/node": "^25.9.1",
+    "@types/react": "^19.2.15",
+    "@types/react-dom": "^19.2.3",
+    "husky": "^9.1.7",
+    "json-schema-to-typescript": "^15.0.4",
+    "lint-staged": "^17.0.5",
+    "oxfmt": "^0.51.0",
+    "oxlint": "^1.66.0",
+    "tailwindcss": "^4.3.0",
+    "turbo": "^2.9.16",
+    "typescript": "^6.0.3"
+  },
+  "packageManager": "bun@1.3.5"
+}

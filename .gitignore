@@ -1,0 +1,33 @@
+# OS
+.DS_Store
+
+# Dependencies
+node_modules
+
+# Build outputs
+dist
+dist-ssr
+server/dist
+public/dist
+build
+
+# Framework / tooling cache
+.turbo
+.cache
+.react-router
+
+# SQLite content databases — build artifacts the HyperDown writer regenerates on
+# every build (buildStart). Never committed; loaders read them server-side.
+*.db
+*.db.gz
+
+# Environment
+.env
+*.local
+
+# Logs
+*.log
+
+# Tests
+test-results/
+playwright-report/
