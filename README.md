@@ -5,10 +5,16 @@
 </p>
 
 <p align="center">
+  <em>Turn a folder of content files into a typed, searchable content layer —<br/>
+  no database service, no API, no CMS server.</em>
+</p>
+
+<p align="center">
   <a href="https://github.com/ZauJulio/virtus/actions/workflows/release.yml"><img alt="Release" src="https://github.com/ZauJulio/virtus/actions/workflows/release.yml/badge.svg" /></a>
-  <a href="https://www.npmjs.com/package/@virtus/hyper-down"><img alt="hyper-down" src="https://img.shields.io/npm/v/%40virtus%2Fhyper-down?label=%40virtus%2Fhyper-down" /></a>
-  <a href="https://www.npmjs.com/package/@virtus/hyper-json"><img alt="hyper-json" src="https://img.shields.io/npm/v/%40virtus%2Fhyper-json?label=%40virtus%2Fhyper-json" /></a>
-  <a href="https://www.npmjs.com/package/create-virtus-app"><img alt="create-virtus-app" src="https://img.shields.io/npm/v/create-virtus-app?label=create-virtus-app" /></a>
+  <a href="https://www.npmjs.com/package/@virtus/hyper-down"><img alt="@virtus/hyper-down" src="https://img.shields.io/npm/v/%40virtus%2Fhyper-down?label=%40virtus%2Fhyper-down&color=CB3837&logo=npm" /></a>
+  <a href="https://www.npmjs.com/package/@virtus/hyper-json"><img alt="@virtus/hyper-json" src="https://img.shields.io/npm/v/%40virtus%2Fhyper-json?label=%40virtus%2Fhyper-json&color=CB3837&logo=npm" /></a>
+  <a href="https://www.npmjs.com/package/create-virtus-app"><img alt="create-virtus-app" src="https://img.shields.io/npm/v/create-virtus-app?label=create-virtus-app&color=CB3837&logo=npm" /></a>
+  <a href="./LICENSE"><img alt="MIT" src="https://img.shields.io/badge/license-MIT-green" /></a>
 </p>
 
 <p align="center">
@@ -17,32 +23,115 @@
   <img alt="Bun" src="https://img.shields.io/badge/Bun-1-000000?logo=bun&logoColor=white" />
   <img alt="Turborepo" src="https://img.shields.io/badge/Turborepo-2-EF4444?logo=turborepo&logoColor=white" />
   <img alt="SQLite FTS5" src="https://img.shields.io/badge/SQLite-FTS5-003B57?logo=sqlite&logoColor=white" />
-  <img alt="License" src="https://img.shields.io/badge/license-MIT-green" />
+  <img alt="Node >= 20" src="https://img.shields.io/badge/node-%E2%89%A520-339933?logo=node.js&logoColor=white" />
 </p>
-
-Two **zero-backend** content engines plus a scaffolder. They turn a folder of content files
-into a typed, searchable content layer that ships as static assets — no database service,
-no API, no CMS server. Each engine exposes a **Vite plugin**, a **CLI**, and an **MCP
-server** (so AI agents can drive it as tools), and bundles its JSON Schemas alongside the
-dist for runtime validation.
-
-| Package                                      | npm                                                                      | What it is                                                                                                           |
-| -------------------------------------------- | ------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------- |
-| [`packages/HyperDown`](./packages/HyperDown) | [`@virtus/hyper-down`](https://www.npmjs.com/package/@virtus/hyper-down) | Markdown/MDX → SQLite (FTS5 contentless) → server-side loaders. SSR-only, queried with `bun:sqlite` / `node:sqlite`. |
-| [`packages/HyperJson`](./packages/HyperJson) | [`@virtus/hyper-json`](https://www.npmjs.com/package/@virtus/hyper-json) | JSON Schema → strict validation + generated TypeScript types + ambient module declarations for typed JSON imports.   |
-| [`packages/scaffold`](./packages/scaffold)   | [`create-virtus-app`](https://www.npmjs.com/package/create-virtus-app)   | Scaffolder CLI — 4 templates (Vike, React Router v7, TanStack Start, Next.js), same routes + e2e suite in each.      |
-| [`packages/configs`](./packages/configs)     | —                                                                        | Shared internal tooling config (tsconfig base, oxlint/oxfmt, Tailwind, Vite presets).                                |
-
-> **The two engines are independent** — neither depends on the other. HyperDown owns
-> Markdown/front-matter; HyperJson owns structured JSON. The reference consumer is the
-> [portifolio](https://github.com/ZauJulio/portifolio) app, live at
-> [zaujulio.vercel.app](https://zaujulio.vercel.app).
 
 ---
 
-## Architecture
+## Summary
 
-### The big picture
+- [What is Virtus?](#what-is-virtus)
+- [Packages](#packages)
+- [Quick start](#quick-start)
+  - [Option A — scaffold a new app](#option-a--scaffold-a-new-app)
+  - [Option B — add an engine to an existing Vite app](#option-b--add-an-engine-to-an-existing-vite-app)
+- [Architecture](#architecture)
+- [Repository structure](#repository-structure)
+- [What a consuming app looks like](#what-a-consuming-app-looks-like)
+- [Configuration](#configuration)
+- [CLIs & MCP servers](#clis--mcp-servers)
+- [Contributing / Development](#contributing--development)
+- [Releases](#releases)
+- [License](#license)
+
+---
+
+## What is Virtus?
+
+**Virtus is a monorepo of npm packages** — two independent, zero-backend content engines
+and a scaffolder:
+
+- **HyperDown** handles *prose*: Markdown/MDX files with front-matter become a compact
+  SQLite database (full-text search included) queried **only on the server**, while the
+  MDX bodies compile to React components.
+- **HyperJson** handles *data*: JSON files validated against JSON Schemas at build time,
+  with generated TypeScript types so every import is fully typed.
+- **create-virtus-app** scaffolds a working app on either of four frameworks, already
+  wired to both engines.
+
+Everything ships as static assets next to your app. Each engine exposes a **Vite
+plugin**, a **CLI**, and an **MCP server** (AI agents can drive it as tools), and bundles
+its JSON Schemas for editor + runtime validation.
+
+## Packages
+
+| Package                                      | npm                                                                       | One-liner                                                                              | Docs                                              |
+| -------------------------------------------- | ------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- | -------------------------------------------------- |
+| [`packages/HyperDown`](./packages/HyperDown) | [`@virtus/hyper-down`](https://www.npmjs.com/package/@virtus/hyper-down)  | Markdown/MDX → SQLite (contentless FTS5) → SSR route loaders + lazy MDX rendering.       | [README](./packages/HyperDown/README.md)           |
+| [`packages/HyperJson`](./packages/HyperJson) | [`@virtus/hyper-json`](https://www.npmjs.com/package/@virtus/hyper-json)  | JSON Schema → strict Ajv validation + generated TS types + typed `.json` imports.        | [README](./packages/HyperJson/README.md)           |
+| [`packages/scaffold`](./packages/scaffold)   | [`create-virtus-app`](https://www.npmjs.com/package/create-virtus-app)    | `bun create virtus-app` — Vike, React Router v7, TanStack Start, or Next.js templates.   | [README](./packages/scaffold/README.md)            |
+| [`packages/configs`](./packages/configs)     | — (internal)                                                               | Shared tsconfig / oxlint / oxfmt / Tailwind / Vite presets for this repo.                | —                                                  |
+
+> **The two engines are independent** — neither depends on the other; adopt one or both.
+> The reference consumer is the [portifolio](https://github.com/ZauJulio/portifolio) app,
+> live at [zaujulio.vercel.app](https://zaujulio.vercel.app).
+
+## Quick start
+
+### Option A — scaffold a new app
+
+```bash
+bun create virtus-app my-app          # interactive picker
+bunx create-virtus-app my-app --vike  # non-interactive (--react-router | --tanstack | --next)
+
+cd my-app && bun install && bun run dev
+```
+
+Every template ships the same routes (`/articles` with live full-text search,
+`/articles/:slug`, `/cooking[/:slug]`, `/projects`, `/pt/*`) and the same Playwright
+suite. Generated reference apps live in [`examples/`](./examples).
+
+### Option B — add an engine to an existing Vite app
+
+**HyperDown** (Markdown/MDX + search):
+
+```bash
+bun add @virtus/hyper-down
+bunx hyperdown init both        # hyperdown.config.json + frontmatter schema
+bunx hyperdown create-frontmatter --name article --locales "en,pt-BR"
+bunx hyperdown create-item --type article --slug hello-world --lang en
+```
+
+```ts
+// vite.config.ts — order matters: MDX plugin BEFORE the framework plugins
+import { hyperdownMdxPlugin, hyperdownPlugin } from "@virtus/hyper-down/plugins";
+
+export default defineConfig({
+  plugins: [hyperdownMdxPlugin(), /* vike()/react()/… */ hyperdownPlugin()],
+  ssr: { external: ["bun:sqlite", "node:sqlite"], noExternal: ["@virtus/hyper-down"] },
+});
+```
+
+Query in a server loader via the generated repository, render in the view with the
+browser-safe resolver — full walkthrough in the
+[HyperDown README](./packages/HyperDown/README.md).
+
+**HyperJson** (typed JSON):
+
+```bash
+bun add @virtus/hyper-json
+bunx hyperjson init
+bunx hyperjson create-content-type --name projects --fields "id:string:required;name:string:required;url:string"
+bunx hyperjson generate
+```
+
+```ts
+import projects from "@content/projects/en/projects.json"; // fully typed
+```
+
+Details (plugin, hooks, wrapper property): [HyperJson README](./packages/HyperJson/README.md).
+
+## Architecture
 
 ```text
 content files                build time                          runtime
@@ -57,63 +146,49 @@ content/<type>/*.json        ──HyperJson──▶  Ajv validation           
 
 ### HyperDown — Markdown/MDX engine
 
-**Build time** (Vite plugin `hyperdownPlugin` on `buildStart`, `hyperdown gen:db`, or the
-Next.js adapter):
+**Build time** (Vite plugin on `buildStart`, `hyperdown gen:db`, or the Next.js adapter):
 
-1. **Codegen** (`HyperDownCodegen`) writes idempotently into the consuming app's
-   `.hyper-down/` tree: an ambient `<Type>Meta` interface, a **lazy `<type>Repository`
-   proxy** (server-only DAO), and a **static eager `import.meta.glob`** map of MDX bodies,
-   re-exported as `contentModules` from `.hyper-down/default.ts`.
-2. **Writer** (`HyperDownWriter` → `CollectionDbBuilder` → `CollectionSchema`) parses each
-   file's front-matter (parallel read/parse/validate pool, then a serial single-transaction
-   persist) and emits one `.db` per content type: a metadata table, an indexed
-   `<type>_tags` bridge for array facets, and a **contentless FTS5** table (`content=""`).
-   The FTS index covers the front-matter columns **plus the body text** — tokenized into
-   the inverted index but **never stored**.
-3. On `closeBundle` (build only) every `.db` is copied into `dist/metadata/` so the built
-   output is self-contained.
+1. **Codegen** writes idempotently into the app's `.hyper-down/` tree: an ambient
+   `<Type>Meta` interface, a **lazy `<type>Repository` proxy** (server-only DAO), and a
+   **static eager `import.meta.glob`** map of MDX bodies (`contentModules`).
+2. **Writer** parses front-matter (parallel read/parse/validate pool → serial
+   single-transaction persist) and emits one `.db` per content type: metadata table,
+   indexed `<type>_tags` bridge for array facets, and a **contentless FTS5** table — the
+   index covers the front-matter columns **plus the body text**, tokenized into the
+   inverted index but **never stored**.
+3. On `closeBundle` every `.db` is copied into `dist/metadata/` (self-contained deploys).
 
-**Runtime** — strictly split in two:
+**Runtime** — strictly split:
 
 - **Server (route loaders)**: `ContentRepository<T>` — `search()` (FTS5 `MATCH` across all
-  locales mapped back to one row per slug, filters, sort, pagination), `distinctValues()`
-  (facets), `getMetaBySlug()` (locale fallback). Opens the `.db` **read-only** with
-  `bun:sqlite`, or `node:sqlite` on Node ≥ 22 (e.g. Vercel); prepared-statement cache +
-  memoized opens. Exported only from `@virtus/hyper-down/server`.
-- **Client (views)**: `createContentResolver(contentModules[type])` resolves the lazy MDX
-  React component for a `slug`+`lang`; rendered with `MdxRender`. No database code ever
-  reaches the browser bundle.
+  locales mapped back to one row per slug; filters; sort; pagination), `distinctValues()`
+  (facets), `getMetaBySlug()` (locale fallback). Read-only `bun:sqlite`, or `node:sqlite`
+  on Node ≥ 22 (e.g. Vercel). Exported only from `@virtus/hyper-down/server`.
+- **Client (views)**: `createContentResolver(contentModules[type])` →
+  `getContent(slug, lang)` resolves the lazy MDX component; rendered with `MdxRender`.
+  No database code ever reaches the browser bundle.
 
 **Plugins / adapters**: `hyperdownMdxPlugin` (wraps `@mdx-js/rollup`, intercepts
-`*.mdx?raw`; **must be registered before the framework plugins**) ·
-`hyperdownSitemapPlugin` (sitemap from config) · `withHyperDown` /
-`runHyperDownNextCodegen` (`@virtus/hyper-down/next`) · `@virtus/hyper-down/drizzle`
-(optional Drizzle proxy over the same SSR client).
+`*.mdx?raw`; register before the framework plugins) · `hyperdownSitemapPlugin` ·
+`withHyperDown` / `runHyperDownNextCodegen` (`@virtus/hyper-down/next`) ·
+`@virtus/hyper-down/drizzle` (optional Drizzle proxy).
 
 ### HyperJson — typed JSON engine
 
-1. **Validation** (Ajv + ajv-formats, `strict` by default): every `.json` under a content
-   folder is checked against its sibling `schema.json` at build time
-   (`hyperjsonValidationPlugin`); failures exit non-zero.
-2. **Codegen** (`HyperJsonCodegen`): compiles each schema with the in-process
-   `json-schema-to-typescript` API through a bounded parallel pool
-   (`HYPERJSON_CONCURRENCY`), emitting per-type ambient `declare module` types plus a
-   `generated.d.ts` barrel — so `import data from "@content/<type>/<file>.json"` is fully
-   typed. Writes **only** into the consuming app's `.hyper-json/`.
-3. **Hooks** (`@virtus/hyper-json/hooks`): pure in-memory React hooks — `useFilter`,
-   `useSort`, `useSearch`, `usePaginate`, `useComposed`.
+1. **Validation**: Ajv (+ formats), `strict` by default — every `.json` checked against
+   its sibling `schema.json` at build time; failures exit non-zero.
+2. **Codegen**: in-process `json-schema-to-typescript` through a bounded parallel pool
+   (`HYPERJSON_CONCURRENCY`); emits ambient `declare module` types + a `generated.d.ts`
+   barrel into the app's `.hyper-json/`.
+3. **Hooks**: pure in-memory React hooks — `useFilter`, `useSort`, `useSearch`,
+   `usePaginate`, `useComposed`.
 
 ### create-virtus-app — scaffolder
 
 Overlays `templates/_shared/` (content, e2e suite, configs) with `templates/<id>/`
-(framework-specific code), applying token replacement (`__PROJECT_NAME__`, and
-Markdown-safe `{{PROJECT_NAME}}` inside `.md`). Every template ships the **same routes**
-(`/`, `/articles[/:slug]`, `/cooking[/:slug]`, `/projects`, `/pt/*`) and the same
-Playwright suite, so the four frameworks are interchangeable from a testing standpoint.
-The harness (`bun run test:templates`) packs both engines as tarballs, scaffolds each
-template, installs, builds, typechecks, and runs unit + e2e.
-
----
+(framework code), applying token replacement. Same routes + same Playwright specs in all
+four frameworks; the harness (`bun run test:templates`) packs the engines as tarballs and
+runs build + typecheck + unit + e2e per template.
 
 ## Repository structure
 
@@ -134,7 +209,7 @@ virtus/
 │   │   └── .agents/          rules + skills for AI agents
 │   ├── HyperJson/            @virtus/hyper-json
 │   │   ├── src/              codegen · lib (config/validate) · hooks · plugins
-│   │   ├── cli/  mcp/  schemas/  .agents/
+│   │   └── cli/  mcp/  schemas/  .agents/
 │   ├── scaffold/             create-virtus-app
 │   │   ├── src/              CLI · template registry · scaffold engine
 │   │   ├── templates/        _shared + vike + react-router + tanstack + next
@@ -144,7 +219,7 @@ virtus/
 └── .github/workflows/        release.yml — npm publish + tag/release on push to main
 ```
 
-### What a consuming app looks like
+## What a consuming app looks like
 
 ```text
 my-app/
@@ -162,8 +237,6 @@ my-app/
 ├── hyperjson.config.json     HyperJson config (contentDir, validation)
 └── vite.config.ts            hyperdownMdxPlugin → framework → hyperdownPlugin → …
 ```
-
----
 
 ## Configuration
 
@@ -189,7 +262,7 @@ my-app/
 ### `frontmatter.json` (FrontMatter CMS format)
 
 - `frontMatter.content.pageFolders[]` — `{ title, path, contentTypes, defaultLocale,
-locales }`. The first `contentTypes` entry names the SQLite table and the
+  locales }`. The first `contentTypes` entry names the SQLite table and the
   `content/<name>/` folder.
 - `frontMatter.taxonomy.contentTypes[]` — `{ name, fields: [{ name, type, required }] }`.
   Storage mapping: `draft` → INTEGER (no FTS) · `datetime` → TEXT (no FTS) ·
@@ -206,15 +279,8 @@ locales }`. The first `contentTypes` entry names the SQLite table and the
 }
 ```
 
-Scaffold any of these with the CLIs (`hyperdown init` / `hyperjson init`) — or start from
-a full app:
-
-```bash
-bun create virtus-app my-app          # interactive
-bunx create-virtus-app my-app --vike  # non-interactive (--react-router | --tanstack | --next)
-```
-
----
+All three are scaffolded by the CLIs (`hyperdown init both`, `hyperjson init`) and
+validated against the schemas bundled with each package.
 
 ## CLIs & MCP servers
 
@@ -223,18 +289,16 @@ hyperdown init|validate|update|gen:db|create-content|create-frontmatter|create-i
 hyperjson init|validate|generate|create-content-type
 ```
 
-| MCP server (stdio) | Tools                                                                                                                                                                     |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| MCP server (stdio) | Tools                                                                                                                                  |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------- |
 | `hyperdown-mcp`    | `hyperdown_init` · `hyperdown_validate` · `hyperdown_update` · `hyperdown_gen_db` · `hyperdown_create_content` · `hyperdown_create_frontmatter` · `hyperdown_create_item` |
-| `hyperjson-mcp`    | `hyperjson_init` · `hyperjson_validate` · `hyperjson_generate` · `hyperjson_create_content_type`                                                                          |
+| `hyperjson-mcp`    | `hyperjson_init` · `hyperjson_validate` · `hyperjson_generate` · `hyperjson_create_content_type`                                          |
 
 Creation tools require their full flag set — interactive prompts are disabled under MCP.
 Each package also ships a `.agents/` tree (rules + skills) for agents working in a repo
 that installs it.
 
----
-
-## Development
+## Contributing / Development
 
 > Requires **Bun** (the package manager is pinned to `bun@1.3.5`).
 
@@ -249,15 +313,22 @@ bun run test:templates   # full scaffold harness: 4 templates × (build + typech
 bun run gen:examples     # regenerate examples/<id>/ from the templates
 ```
 
-Tooling is **OXC** (`oxlint` + `oxfmt`) — not ESLint, Prettier, or Biome. Library builds
-use [tsdown](https://tsdown.dev/) (Rolldown-powered).
+Conventions:
 
-### Releases
+- **OXC** tooling (`oxlint` + `oxfmt`) — not ESLint, Prettier, or Biome.
+- Library builds via [tsdown](https://tsdown.dev/) (Rolldown-powered).
+- Pre-commit runs lint-staged; pre-push runs typecheck + build (husky).
+- After changing any file in a package's `schemas/`, run its `bun run gen:types`.
+- Agent-facing docs live in [`AGENTS.md`](./AGENTS.md), [`CLAUDE.md`](./CLAUDE.md), and
+  each engine's `.agents/` tree.
+
+## Releases
 
 Pushing to `main` runs [`release.yml`](./.github/workflows/release.yml): for each engine
 whose `package.json` version is not on the npm registry yet, it builds, publishes
 (`npm publish --access public`), and creates the matching tag + GitHub Release
-(`hyper-down-vX.Y.Z` / `hyper-json-vX.Y.Z`). Bump a version, push, done.
+(`hyper-down-vX.Y.Z` / `hyper-json-vX.Y.Z`). **To release: bump the version, push to
+`main`.** Reruns are safe — already-published versions are skipped.
 
 ## License
 
