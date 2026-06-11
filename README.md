@@ -133,16 +133,45 @@ Details (plugin, hooks, wrapper property): [HyperJson README](./packages/HyperJs
 
 ## Architecture
 
-```text
-content files                build time                          runtime
-─────────────                ──────────                          ───────
-content/<type>/<lang>/*.mdx  ──HyperDown──▶  per-type SQLite (.db)        ──▶  bun:sqlite / node:sqlite
-              (front-matter)  contentless FTS5 index                           in server route loaders (SSR)
-                              + .hyper-down/ codegen (builder/modules)         + lazy MDX via @hyper-down map
+```mermaid
+flowchart LR
+  subgraph content["📁 Content files"]
+    direction TB
+    mdx["content/‹type›/‹lang›/*.mdx<br/>front-matter + body"]
+    json["content/‹type›/*.json<br/>+ schema.json"]
+  end
 
-content/<type>/*.json        ──HyperJson──▶  Ajv validation                    typed @content/**.json imports
-              (schema.json)   generated TS types + ambient d.ts                + headless filter/sort/search hooks
+  subgraph build["⚙️ Build time"]
+    direction TB
+    hd(["HyperDown"])
+    db[("SQLite per type<br/>contentless FTS5")]
+    hdgen["codegen → .hyper-down/<br/>repository + MDX module map"]
+    hj(["HyperJson"])
+    hjgen["codegen → .hyper-json/<br/>ambient TS types"]
+  end
+
+  subgraph runtime["🚀 Runtime"]
+    direction TB
+    loaders["SSR route loaders<br/>bun:sqlite / node:sqlite<br/>search · facets · by-slug"]
+    views["Views (browser-safe)<br/>createContentResolver → MdxRender"]
+    imports["typed @content/**.json imports<br/>+ headless hooks"]
+  end
+
+  mdx --> hd
+  hd --> db
+  hd --> hdgen
+  db --> loaders
+  hdgen --> views
+  json --> hj
+  hj -- "Ajv strict validation<br/>(build gate)" --> hjgen
+  hjgen --> imports
 ```
+
+- **Prose path (HyperDown)**: front-matter becomes a searchable SQLite index queried only
+  on the server; the MDX body never touches the database — it compiles to a lazy React
+  component resolved in the view.
+- **Data path (HyperJson)**: every JSON file must pass schema validation to build, and
+  every import of it is typed.
 
 ### HyperDown — Markdown/MDX engine
 
