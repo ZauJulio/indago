@@ -11,8 +11,8 @@
 
 <p align="center">
   <a href="https://github.com/ZauJulio/virtus/actions/workflows/release.yml"><img alt="Release" src="https://github.com/ZauJulio/virtus/actions/workflows/release.yml/badge.svg" /></a>
-  <a href="https://www.npmjs.com/package/@virtus/hyper-down"><img alt="@virtus/hyper-down" src="https://img.shields.io/npm/v/%40virtus%2Fhyper-down?label=%40virtus%2Fhyper-down&color=CB3837&logo=npm" /></a>
-  <a href="https://www.npmjs.com/package/@virtus/hyper-json"><img alt="@virtus/hyper-json" src="https://img.shields.io/npm/v/%40virtus%2Fhyper-json?label=%40virtus%2Fhyper-json&color=CB3837&logo=npm" /></a>
+  <a href="https://www.npmjs.com/package/@virtus/hyper-down"><img alt="@virtus/hyper-down" src="https://img.shields.io/npm/v/@virtus/hyper-down?label=%40virtus%2Fhyper-down&color=CB3837&logo=npm" /></a>
+  <a href="https://www.npmjs.com/package/@virtus/hyper-json"><img alt="@virtus/hyper-json" src="https://img.shields.io/npm/v/@virtus/hyper-json?label=%40virtus%2Fhyper-json&color=CB3837&logo=npm" /></a>
   <a href="https://www.npmjs.com/package/create-virtus-app"><img alt="create-virtus-app" src="https://img.shields.io/npm/v/create-virtus-app?label=create-virtus-app&color=CB3837&logo=npm" /></a>
   <a href="./LICENSE"><img alt="MIT" src="https://img.shields.io/badge/license-MIT-green" /></a>
 </p>
@@ -23,7 +23,7 @@
   <img alt="Bun" src="https://img.shields.io/badge/Bun-1-000000?logo=bun&logoColor=white" />
   <img alt="Turborepo" src="https://img.shields.io/badge/Turborepo-2-EF4444?logo=turborepo&logoColor=white" />
   <img alt="SQLite FTS5" src="https://img.shields.io/badge/SQLite-FTS5-003B57?logo=sqlite&logoColor=white" />
-  <img alt="Node >= 20" src="https://img.shields.io/badge/node-%E2%89%A520-339933?logo=node.js&logoColor=white" />
+  <img alt="Node 20+" src="https://img.shields.io/badge/node-%E2%89%A520-339933?logo=node.js&logoColor=white" />
 </p>
 
 ---
@@ -51,10 +51,10 @@
 **Virtus is a monorepo of npm packages** — two independent, zero-backend content engines
 and a scaffolder:
 
-- **HyperDown** handles *prose*: Markdown/MDX files with front-matter become a compact
+- **HyperDown** handles _prose_: Markdown/MDX files with front-matter become a compact
   SQLite database (full-text search included) queried **only on the server**, while the
   MDX bodies compile to React components.
-- **HyperJson** handles *data*: JSON files validated against JSON Schemas at build time,
+- **HyperJson** handles _data_: JSON files validated against JSON Schemas at build time,
   with generated TypeScript types so every import is fully typed.
 - **create-virtus-app** scaffolds a working app on either of four frameworks, already
   wired to both engines.
@@ -65,12 +65,12 @@ its JSON Schemas for editor + runtime validation.
 
 ## Packages
 
-| Package                                      | npm                                                                       | One-liner                                                                              | Docs                                              |
-| -------------------------------------------- | ------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- | -------------------------------------------------- |
-| [`packages/HyperDown`](./packages/HyperDown) | [`@virtus/hyper-down`](https://www.npmjs.com/package/@virtus/hyper-down)  | Markdown/MDX → SQLite (contentless FTS5) → SSR route loaders + lazy MDX rendering.       | [README](./packages/HyperDown/README.md)           |
-| [`packages/HyperJson`](./packages/HyperJson) | [`@virtus/hyper-json`](https://www.npmjs.com/package/@virtus/hyper-json)  | JSON Schema → strict Ajv validation + generated TS types + typed `.json` imports.        | [README](./packages/HyperJson/README.md)           |
-| [`packages/scaffold`](./packages/scaffold)   | [`create-virtus-app`](https://www.npmjs.com/package/create-virtus-app)    | `bun create virtus-app` — Vike, React Router v7, TanStack Start, or Next.js templates.   | [README](./packages/scaffold/README.md)            |
-| [`packages/configs`](./packages/configs)     | — (internal)                                                               | Shared tsconfig / oxlint / oxfmt / Tailwind / Vite presets for this repo.                | —                                                  |
+| Package                                      | npm                                                                      | One-liner                                                                              | Docs                                     |
+| -------------------------------------------- | ------------------------------------------------------------------------ | -------------------------------------------------------------------------------------- | ---------------------------------------- |
+| [`packages/HyperDown`](./packages/HyperDown) | [`@virtus/hyper-down`](https://www.npmjs.com/package/@virtus/hyper-down) | Markdown/MDX → SQLite (contentless FTS5) → SSR route loaders + lazy MDX rendering.     | [README](./packages/HyperDown/README.md) |
+| [`packages/HyperJson`](./packages/HyperJson) | [`@virtus/hyper-json`](https://www.npmjs.com/package/@virtus/hyper-json) | JSON Schema → strict Ajv validation + generated TS types + typed `.json` imports.      | [README](./packages/HyperJson/README.md) |
+| [`packages/scaffold`](./packages/scaffold)   | [`create-virtus-app`](https://www.npmjs.com/package/create-virtus-app)   | `bun create virtus-app` — Vike, React Router v7, TanStack Start, or Next.js templates. | [README](./packages/scaffold/README.md)  |
+| [`packages/configs`](./packages/configs)     | — (internal)                                                             | Shared tsconfig / oxlint / oxfmt / Tailwind / Vite presets for this repo.              | —                                        |
 
 > **The two engines are independent** — neither depends on the other; adopt one or both.
 > The reference consumer is the [portifolio](https://github.com/ZauJulio/portifolio) app,
@@ -262,7 +262,7 @@ my-app/
 ### `frontmatter.json` (FrontMatter CMS format)
 
 - `frontMatter.content.pageFolders[]` — `{ title, path, contentTypes, defaultLocale,
-  locales }`. The first `contentTypes` entry names the SQLite table and the
+locales }`. The first `contentTypes` entry names the SQLite table and the
   `content/<name>/` folder.
 - `frontMatter.taxonomy.contentTypes[]` — `{ name, fields: [{ name, type, required }] }`.
   Storage mapping: `draft` → INTEGER (no FTS) · `datetime` → TEXT (no FTS) ·
@@ -289,10 +289,11 @@ hyperdown init|validate|update|gen:db|create-content|create-frontmatter|create-i
 hyperjson init|validate|generate|create-content-type
 ```
 
-| MCP server (stdio) | Tools                                                                                                                                  |
-| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------- |
-| `hyperdown-mcp`    | `hyperdown_init` · `hyperdown_validate` · `hyperdown_update` · `hyperdown_gen_db` · `hyperdown_create_content` · `hyperdown_create_frontmatter` · `hyperdown_create_item` |
-| `hyperjson-mcp`    | `hyperjson_init` · `hyperjson_validate` · `hyperjson_generate` · `hyperjson_create_content_type`                                          |
+- **`hyperdown-mcp`** (stdio) — `hyperdown_init` · `hyperdown_validate` · `hyperdown_update` ·
+  `hyperdown_gen_db` · `hyperdown_create_content` · `hyperdown_create_frontmatter` ·
+  `hyperdown_create_item`
+- **`hyperjson-mcp`** (stdio) — `hyperjson_init` · `hyperjson_validate` · `hyperjson_generate` ·
+  `hyperjson_create_content_type`
 
 Creation tools require their full flag set — interactive prompts are disabled under MCP.
 Each package also ships a `.agents/` tree (rules + skills) for agents working in a repo
