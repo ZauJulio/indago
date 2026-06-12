@@ -1,9 +1,13 @@
 name: Release
 
-# On every push to main: for each engine whose package.json version is not yet
-# on the npm registry, publish it (npm CLI) and create the matching git tag +
-# GitHub Release (e.g. `hyper-down-v0.4.0`). Re-runnable: already-published
-# versions are skipped, so a rerun after fixing secrets is safe.
+# On every push to main: for each publishable package whose package.json version
+# is not yet on the npm registry, publish it (npm CLI) and create the matching
+# git tag + GitHub Release (e.g. `hyper-down-v0.4.1`). The registry check is the
+# change gate: bumping a package's version is what releases it — packages whose
+# current version is already published are skipped entirely, so touching only
+# package A never re-tags or re-publishes package B. Re-runnable: already
+# published versions / existing tags / existing releases are all skipped, so a
+# rerun after fixing secrets is safe.
 on:
   push:
     branches: [main]
@@ -30,6 +34,9 @@ jobs:
           - dir: packages/HyperJson
             pkg: "@muttum/hyper-json"
             tag_prefix: hyper-json-v
+          - dir: packages/scaffold
+            pkg: "create-muttum-app"
+            tag_prefix: create-muttum-app-v
     steps:
       - uses: actions/checkout@v4
 
@@ -49,10 +56,23 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "tag=${{ matrix.tag_prefix }}$VERSION" >> "$GITHUB_OUTPUT"
 
+      # The package only releases when its version was bumped — an unchanged
+      # package's version is already on the registry and everything below skips.
       - name: Check if already published
         id: published
         run: |
           if npm view "${{ matrix.pkg }}@${{ steps.meta.outputs.version }}" version >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Check if tag already exists
+        id: tag
+        env:
+          TAG: ${{ steps.meta.outputs.tag }}
+        run: |
+          if git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null 2>&1; then
             echo "exists=true" >> "$GITHUB_OUTPUT"
           else
             echo "exists=false" >> "$GITHUB_OUTPUT"
@@ -72,19 +92,30 @@ jobs:
           echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" > "$HOME/.npmrc"
           npm publish --access public
 
+      # Tag/release only happen for a newly published version (or to repair a
+      # half-finished previous run: published but tag/release missing).
       - name: Create tag + GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ steps.meta.outputs.tag }}
           PKG: ${{ matrix.pkg }}
           VERSION: ${{ steps.meta.outputs.version }}
+          TAG_EXISTS: ${{ steps.tag.outputs.exists }}
         run: |
           if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             echo "Release $TAG already exists — skipping."
             exit 0
           fi
-          gh release create "$TAG" \
-            --repo "$GITHUB_REPOSITORY" \
-            --target "$GITHUB_SHA" \
-            --title "$PKG v$VERSION" \
-            --notes "https://www.npmjs.com/package/$PKG/v/$VERSION"
+          if [ "$TAG_EXISTS" = "true" ]; then
+            # Tag exists from a previous run — attach the release to it as-is.
+            gh release create "$TAG" \
+              --repo "$GITHUB_REPOSITORY" \
+              --title "$PKG v$VERSION" \
+              --notes "https://www.npmjs.com/package/$PKG/v/$VERSION"
+          else
+            gh release create "$TAG" \
+              --repo "$GITHUB_REPOSITORY" \
+              --target "$GITHUB_SHA" \
+              --title "$PKG v$VERSION" \
+              --notes "https://www.npmjs.com/package/$PKG/v/$VERSION"
+          fi
