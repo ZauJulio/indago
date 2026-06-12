@@ -2,7 +2,7 @@
 /// <reference types="bun-types" />
 
 declare module "virtual:hyperjson-config" {
-  import type { HyperJsonConfiguration } from "@virtus/hyper-json/lib";
+  import type { HyperJsonConfiguration } from "@muttum/hyper-json/lib";
   const config: HyperJsonConfiguration;
   export default config;
 }

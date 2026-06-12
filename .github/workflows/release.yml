@@ -25,10 +25,10 @@ jobs:
       matrix:
         include:
           - dir: packages/HyperDown
-            pkg: "@virtus/hyper-down"
+            pkg: "@muttum/hyper-down"
             tag_prefix: hyper-down-v
           - dir: packages/HyperJson
-            pkg: "@virtus/hyper-json"
+            pkg: "@muttum/hyper-json"
             tag_prefix: hyper-json-v
     steps:
       - uses: actions/checkout@v4

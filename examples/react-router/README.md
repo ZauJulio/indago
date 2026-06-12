@@ -1,16 +1,16 @@
 # react-router
 
-Generated with [`create-virtus-app`](https://www.npmjs.com/package/create-virtus-app) using the `react-router` template. It wires two independent, backend-free content engines:
+Generated with [`create-muttum-app`](https://www.npmjs.com/package/create-muttum-app) using the `react-router` template. It wires two independent, backend-free content engines:
 
-- **[HyperDown](https://www.npmjs.com/package/@virtus/hyper-down)** — Markdown/MDX → a contentless
+- **[HyperDown](https://www.npmjs.com/package/@muttum/hyper-down)** — Markdown/MDX → a contentless
   SQLite **FTS5** index, queried **only on the server** inside route loaders. Powers `/articles`
   and `/cooking`.
-- **[HyperJson](https://www.npmjs.com/package/@virtus/hyper-json)** — JSON Schema → build-time
+- **[HyperJson](https://www.npmjs.com/package/@muttum/hyper-json)** — JSON Schema → build-time
   validation + generated TypeScript types. Powers `/projects`.
 
 ## Routes
 
-The same routes ship in every `create-virtus-app` template:
+The same routes ship in every `create-muttum-app` template:
 
 | Route             | Engine    | What it shows                                   |
 | ----------------- | --------- | ----------------------------------------------- |

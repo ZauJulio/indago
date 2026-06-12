@@ -23,11 +23,11 @@ queried only on the server; there is no client-side database.
   directly). API: `search()` (FTS + filters + sort + pagination, cross-locale match → one
   row per slug in the requested locale), `distinctValues()` (facets), `getMetaBySlug()`
   (locale fallback, serializable). `.db` opened read-only via `bun:sqlite`, or `node:sqlite`
-  on Node ≥ 22 (e.g. Vercel). Server code is exported only from `@virtus/hyper-down/server`.
+  on Node ≥ 22 (e.g. Vercel). Server code is exported only from `@muttum/hyper-down/server`.
 - **Views**: `createContentResolver(contentModules[type])` → `getContent(slug, lang)`;
   render with `MdxRender`. No DB code on this path.
 
-## Plugins (`@virtus/hyper-down/plugins`)
+## Plugins (`@muttum/hyper-down/plugins`)
 
 - `hyperdownMdxPlugin` — wraps `@mdx-js/rollup`, intercepts `*.mdx?raw`. **Must be
   registered before `vike()`/`react()`.**

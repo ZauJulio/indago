@@ -13,7 +13,7 @@ cover: ""
 
 # O que é o HyperJson?
 
-O **HyperJson** (`@virtus/hyper-json`) é um motor de conteúdo schema-first em JSON para projetos Vite. Você descreve um tipo de conteúdo uma única vez com um `schema.json`, coloca arquivos JSON por idioma ao lado dele, e o HyperJson cuida do resto: ele **valida cada arquivo em tempo de build** e **gera tipos TypeScript ambientes** para que seus dados fiquem totalmente tipados de ponta a ponta — sem backend, sem banco de dados, sem custo em runtime.
+O **HyperJson** (`@muttum/hyper-json`) é um motor de conteúdo schema-first em JSON para projetos Vite. Você descreve um tipo de conteúdo uma única vez com um `schema.json`, coloca arquivos JSON por idioma ao lado dele, e o HyperJson cuida do resto: ele **valida cada arquivo em tempo de build** e **gera tipos TypeScript ambientes** para que seus dados fiquem totalmente tipados de ponta a ponta — sem backend, sem banco de dados, sem custo em runtime.
 
 É um dos dois motores independentes deste portfólio. O HyperJson cuida do **JSON estruturado** (skills, educação, música, fotografia), enquanto o [HyperDown](/pt/articles/what-is-hyperdown) cuida do conteúdo em **Markdown/MDX**. Os dois não compartilham código.
 
@@ -26,9 +26,9 @@ O HyperJson fecha as duas brechas usando o schema como única fonte da verdade.
 ## Como funciona
 
 1. **Escreva um schema.** Cada tipo de conteúdo fica na própria pasta com um `schema.json` (JSON Schema padrão) e pastas de dados por idioma (`en/`, `pt-BR/`).
-2. **Valide no build.** O `hyperjsonValidationPlugin` (de `@virtus/hyper-json/plugins`) checa cada arquivo de conteúdo contra o schema irmão. No modo `strict`, um único arquivo inválido derruba o build.
+2. **Valide no build.** O `hyperjsonValidationPlugin` (de `@muttum/hyper-json/plugins`) checa cada arquivo de conteúdo contra o schema irmão. No modo `strict`, um único arquivo inválido derruba o build.
 3. **Gere os tipos.** `bun run gen:types` roda o codegen — um pool paralelo de workers sobre `bunx json-schema-to-typescript` — emitindo declarações de módulo ambientes para que todo JSON importado fique tipado.
-4. **Consuma com hooks.** `@virtus/hyper-json/hooks` oferece helpers headless para filtrar, ordenar, buscar, paginar e compor sobre o JSON em memória. Nenhuma UI é imposta; você traz seus próprios componentes.
+4. **Consuma com hooks.** `@muttum/hyper-json/hooks` oferece helpers headless para filtrar, ordenar, buscar, paginar e compor sobre o JSON em memória. Nenhuma UI é imposta; você traz seus próprios componentes.
 
 ## Experimente pela CLI
 

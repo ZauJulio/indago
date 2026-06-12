@@ -13,7 +13,7 @@ export const GENERATED_BANNER = GENERATED_PRAGMA + "/**\n * --------------------
 export const NEXT_MODULES_BANNER =
   GENERATED_PRAGMA + "// Auto-generated for Next.js (explicit @next/mdx imports — no Vite glob).\n";
 
-const CONTENT_MODULE_MAP_TYPE = `import type { ContentModuleMap } from "@virtus/hyper-down/types";\n\n`;
+const CONTENT_MODULE_MAP_TYPE = `import type { ContentModuleMap } from "@muttum/hyper-down/types";\n\n`;
 
 /**
  * Full Next.js `modules.ts` content: banner + explicit `@next/mdx` import lines +

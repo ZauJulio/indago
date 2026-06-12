@@ -24,7 +24,7 @@ cover: ""
 
 # O que é o HyperDown?
 
-O **HyperDown** (`@virtus/hyper-down`) é um motor de conteúdo Markdown/MDX → SQLite para projetos Vite + React. Ele compila o **frontmatter** do seu conteúdo num índice **FTS5** SQLite compacto e contentless e o consulta **exclusivamente no servidor**, dentro dos loaders de rota. O resultado é busca full-text rápida e tipada sobre seus artigos e receitas — **sem banco de dados no cliente**, sem worker OPFS e sem `.db` enviado ao navegador.
+O **HyperDown** (`@muttum/hyper-down`) é um motor de conteúdo Markdown/MDX → SQLite para projetos Vite + React. Ele compila o **frontmatter** do seu conteúdo num índice **FTS5** SQLite compacto e contentless e o consulta **exclusivamente no servidor**, dentro dos loaders de rota. O resultado é busca full-text rápida e tipada sobre seus artigos e receitas — **sem banco de dados no cliente**, sem worker OPFS e sem `.db` enviado ao navegador.
 
 É um dos dois motores independentes deste portfólio. O HyperDown cuida de **Markdown/MDX**; seu irmão [HyperJson](/pt/articles/what-is-hyperjson) cuida do **JSON estruturado**. Eles não compartilham código.
 
@@ -39,7 +39,7 @@ As tabelas FTS5 usam `content=""` (contentless), então guardam apenas o índice
 
 ## SSR-only por design
 
-O SQLite é lido somente no servidor, nos loaders `+data` do Vike, usando `bun:sqlite` (ou `node:sqlite` no Node ≥ 22 para plataformas como a Vercel). O navegador nunca vê um banco. A camada de dados é um `ContentRepository<T>` orientado a objetos exportado de `@virtus/hyper-down/server`, oferecendo:
+O SQLite é lido somente no servidor, nos loaders `+data` do Vike, usando `bun:sqlite` (ou `node:sqlite` no Node ≥ 22 para plataformas como a Vercel). O navegador nunca vê um banco. A camada de dados é um `ContentRepository<T>` orientado a objetos exportado de `@muttum/hyper-down/server`, oferecendo:
 
 - `search()` — FTS + filtros + ordenação + paginação
 - `distinctValues()` — facetas para UIs de filtro

@@ -4,7 +4,7 @@
 
 ```jsonc
 {
-  "$schema": "./node_modules/@virtus/hyper-json/schemas/hyperjson.config.schema.json",
+  "$schema": "./node_modules/@muttum/hyper-json/schemas/hyperjson.config.schema.json",
   "contentDir": "content", // base dir for JSON content (the only required field)
   "validation": {
     "strict": true, // reject properties absent from the schema (default true)

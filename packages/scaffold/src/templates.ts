@@ -1,4 +1,4 @@
-// Registry of the frameworks `create-virtus-app` can scaffold. Each template is
+// Registry of the frameworks `create-muttum-app` can scaffold. Each template is
 // a directory under `templates/<id>/` overlaid on top of `templates/_shared/`.
 export interface TemplateDef {
   /** Directory name under `templates/` and the value stored in config. */

@@ -24,7 +24,7 @@ cover: ""
 
 # What is HyperDown?
 
-**HyperDown** (`@virtus/hyper-down`) is a Markdown/MDX → SQLite content engine for Vite + React projects. It compiles your content's **frontmatter** into a compact, contentless **FTS5** SQLite index, then queries it **exclusively on the server** inside route loaders. The result is fast, typed, full-text search over your articles and recipes — with **no client-side database**, no OPFS worker, and no `.db` shipped to the browser.
+**HyperDown** (`@muttum/hyper-down`) is a Markdown/MDX → SQLite content engine for Vite + React projects. It compiles your content's **frontmatter** into a compact, contentless **FTS5** SQLite index, then queries it **exclusively on the server** inside route loaders. The result is fast, typed, full-text search over your articles and recipes — with **no client-side database**, no OPFS worker, and no `.db` shipped to the browser.
 
 It is one of two independent engines in this portfolio. HyperDown owns **Markdown/MDX**; its sibling [HyperJson](/articles/what-is-hyperjson) owns **structured JSON**. They share no code.
 
@@ -39,7 +39,7 @@ The FTS5 tables use `content=""` (contentless), so they store only the inverted 
 
 ## SSR-only by design
 
-SQLite is read only on the server, in Vike `+data` loaders, using `bun:sqlite` (or `node:sqlite` on Node ≥ 22 for platforms like Vercel). The browser never sees a database. The data layer is an OOP `ContentRepository<T>` exported from `@virtus/hyper-down/server`, offering:
+SQLite is read only on the server, in Vike `+data` loaders, using `bun:sqlite` (or `node:sqlite` on Node ≥ 22 for platforms like Vercel). The browser never sees a database. The data layer is an OOP `ContentRepository<T>` exported from `@muttum/hyper-down/server`, offering:
 
 - `search()` — FTS + filters + sort + pagination
 - `distinctValues()` — facets for filter UIs

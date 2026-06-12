@@ -197,7 +197,7 @@ export function withHyperDown<T extends object = HyperDownNextConfig>(
         // The engine opens SQLite via a computed `import(`${runtime}:sqlite`)`;
         // redirect that webpack context to CJS shims that require the builtins.
         new webpack.ContextReplacementPlugin(
-          /@virtus[\\/]hyper-down[\\/].*[\\/]db[\\/]client/,
+          /@muttum[\\/]hyper-down[\\/].*[\\/]db[\\/]client/,
           libDir,
           { "node:sqlite": "./sqlite-node.cjs", "bun:sqlite": "./sqlite-bun.cjs" },
         ),

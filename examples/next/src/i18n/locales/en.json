@@ -9,7 +9,7 @@
     "projects": "Projects"
   },
   "home": {
-    "title": "create-virtus-app",
+    "title": "create-muttum-app",
     "subtitle": "A starter wired to HyperDown (Markdown → SQLite FTS) and HyperJson (JSON Schema → types).",
     "explore": "Explore"
   },

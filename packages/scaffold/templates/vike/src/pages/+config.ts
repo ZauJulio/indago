@@ -4,7 +4,7 @@ import type { Config } from "vike/types";
 
 // Global Vike configuration inherited by every page (https://vike.dev/config).
 const config: Config = {
-  title: "create-virtus-app",
+  title: "create-muttum-app",
   description: "HyperDown + HyperJson starter (Vike).",
 
   extends: [vikeReact],

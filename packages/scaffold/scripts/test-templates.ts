@@ -2,7 +2,7 @@
  * End-to-end harness for the scaffolded templates.
  *
  * For each template it: packs the two local engines to tarballs, scaffolds a
- * fresh app into a temp dir, rewrites the `@virtus/*` deps to the local
+ * fresh app into a temp dir, rewrites the `@muttum/*` deps to the local
  * tarballs, installs, builds (which runs the engines' codegen), then runs the
  * app's unit + Playwright e2e suites. Every template ships the SAME routes, so
  * the same standardized specs must pass on all of them.
@@ -24,8 +24,8 @@ const REPO_ROOT = resolve(PKG_ROOT, "..", "..");
 const CLI = join(PKG_ROOT, "dist", "index.mjs");
 
 const ENGINES = [
-  { name: "@virtus/hyper-down", dir: join(REPO_ROOT, "packages", "HyperDown") },
-  { name: "@virtus/hyper-json", dir: join(REPO_ROOT, "packages", "HyperJson") },
+  { name: "@muttum/hyper-down", dir: join(REPO_ROOT, "packages", "HyperDown") },
+  { name: "@muttum/hyper-json", dir: join(REPO_ROOT, "packages", "HyperJson") },
 ];
 
 function run(cmd: string, args: string[], cwd: string, env?: NodeJS.ProcessEnv): void {
@@ -64,7 +64,7 @@ function main(): void {
     throw new Error(`No matching templates for: ${requested.join(", ")}`);
   }
 
-  const work = mkdtempSync(join(tmpdir(), "create-virtus-app-"));
+  const work = mkdtempSync(join(tmpdir(), "create-muttum-app-"));
   process.stdout.write(`▸ work dir: ${work}\n`);
 
   // Build the CLI + pack the engines once.

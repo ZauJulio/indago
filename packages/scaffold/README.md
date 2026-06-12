@@ -1,11 +1,11 @@
-# create-virtus-app
+# create-muttum-app
 
-Scaffold a backend-free, content-driven web app wired to the two **Virtus** engines:
+Scaffold a backend-free, content-driven web app wired to the two **Muttum** engines:
 
-- **[HyperDown](https://www.npmjs.com/package/@virtus/hyper-down)** — Markdown/MDX → a contentless
+- **[HyperDown](https://www.npmjs.com/package/@muttum/hyper-down)** — Markdown/MDX → a contentless
   SQLite **FTS5** index, queried **only on the server**. Powers full-text search over articles &
   recipes with no client database.
-- **[HyperJson](https://www.npmjs.com/package/@virtus/hyper-json)** — JSON Schema → build-time
+- **[HyperJson](https://www.npmjs.com/package/@muttum/hyper-json)** — JSON Schema → build-time
   validation + generated TypeScript types. Powers typed structured content (projects).
 
 Pick from **four** frameworks — every template ships the **same routes**, so one app's knowledge
@@ -15,15 +15,15 @@ Pick from **four** frameworks — every template ships the **same routes**, so o
 
 ```bash
 # interactive (prompts for directory + framework + package manager)
-npm create virtus-app@latest
-bunx  create-virtus-app
-pnpm  create virtus-app
+npm create muttum-app@latest
+bunx  create-muttum-app
+pnpm  create muttum-app
 
 # non-interactive
-bunx create-virtus-app my-app --vike
-bunx create-virtus-app my-app --react-router
-bunx create-virtus-app my-app --tanstack
-bunx create-virtus-app my-app --next
+bunx create-muttum-app my-app --vike
+bunx create-muttum-app my-app --react-router
+bunx create-muttum-app my-app --tanstack
+bunx create-muttum-app my-app --next
 ```
 
 ### Flags

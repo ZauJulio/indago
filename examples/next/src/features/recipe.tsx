@@ -2,7 +2,7 @@
 
 import { useTranslation } from "react-i18next";
 
-import { MdxRender } from "@virtus/hyper-down";
+import { MdxRender } from "@muttum/hyper-down";
 
 import { Link } from "@/components/Link";
 import type { getRecipeData } from "@/content/queries";

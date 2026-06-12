@@ -59,11 +59,11 @@ function resolvePackageManager(flag?: string): PackageManager {
 
 async function run(dirArg: string | undefined, opts: CliOptions): Promise<void> {
   printLogo();
-  intro("create-virtus-app");
+  intro("create-muttum-app");
 
   const interactive = !templateFromFlags(opts);
 
-  const projectDir = dirArg ?? (interactive ? await promptProjectDir() : "./my-virtus-app");
+  const projectDir = dirArg ?? (interactive ? await promptProjectDir() : "./my-muttum-app");
   const targetDir = isAbsolute(projectDir) ? projectDir : resolve(process.cwd(), projectDir);
   const projectName = basename(targetDir);
 
@@ -115,7 +115,7 @@ async function run(dirArg: string | undefined, opts: CliOptions): Promise<void> 
 
 const program = new Command();
 program
-  .name("create-virtus-app")
+  .name("create-muttum-app")
   .description("Scaffold a HyperDown + HyperJson app (Vike / React Router / TanStack / Next.js).")
   .argument("[dir]", "target directory")
   .option("--vike", "use the Vike template")

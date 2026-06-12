@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 
-import { MdxRender } from "@virtus/hyper-down";
+import { MdxRender } from "@muttum/hyper-down";
 import { useData } from "vike-react/useData";
 
 import { Link } from "@/components/Link";

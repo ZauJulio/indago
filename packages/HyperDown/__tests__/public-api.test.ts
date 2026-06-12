@@ -8,7 +8,7 @@ import * as server from "../src/server.ts";
 // (and Vite plugin shapes) stay present — no mocks. Catches an accidental export
 // removal / rename that the type-only barrel wouldn't surface at runtime.
 
-describe("@virtus/hyper-down (browser-safe barrel)", () => {
+describe("@muttum/hyper-down (browser-safe barrel)", () => {
   test("exposes the view-layer + parser + i18n runtime helpers", () => {
     for (const name of [
       "createContentResolver",
@@ -26,7 +26,7 @@ describe("@virtus/hyper-down (browser-safe barrel)", () => {
   });
 });
 
-describe("@virtus/hyper-down/server (server-only barrel)", () => {
+describe("@muttum/hyper-down/server (server-only barrel)", () => {
   test("exposes the data-access runtime values", () => {
     expect(typeof server.ContentRepository).toBe("function");
     expect(typeof server.createLazyRepository).toBe("function");
@@ -35,7 +35,7 @@ describe("@virtus/hyper-down/server (server-only barrel)", () => {
   });
 });
 
-describe("@virtus/hyper-down/plugins", () => {
+describe("@muttum/hyper-down/plugins", () => {
   test("exports the three Vite plugin factories", () => {
     expect(typeof plugins.hyperdownPlugin).toBe("function");
     expect(typeof plugins.hyperdownSitemapPlugin).toBe("function");

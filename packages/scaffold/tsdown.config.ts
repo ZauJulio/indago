@@ -1,7 +1,7 @@
 import { defineConfig } from "tsdown";
 
 // Single bundled CLI entry exposed via the `"bin"` field
-// (`create-virtus-app` → `./dist/index.js`). The `templates/` tree ships as
+// (`create-muttum-app` → `./dist/index.js`). The `templates/` tree ships as
 // static files (see package.json `"files"`) and is resolved at runtime
 // relative to `import.meta.url`, so it is never bundled.
 export default defineConfig({

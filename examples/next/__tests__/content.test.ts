@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 
-import { parseFrontmatter } from "@virtus/hyper-down";
+import { parseFrontmatter } from "@muttum/hyper-down";
 import { describe, expect, it } from "vitest";
 
 // Standardized unit test shipped to every template: validates the shared content

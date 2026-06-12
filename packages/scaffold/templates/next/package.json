@@ -15,8 +15,8 @@
   },
   "dependencies": {
     "@mdx-js/react": "^3.1.1",
-    "@virtus/hyper-down": "^0.3.0",
-    "@virtus/hyper-json": "^0.1.0",
+    "@muttum/hyper-down": "^0.3.0",
+    "@muttum/hyper-json": "^0.1.0",
     "i18next": "^25.6.0",
     "next": "^15.5.0",
     "react": "^19.2.6",

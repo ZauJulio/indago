@@ -13,9 +13,9 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@muttum/hyper-down": "^0.3.0",
+    "@muttum/hyper-json": "^0.1.0",
     "@vikejs/hono": "^0.2.0",
-    "@virtus/hyper-down": "^0.3.0",
-    "@virtus/hyper-json": "^0.1.0",
     "hono": "^4.12.23",
     "i18next": "^25.6.0",
     "react": "^19.2.6",

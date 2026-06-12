@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-// Standardized across every create-virtus-app template. The DOM contract these
+// Standardized across every create-muttum-app template. The DOM contract these
 // specs assert (h1 text, card hrefs, back-link names) must be identical in each
 // framework's components.
 

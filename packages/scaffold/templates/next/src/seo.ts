@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-export const SITE_NAME = "create-virtus-app";
+export const SITE_NAME = "create-muttum-app";
 export const SITE_DESCRIPTION = "HyperDown + HyperJson starter (Next.js).";
 
 /** Base site metadata applied by the root layout. */

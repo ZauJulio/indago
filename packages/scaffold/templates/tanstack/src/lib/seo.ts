@@ -1,6 +1,6 @@
 // SEO helpers producing TanStack Router `head.meta` arrays.
 
-export const SITE_NAME = "create-virtus-app";
+export const SITE_NAME = "create-muttum-app";
 export const SITE_DESCRIPTION = "HyperDown + HyperJson starter (TanStack Start).";
 
 interface MetaTag {

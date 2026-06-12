@@ -1,5 +1,5 @@
 {
-  "name": "@virtus/hyper-down",
+  "name": "@muttum/hyper-down",
   "version": "0.4.0",
   "description": "Markdown/MDX → SQLite (FTS5 contentless) → server-side route loaders. A drop-in SSR headless CMS for Vike, React Router, TanStack Start, and Next.js — zero backend service.",
   "keywords": [

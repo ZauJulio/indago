@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-// Standardized across every create-virtus-app template. The articles listing has
+// Standardized across every create-muttum-app template. The articles listing has
 // a native GET search form (`<form method="get">` with `input[name="q"]` + a
 // submit button); submitting navigates to `?q=…` and the server re-runs the
 // HyperDown FTS query. Detail-card links contain `/articles/`, so their presence

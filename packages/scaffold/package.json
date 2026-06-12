@@ -1,5 +1,5 @@
 {
-  "name": "create-virtus-app",
+  "name": "create-muttum-app",
   "version": "0.1.0",
   "description": "Scaffold a Vite/Vike/React-Router/TanStack/Next.js app wired to the HyperDown (Markdown → SQLite FTS5) and HyperJson (JSON Schema → typed content) engines.",
   "keywords": [
@@ -30,7 +30,7 @@
     "directory": "packages/scaffold"
   },
   "bin": {
-    "create-virtus-app": "./dist/index.mjs"
+    "create-muttum-app": "./dist/index.mjs"
   },
   "files": [
     "dist",

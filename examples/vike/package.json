@@ -13,9 +13,9 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@muttum/hyper-down": "file:../.engines/muttum-hyper-down-0.3.0.tgz",
+    "@muttum/hyper-json": "file:../.engines/muttum-hyper-json-1.0.0.tgz",
     "@vikejs/hono": "^0.2.0",
-    "@virtus/hyper-down": "file:../.engines/virtus-hyper-down-0.3.0.tgz",
-    "@virtus/hyper-json": "file:../.engines/virtus-hyper-json-1.0.0.tgz",
     "hono": "^4.12.23",
     "i18next": "^25.6.0",
     "react": "^19.2.6",

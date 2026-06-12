@@ -9,7 +9,7 @@ export type { ContentItem, ContentMeta, ContentModuleMap, MdxComponent } from ".
 
 // ── Server-side data access types (route loaders) ────────────────────────────
 // The runtime values (`ContentRepository`, `hyperDownClient`) live in the
-// server-only entry `@virtus/hyper-down/server`; these are the (erased) types.
+// server-only entry `@muttum/hyper-down/server`; these are the (erased) types.
 export type {
   ContentRepositoryOptions,
   ContentSearchParams,

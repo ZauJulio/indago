@@ -2,7 +2,7 @@
 /// <reference types="bun-types" />
 
 declare module "virtual:hyperdown-config" {
-  import type { HyperDownConfiguration } from "@virtus/hyper-down/types";
+  import type { HyperDownConfiguration } from "@muttum/hyper-down/types";
   const config: HyperDownConfiguration;
   export default config;
 }
@@ -13,7 +13,7 @@ declare module "virtual:hyperdown-frontmatter" {
    * This object contains all taxonomies, content types, page folders, and settings
    * defined in frontmatter.json, fully typed according to the official schemas.
    */
-  import type { FrontmatterJson } from "@virtus/hyper-down/src/frontmatter/config";
+  import type { FrontmatterJson } from "@muttum/hyper-down/src/frontmatter/config";
   const config: FrontmatterJson;
   export default config;
 }

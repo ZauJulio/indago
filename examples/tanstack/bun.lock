@@ -7,8 +7,8 @@
       "dependencies": {
         "@tanstack/react-router": "^1.170.0",
         "@tanstack/react-start": "^1.168.0",
-        "@virtus/hyper-down": "file:../.engines/virtus-hyper-down-0.3.0.tgz",
-        "@virtus/hyper-json": "file:../.engines/virtus-hyper-json-1.0.0.tgz",
+        "@muttum/hyper-down": "file:../.engines/muttum-hyper-down-0.3.0.tgz",
+        "@muttum/hyper-json": "file:../.engines/muttum-hyper-json-1.0.0.tgz",
         "i18next": "^25.6.0",
         "react": "^19.2.6",
         "react-dom": "^19.2.6",
@@ -302,9 +302,9 @@
 
     "@ungap/structured-clone": ["@ungap/structured-clone@1.3.1", "", {}, "sha512-mUFwbeTqrVgDQxFveS+df2yfap6iuP20NAKAsBt5jDEoOTDew+zwLAOilHCeQJOVSvmgCX4ogqIrA0mnyr08yQ=="],
 
-    "@virtus/hyper-down": ["@virtus/hyper-down@../.engines/virtus-hyper-down-0.3.0.tgz", { "dependencies": { "@clack/prompts": "^1.4.0", "@mdx-js/rollup": "^3.1.1", "@modelcontextprotocol/sdk": "^1.29.0", "ajv": "^8.20.0", "ajv-formats": "^3.0.1", "commander": "^14.0.3", "drizzle-orm": "^0.45.2", "json-schema-to-typescript": "^15.0.4", "pino": "^10.3.1", "pino-pretty": "^13.1.3", "yaml": "^2.9.0" }, "peerDependencies": { "mermaid": ">=10", "react": "^19.2.6", "react-dom": "^19.2.6", "react-i18next": "^16.5.4 || ^17.0.0", "vite": "^8.0.14" }, "optionalPeers": ["mermaid"], "bin": { "hyperdown": "./dist/bin/hyperdown.js", "hyperdown-mcp": "./dist/bin/hyperdown-mcp.js" } }, "sha512-nlJWSl3JeDwuIjIGXp5eY0cttGE6WE9J7tFkAVqjIAk2UZGJuqYdlLAR1m/mEeKVF4NbY7/N44tElNd4zqaVbg=="],
+    "@muttum/hyper-down": ["@muttum/hyper-down@../.engines/muttum-hyper-down-0.3.0.tgz", { "dependencies": { "@clack/prompts": "^1.4.0", "@mdx-js/rollup": "^3.1.1", "@modelcontextprotocol/sdk": "^1.29.0", "ajv": "^8.20.0", "ajv-formats": "^3.0.1", "commander": "^14.0.3", "drizzle-orm": "^0.45.2", "json-schema-to-typescript": "^15.0.4", "pino": "^10.3.1", "pino-pretty": "^13.1.3", "yaml": "^2.9.0" }, "peerDependencies": { "mermaid": ">=10", "react": "^19.2.6", "react-dom": "^19.2.6", "react-i18next": "^16.5.4 || ^17.0.0", "vite": "^8.0.14" }, "optionalPeers": ["mermaid"], "bin": { "hyperdown": "./dist/bin/hyperdown.js", "hyperdown-mcp": "./dist/bin/hyperdown-mcp.js" } }, "sha512-nlJWSl3JeDwuIjIGXp5eY0cttGE6WE9J7tFkAVqjIAk2UZGJuqYdlLAR1m/mEeKVF4NbY7/N44tElNd4zqaVbg=="],
 
-    "@virtus/hyper-json": ["@virtus/hyper-json@../.engines/virtus-hyper-json-1.0.0.tgz", { "dependencies": { "@clack/prompts": "^1.4.0", "@modelcontextprotocol/sdk": "^1.29.0", "ajv": "^8.20.0", "ajv-formats": "^3.0.1", "commander": "^14.0.3", "json-schema-to-typescript": "^15.0.4", "pino": "^10.3.1", "pino-pretty": "^13.1.3" }, "peerDependencies": { "react": "^19.2.6", "react-dom": "^19.2.6", "vite": "^8.0.14" }, "bin": { "hyperjson": "./dist/bin/hyperjson.js", "hyperjson-mcp": "./dist/bin/hyperjson-mcp.js" } }, "sha512-7ZksZ9Vs12329c23LRMW41YzH18IMhqHEis1lNp3freJumkoENexIok7udqyjuWqOT6NeuF+k7q+yjUbf7WN+g=="],
+    "@muttum/hyper-json": ["@muttum/hyper-json@../.engines/muttum-hyper-json-1.0.0.tgz", { "dependencies": { "@clack/prompts": "^1.4.0", "@modelcontextprotocol/sdk": "^1.29.0", "ajv": "^8.20.0", "ajv-formats": "^3.0.1", "commander": "^14.0.3", "json-schema-to-typescript": "^15.0.4", "pino": "^10.3.1", "pino-pretty": "^13.1.3" }, "peerDependencies": { "react": "^19.2.6", "react-dom": "^19.2.6", "vite": "^8.0.14" }, "bin": { "hyperjson": "./dist/bin/hyperjson.js", "hyperjson-mcp": "./dist/bin/hyperjson-mcp.js" } }, "sha512-7ZksZ9Vs12329c23LRMW41YzH18IMhqHEis1lNp3freJumkoENexIok7udqyjuWqOT6NeuF+k7q+yjUbf7WN+g=="],
 
     "@vitejs/plugin-react": ["@vitejs/plugin-react@6.0.2", "", { "dependencies": { "@rolldown/pluginutils": "^1.0.0" }, "peerDependencies": { "@rolldown/plugin-babel": "^0.1.7 || ^0.2.0", "babel-plugin-react-compiler": "^1.0.0", "vite": "^8.0.0" }, "optionalPeers": ["@rolldown/plugin-babel", "babel-plugin-react-compiler"] }, "sha512-DlSMqo4WhThw4vB8Mpn0Woe9J+Jfq1geJ61AKW0QEgLzGMNwtIMdxbDUzLxcun8W7NbJO0e2Jg/Nxm3cCSVzzg=="],
 

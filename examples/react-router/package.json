@@ -12,10 +12,10 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@muttum/hyper-down": "file:../.engines/muttum-hyper-down-0.3.0.tgz",
+    "@muttum/hyper-json": "file:../.engines/muttum-hyper-json-1.0.0.tgz",
     "@react-router/node": "^7.17.0",
     "@react-router/serve": "^7.17.0",
-    "@virtus/hyper-down": "file:../.engines/virtus-hyper-down-0.3.0.tgz",
-    "@virtus/hyper-json": "file:../.engines/virtus-hyper-json-1.0.0.tgz",
     "i18next": "^25.6.0",
     "isbot": "^5.1.40",
     "react": "^19.2.6",

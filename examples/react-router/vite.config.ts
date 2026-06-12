@@ -1,13 +1,13 @@
 import { fileURLToPath } from "node:url";
 
-import { reactRouter } from "@react-router/dev/vite";
-import tailwindcss from "@tailwindcss/vite";
 import {
   hyperdownMdxPlugin,
   hyperdownPlugin,
   hyperdownSitemapPlugin,
-} from "@virtus/hyper-down/plugins";
-import { hyperjsonValidationPlugin } from "@virtus/hyper-json/plugins";
+} from "@muttum/hyper-down/plugins";
+import { hyperjsonValidationPlugin } from "@muttum/hyper-json/plugins";
+import { reactRouter } from "@react-router/dev/vite";
+import tailwindcss from "@tailwindcss/vite";
 import rehypeSlug from "rehype-slug";
 import remarkFrontmatter from "remark-frontmatter";
 import remarkGfm from "remark-gfm";
@@ -38,10 +38,10 @@ export default defineConfig({
   ],
   ssr: {
     external: ["pino", "pino-pretty", "bun:sqlite", "node:sqlite"],
-    noExternal: ["@virtus/hyper-down"],
+    noExternal: ["@muttum/hyper-down"],
   },
   optimizeDeps: {
-    exclude: ["@virtus/hyper-down"],
+    exclude: ["@muttum/hyper-down"],
   },
   build: {
     assetsInlineLimit: (filePath: string) => (filePath.endsWith(".db") ? false : undefined),

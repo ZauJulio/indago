@@ -1,5 +1,5 @@
 /*
- * Shared design tokens + base styles for every create-virtus-app template.
+ * Shared design tokens + base styles for every create-muttum-app template.
  * Single source of truth: each template's entry stylesheet does
  * `@import "tailwindcss"` then imports this file, so the look stays in sync
  * across the Vike / React Router / TanStack / Next templates.

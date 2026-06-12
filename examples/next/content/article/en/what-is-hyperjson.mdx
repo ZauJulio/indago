@@ -13,7 +13,7 @@ cover: ""
 
 # What is HyperJson?
 
-**HyperJson** (`@virtus/hyper-json`) is a JSON-Schema-first content engine for Vite projects. You describe a content type once with a `schema.json`, drop locale-aware JSON files next to it, and HyperJson takes care of the rest: it **validates every file at build time** and **generates ambient TypeScript types** so your data is fully typed end-to-end — no backend, no database, no runtime cost.
+**HyperJson** (`@muttum/hyper-json`) is a JSON-Schema-first content engine for Vite projects. You describe a content type once with a `schema.json`, drop locale-aware JSON files next to it, and HyperJson takes care of the rest: it **validates every file at build time** and **generates ambient TypeScript types** so your data is fully typed end-to-end — no backend, no database, no runtime cost.
 
 It is one of two independent engines in this portfolio. HyperJson owns **structured JSON** (skills, education, music, photography), while [HyperDown](/articles/what-is-hyperdown) owns **Markdown/MDX** content. The two share no code.
 
@@ -26,9 +26,9 @@ HyperJson closes both gaps with the schema as the single source of truth.
 ## How it works
 
 1. **Author a schema.** Each content type lives in its own folder with a `schema.json` (standard JSON Schema) and per-locale data folders (`en/`, `pt-BR/`).
-2. **Validate at build.** The `hyperjsonValidationPlugin` (from `@virtus/hyper-json/plugins`) checks every content file against its sibling schema. In `strict` mode, a single invalid file fails the build.
+2. **Validate at build.** The `hyperjsonValidationPlugin` (from `@muttum/hyper-json/plugins`) checks every content file against its sibling schema. In `strict` mode, a single invalid file fails the build.
 3. **Generate types.** `bun run gen:types` runs the codegen — a parallel worker pool over `bunx json-schema-to-typescript` — emitting ambient module declarations so every imported JSON file is typed.
-4. **Consume with hooks.** `@virtus/hyper-json/hooks` provides headless helpers to filter, sort, search, paginate, and compose over the in-memory JSON. No UI is imposed; you bring your own components.
+4. **Consume with hooks.** `@muttum/hyper-json/hooks` provides headless helpers to filter, sort, search, paginate, and compose over the in-memory JSON. No UI is imposed; you bring your own components.
 
 ## Try it from the CLI
 

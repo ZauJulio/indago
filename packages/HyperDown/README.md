@@ -1,7 +1,7 @@
 # HyperDown
 
 <p align="center">
-  <img src="./assets/logo.svg" alt="HyperDown — Honos et Virtus" width="120" height="120" />
+  <img src="./assets/logo.svg" alt="HyperDown — Honos et Muttum" width="120" height="120" />
 </p>
 
 <p align="center">
@@ -44,7 +44,7 @@ compiled to a React component by `@mdx-js/rollup`, and rendered with `MdxRender`
 The result: a strongly-typed, searchable, internationalised content layer with no
 backend service, served via SSR (pre-rendered to static HTML by default).
 
-> **Starting fresh?** `bun create virtus-app` scaffolds a ready-made app (Vike,
+> **Starting fresh?** `bun create muttum-app` scaffolds a ready-made app (Vike,
 > React Router v7, TanStack Start, or Next.js) already wired to HyperDown + HyperJson.
 
 ---
@@ -71,10 +71,10 @@ backend service, served via SSR (pre-rendered to static HTML by default).
 
 ```bash
 # bun (recommended)
-bun add @virtus/hyper-down
+bun add @muttum/hyper-down
 
 # npm / pnpm / yarn
-npm install @virtus/hyper-down
+npm install @muttum/hyper-down
 ```
 
 ### Peer dependencies
@@ -115,7 +115,7 @@ import {
   hyperdownPlugin,
   hyperdownMdxPlugin,
   hyperdownSitemapPlugin,
-} from "@virtus/hyper-down/plugins";
+} from "@muttum/hyper-down/plugins";
 import remarkGfm from "remark-gfm";
 import { defineConfig } from "vite";
 
@@ -131,10 +131,10 @@ export default defineConfig({
   // keep the SQLite builtins external (loaded lazily in the loader path).
   ssr: {
     external: ["bun:sqlite", "node:sqlite"],
-    noExternal: ["@virtus/hyper-down"],
+    noExternal: ["@muttum/hyper-down"],
   },
   optimizeDeps: {
-    exclude: ["@virtus/hyper-down"],
+    exclude: ["@muttum/hyper-down"],
   },
 });
 ```
@@ -188,7 +188,7 @@ The build codegen writes everything you need into the app's `.hyper-down/` tree
 ```ts
 // src/pages/articles/data.ts  (browser-safe — imported by components)
 import { contentModules } from "@hyper-down/default";
-import { createContentResolver } from "@virtus/hyper-down";
+import { createContentResolver } from "@muttum/hyper-down";
 
 // Resolves the lazy MDX body component for a slug+lang.
 export const getArticleContent = createContentResolver(contentModules["article"]);
@@ -203,7 +203,7 @@ export { articleRepository } from "@hyper-down/content/article/builder";
 
 ```tsx
 // src/pages/articles/[slug].tsx
-import { MdxRender } from "@virtus/hyper-down";
+import { MdxRender } from "@muttum/hyper-down";
 import { getArticleContent } from "./data";
 import { articleRepository } from "./data.server";
 import type { Route } from "./+types/[slug]";
@@ -233,17 +233,17 @@ The package exposes four entry points via its `exports` map:
 
 | Import                       | Provides                                                                                                       |
 | ---------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| `@virtus/hyper-down`         | Browser-safe surface: `createContentResolver`, `MdxRender`, MDX components, parser, i18n utils, content types. |
-| `@virtus/hyper-down/server`  | Server-only runtime: `ContentRepository`, `createLazyRepository`, `hyperDownClient`.                           |
-| `@virtus/hyper-down/types`   | Raw content types (`ContentItem`, `ContentMeta`, `MdxComponent`).                                              |
-| `@virtus/hyper-down/plugins` | Vite plugins: `hyperdownPlugin`, `hyperdownMdxPlugin`, `hyperdownSitemapPlugin`.                               |
-| `@virtus/hyper-down/next`    | Next.js adapter: `withHyperDown` (next.config wrapper), `runHyperDownNextCodegen` (predev/prebuild).           |
-| `@virtus/hyper-down/drizzle` | Re-exports of `drizzle-orm/sqlite-core` plus `sql`, `eq`, `and`, `or`, `desc`, `asc`, `inArray`.               |
+| `@muttum/hyper-down`         | Browser-safe surface: `createContentResolver`, `MdxRender`, MDX components, parser, i18n utils, content types. |
+| `@muttum/hyper-down/server`  | Server-only runtime: `ContentRepository`, `createLazyRepository`, `hyperDownClient`.                           |
+| `@muttum/hyper-down/types`   | Raw content types (`ContentItem`, `ContentMeta`, `MdxComponent`).                                              |
+| `@muttum/hyper-down/plugins` | Vite plugins: `hyperdownPlugin`, `hyperdownMdxPlugin`, `hyperdownSitemapPlugin`.                               |
+| `@muttum/hyper-down/next`    | Next.js adapter: `withHyperDown` (next.config wrapper), `runHyperDownNextCodegen` (predev/prebuild).           |
+| `@muttum/hyper-down/drizzle` | Re-exports of `drizzle-orm/sqlite-core` plus `sql`, `eq`, `and`, `or`, `desc`, `asc`, `inArray`.               |
 
 ### `ContentRepository<T>` (server-side)
 
 The OOP data-access object for one content collection, imported from
-`@virtus/hyper-down/server`. **Use it only in route loaders** (ideally from a
+`@muttum/hyper-down/server`. **Use it only in route loaders** (ideally from a
 `*.server.ts` module). Every method queries the generated `.db` through
 `bun:sqlite` / `node:sqlite`.
 
@@ -252,7 +252,7 @@ Prefer the codegen-generated `<type>Repository` (`@hyper-down/<contentDir>/<type
 instantiate manually:
 
 ```ts
-import { ContentRepository } from "@virtus/hyper-down/server";
+import { ContentRepository } from "@muttum/hyper-down/server";
 
 const articleRepository = new ContentRepository<ArticleMeta>({
   contentName: "article",
@@ -301,7 +301,7 @@ loader returned.
 
 ```ts
 import { contentModules } from "@hyper-down/default";
-import { createContentResolver } from "@virtus/hyper-down";
+import { createContentResolver } from "@muttum/hyper-down";
 
 export const getArticleContent = createContentResolver(contentModules["article"]);
 ```
@@ -315,7 +315,7 @@ export const getArticleContent = createContentResolver(contentModules["article"]
 ### `MdxRender`
 
 ```tsx
-import { MdxRender } from "@virtus/hyper-down";
+import { MdxRender } from "@muttum/hyper-down";
 
 <MdxRender
   content={data.content} // MdxComponent | null
@@ -343,7 +343,7 @@ import {
   getLocale, // (i18n?) => canonical DB locale ("en" | "pt-BR")
   getDisplayLocale, // (lang?) => BCP 47 locale for Intl APIs
   getFallbackLocale, // (lang)  => the other locale (en ↔ pt-BR)
-} from "@virtus/hyper-down";
+} from "@muttum/hyper-down";
 ```
 
 ### Vite plugins
@@ -604,7 +604,7 @@ Validated against `schemas/hyperdown.config.schema.json`. The three top-level se
 
 ```jsonc
 {
-  "$schema": "./node_modules/@virtus/hyper-down/schemas/hyperdown.config.schema.json",
+  "$schema": "./node_modules/@muttum/hyper-down/schemas/hyperdown.config.schema.json",
   "database": {
     "contentDir": "src/content", // base content directory (required)
     "frontmatterJsonPath": "frontmatter.json", // path to frontmatter.json (required)

@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-// Standardized across every create-virtus-app template. The home page links to
+// Standardized across every create-muttum-app template. The home page links to
 // the three content sections, and every listing links back home. Locale-aware
 // `<Link to="/…">` renders prefix-free hrefs in the default locale, so the same
 // selectors hold in each framework.
