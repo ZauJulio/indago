@@ -1,8 +1,8 @@
 ---
 draft: false
 title: "What is HyperDown? Markdown → SQLite Full-Text Search, SSR-Only"
-description: "HyperDown compiles Markdown/MDX frontmatter into a contentless FTS5 SQLite index queried only on the server. Learn how it powers fast, typed, full-text content search with no client database."
-date: "2026-06-05"
+description: "A full tour of HyperDown: the contentless FTS5 architecture, the generated .hyper-down tree, the hyperdown CLI, the MCP server in Claude Code and opencode, the .agents pack, the test story, and the four create-muttum-app scaffolds."
+date: "2026-06-12"
 tags:
   [
     "HyperDown",
@@ -14,59 +14,245 @@ tags:
     "Vite",
     "Full-Text Search",
     "Headless CMS",
+    "MCP",
   ]
 categories: ["Engineering"]
 author: "Zau Julio"
-readingTime: "7 min read"
+readingTime: "12 min read"
 canonical: ""
 cover: ""
 ---
 
 # What is HyperDown?
 
-**HyperDown** (`@muttum/hyper-down`) is a Markdown/MDX → SQLite content engine for Vite + React projects. It compiles your content's **frontmatter** into a compact, contentless **FTS5** SQLite index, then queries it **exclusively on the server** inside route loaders. The result is fast, typed, full-text search over your articles and recipes — with **no client-side database**, no OPFS worker, and no `.db` shipped to the browser.
+**HyperDown** (`@muttum/hyper-down`) turns a folder of Markdown/MDX files into a typed,
+full-text-searchable content layer — with **no database service, no API, and no CMS
+server**. At build time it compiles your content's **frontmatter** into a compact,
+contentless **FTS5** SQLite index; at request time, server-side route loaders query that
+index with `bun:sqlite` (or `node:sqlite` on Node ≥ 22, e.g. on Vercel). The browser
+never sees a database.
 
-It is one of two independent engines in this portfolio. HyperDown owns **Markdown/MDX**; its sibling [HyperJson](/articles/what-is-hyperjson) owns **structured JSON**. They share no code.
+It is one of the two independent engines in the **Muttum** toolkit. HyperDown owns
+**Markdown/MDX prose**; its sibling [HyperJson](/articles/what-is-hyperjson) owns
+**structured JSON**. They share no code — adopt one or both.
 
 ## The core idea: metadata in SQLite, body in globs
 
-HyperDown splits each piece of content in two:
+HyperDown splits every piece of content in two:
 
-- **Frontmatter metadata** (title, tags, date, cuisine…) is parsed and stored in SQLite. This is what search and filters run against.
-- **The MD/MDX body is never stored in SQLite.** It loads at render time through static `import.meta.glob` modules, codegen-generated into your app's `.hyper-down/` tree.
+- **Frontmatter metadata** (title, tags, date…) is parsed and persisted in SQLite —
+  one `.db` per content type. This is what search, filters, facets, and sorting run
+  against.
+- **The MD/MDX body is never stored in SQLite.** It is compiled to a React component by
+  `@mdx-js/rollup` and loaded through a **static `import.meta.glob`** map that codegen
+  writes into your app's `.hyper-down/` tree.
 
-The FTS5 tables use `content=""` (contentless), so they store only the inverted index — not the original field values. The body column is **tokenized into the index but never persisted**, so full-text search reaches article prose while the `.db` file stays tiny and the "body never stored" invariant holds.
+The FTS5 tables are **contentless** (`content=""`): they hold only the inverted index,
+never the original text. The body **is tokenized into that index** — so full-text search
+reaches your prose — but it is never persisted, which keeps the `.db` tiny and the
+"body never stored" invariant intact. `tags` and `categories` get extra treatment: they
+are stored as JSON arrays in the metadata table, flattened into the FTS index, and
+mirrored into an indexed `<type>_tags` bridge table so tag filters and facet counts stay
+sargable (no `LIKE` scans, ever).
 
-## SSR-only by design
+## Architecture: three build steps, two runtime paths
 
-SQLite is read only on the server, in Vike `+data` loaders, using `bun:sqlite` (or `node:sqlite` on Node ≥ 22 for platforms like Vercel). The browser never sees a database. The data layer is an OOP `ContentRepository<T>` exported from `@muttum/hyper-down/server`, offering:
+At build time (the Vite plugin's `buildStart`, the `hyperdown gen:db` CLI command, or
+the Next.js adapter):
 
-- `search()` — FTS + filters + sort + pagination
-- `distinctValues()` — facets for filter UIs
-- `getMetaBySlug()` — serializable metadata with locale fallback
+1. **Codegen** writes idempotently into the app's `.hyper-down/` tree: an ambient
+   `<Type>Meta` interface (`types.ts`), a **lazy `<type>Repository` proxy**
+   (`builder.ts` — the `new` is deferred past module evaluation, which dodges a chunk
+   init-order race in bundled SSR), a static **eager** `import.meta.glob` map of MDX
+   bodies (`modules.ts`), and a `default.ts` barrel exporting `contentModules`.
+2. **The writer** parses every file's frontmatter through a parallel
+   read/parse/validate pool, then persists serially in a single transaction — emitting
+   one `.db` per content type: the metadata table, the `<type>_tags` bridge, and the
+   contentless FTS5 table.
+3. On `closeBundle`, every `.db` is copied into `dist/metadata/` so the built output is
+   **self-contained** — an SSR deploy reads the databases there without needing the
+   source `content/` tree.
 
-Listing pages are **URL-driven**: the loader reads `q`/`tag`/`page`/`sort` from the query string, runs the repository, and returns serializable results. Detail pages load metadata via `getMetaBySlug` and resolve the MDX body through a browser-safe content resolver — so the database client is fully stripped from the client bundle.
+At runtime the paths are strictly split:
 
-## Try it from the CLI
+- **Server (route loaders)** — `ContentRepository<T>`, exported only from
+  `@muttum/hyper-down/server`: `search()` (FTS5 `MATCH` + filters + sort + pagination),
+  `distinctValues()` (facets for filter UIs), and `getMetaBySlug()` (serializable
+  metadata with locale fallback). The FTS match runs **across all locales** and maps
+  back to slugs, so "slow" and "lenta" surface the same article, one row per slug in
+  the requested locale. The `.db` is opened read-only from disk, memoized across
+  requests, with a prepared-statement cache.
+- **Client (views)** — `createContentResolver(contentModules[type])` returns
+  `getContent(slug, lang)`, which resolves the lazy MDX component; render it with
+  `MdxRender`. This path touches no database code, so `node:*` built-ins never reach
+  the browser bundle.
 
-```bash
-# Scaffold config + frontmatter
-hyperdown init both
+A real loader from a generated app — listing pages are **URL-driven** (`?q`, `?tag`,
+`?page`, `?sort`), so the server re-runs the query on every navigation:
 
-# Create a new article (.mdx) in a given locale
-hyperdown create-item --type article --slug what-is-hyperdown --lang en
-
-# Validate config + frontmatter
-hyperdown validate both
-
-# Generate the SQLite databases from your content
-hyperdown gen:db
+```ts
+const [result, tags] = await Promise.all([
+  articleRepository.search({
+    locale,
+    searchQuery,
+    filters: activeTag ? { tag: activeTag } : {},
+    sort: { sortBy: "date", sortDir: "desc" },
+    pagination: { page, pageSize: 6 },
+  }),
+  articleRepository.distinctValues({ isJson: true, column: "tags", sortByFrequency: true }, locale),
+]);
 ```
 
-An **MCP server** (`hyperdown-mcp`) exposes `hyperdown_init`, `hyperdown_validate`, `hyperdown_update`, `hyperdown_create_frontmatter`, and `hyperdown_create_item` — so an AI agent can scaffold and author content end-to-end. (In fact, this very article was scaffolded with `hyperdown_create_item`.)
+## Project layout: what you write, what gets generated
 
-## The build pipeline
+A consuming app keeps content, config, and generated artifacts side by side:
 
-The Vite plugin (`hyperdownPlugin`) runs codegen on `buildStart`: it writes the per-type `{types,builder,modules}.ts` files and `.hyper-down/default.ts`, then spawns the writer to emit each `.db`. On `closeBundle` it copies every `.db` into `dist/metadata/` so the built `dist` is self-contained — an SSR deploy reads the databases there without needing the source `content/` tree.
+```text
+my-app/
+├── content/
+│   └── article/                HyperDown collection
+│       ├── en/hello.mdx        locale folders; slug = filename
+│       └── pt-BR/ola.mdx
+├── .hyper-down/                generated — DO NOT EDIT
+│   ├── content/article/
+│   │   ├── types.ts            ambient ArticleMeta interface
+│   │   ├── builder.ts          lazy articleRepository (server-only)
+│   │   └── modules.ts          static import.meta.glob of MDX bodies
+│   └── default.ts              contentModules barrel
+├── frontmatter.json            content-type definitions (Front Matter CMS format)
+├── hyperdown.config.json       contentDir, sitemap, i18n
+└── vite.config.ts              hyperdownMdxPlugin → framework → hyperdownPlugin
+```
 
-That's HyperDown: author in Markdown, search in SQLite, ship nothing extra to the client.
+Two wiring rules matter: `hyperdownMdxPlugin()` **must be registered before the
+framework plugins** (it wraps `@mdx-js/rollup` and intercepts `*.mdx?raw` imports,
+which MDX would otherwise compile despite the query string), and the SSR config keeps
+`bun:sqlite`/`node:sqlite` external while bundling the package itself
+(`noExternal: ["@muttum/hyper-down"]`). After a build, `dist/metadata/` holds the final
+`.db` files — the deployable "result" of the content pipeline.
+
+## The CLI
+
+The `hyperdown` binary ships with the package. Commands prompt interactively when flags
+are omitted and are fully scriptable when they are not:
+
+| Command              | Purpose                                                       |
+| -------------------- | ------------------------------------------------------------- |
+| `init [target]`      | Scaffold `hyperdown.config.json` / `frontmatter.json` / both. |
+| `validate [target]`  | Validate config and/or frontmatter against bundled schemas.   |
+| `update schemas`     | Re-download Front Matter CMS schemas and regenerate types.    |
+| `gen:db`             | Run codegen, then write the per-type SQLite databases.        |
+| `create-frontmatter` | Create a fresh `frontmatter.json` with content types + i18n.  |
+| `create-content`     | Add a content type to an existing `frontmatter.json`.         |
+| `create-item`        | Create a new `.mdx` item in the right folder/locale.          |
+
+```bash
+# Bootstrap
+bunx hyperdown init both
+
+# New content type — `req|opt` suffix is mandatory per field
+bunx hyperdown create-content --name product --folder Products \
+  --fields "title:string:req,price:number:opt,status:choice[draft|live]:req"
+
+# New item, then regenerate the databases
+bunx hyperdown create-item --type article --slug hello-world --lang en
+bunx hyperdown gen:db
+
+# CI gate — exits non-zero on the first invalid file
+bunx hyperdown validate both
+```
+
+`gen:db` runs the `.hyper-down/**` codegen itself before the writer, so it works on a
+fresh checkout with no prior build.
+
+## The MCP server: agents as first-class authors
+
+The package also ships **`hyperdown-mcp`**, a stdio MCP server that exposes the CLI as
+tools: `hyperdown_init`, `hyperdown_validate`, `hyperdown_update`, `hyperdown_gen_db`,
+`hyperdown_create_content`, `hyperdown_create_frontmatter`, and `hyperdown_create_item`.
+Creation tools require their full flag set — interactive prompts are disabled under MCP.
+
+**Claude Code** — add it to the project's `.mcp.json` (or run
+`claude mcp add hyperdown -- bunx hyperdown-mcp`):
+
+```json
+{
+  "mcpServers": {
+    "hyperdown": { "command": "bunx", "args": ["hyperdown-mcp"] }
+  }
+}
+```
+
+**opencode** — declare it as a local server in `opencode.json`:
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "hyperdown": { "type": "local", "command": ["bunx", "hyperdown-mcp"], "enabled": true }
+  }
+}
+```
+
+With either client, an agent can scaffold a content type, create items, and regenerate
+the databases end-to-end. (This very article was scaffolded with
+`hyperdown_create_item`.)
+
+## The `.agents/` pack
+
+The npm package bundles a `.agents/` tree — reference material for AI agents working in
+a repo that installs HyperDown, split into **rules** (constraints) and **skills** (task
+recipes):
+
+- `rules/architecture.md` — the pipeline invariants: SSR-only, contentless FTS5, lazy
+  repository, plugin ordering, export map.
+- `rules/configuration.md` — `hyperdown.config.json` + `frontmatter.json` shapes.
+- `rules/checks.md` — mandatory checks and do-not-edit (generated) files.
+- `skills/cli.md`, `skills/add-content-item.md`, `skills/manage-content-types.md` —
+  step-by-step recipes for the common authoring flows.
+
+Point your `AGENTS.md`/`CLAUDE.md` at
+`node_modules/@muttum/hyper-down/.agents/README.md` and the agent inherits the whole
+operating manual.
+
+## How it is tested
+
+- **The engine itself** runs `bun test` — component tests use happy-dom + Testing
+  Library; the writer, repository, and codegen have unit suites.
+- **Every generated app** ships the same two layers: a Vitest **content-integrity
+  test** (walks `content/`, asserts every `.mdx` has a valid frontmatter title + date
+  in both locales) and a **Playwright e2e suite** covering articles, recipes, projects,
+  full-text search (a matching query keeps results; a garbage query shows the empty
+  state), i18n, and navigation.
+- **The scaffold harness** (`bun run test:templates`) packs the engines as tarballs,
+  scaffolds each template into a temp directory, installs, builds, typechecks, and runs
+  unit + e2e — four frameworks against one identical spec set.
+
+## The scaffolds: four frameworks, one contract
+
+`bun create muttum-app` scaffolds a working app already wired to HyperDown + HyperJson,
+on your choice of **Vike**, **React Router v7**, **TanStack Start**, or **Next.js**.
+Every template ships the **same routes** (`/articles` with live search,
+`/articles/:slug`, `/cooking[/:slug]`, `/projects`, `/pt/*`) and the **same test
+suites** — what differs is how each framework feeds HyperDown:
+
+| Capability  | Vike            | React Router v7    | TanStack Start   | Next.js                      |
+| ----------- | --------------- | ------------------ | ---------------- | ---------------------------- |
+| Bundler     | Vite            | Vite               | Vite             | Webpack                      |
+| Server data | `+data` loaders | route `loader`     | `createServerFn` | Server Components            |
+| MDX bodies  | Vite glob       | Vite glob          | Vite glob        | explicit `@next/mdx` imports |
+| Prod server | Hono            | react-router-serve | srvx             | `next start`                 |
+
+The interesting outlier is **Next.js**: there is no Vite, so the
+`@muttum/hyper-down/next` adapter (`withHyperDown` + `runHyperDownNextCodegen`) rewrites
+the generated `modules.ts` into explicit `@next/mdx` imports and runs codegen on
+predev/prebuild — same architecture, different module-resolution strategy. The three
+Vite-based templates differ mainly in loader idiom and production server; the data
+layer, content tree, and rendering pipeline are identical.
+
+## Wrap-up
+
+That's HyperDown: author in Markdown, index frontmatter **and** body into a contentless
+FTS5 SQLite database, query it only on the server, and resolve the MDX body through a
+browser-safe glob — with a CLI, an MCP server, an `.agents/` pack, and four scaffolds
+that all honor the same contract.

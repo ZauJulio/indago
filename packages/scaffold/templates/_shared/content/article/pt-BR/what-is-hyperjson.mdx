@@ -1,52 +1,215 @@
 ---
 draft: false
 title: "O que é o HyperJson? Conteúdo JSON schema-first para Vite"
-description: "O HyperJson transforma arquivos JSON Schema em conteúdo validado e tipado em tempo de build. Veja como ele gera tipos TypeScript, valida cada arquivo de conteúdo e oferece hooks de dados headless — sem backend."
-date: "2026-06-05"
-tags: ["HyperJson", "JSON Schema", "TypeScript", "Vite", "Codegen", "Validação", "Headless CMS"]
+description: "Um tour completo pelo HyperJson: validação estrita com Ajv, codegen de tipos in-process, a árvore .hyper-json gerada, a CLI hyperjson, o servidor MCP no Claude Code e no opencode, o pacote .agents, os testes e os scaffolds do create-muttum-app."
+date: "2026-06-12"
+tags:
+  ["HyperJson", "JSON Schema", "TypeScript", "Vite", "Codegen", "Validação", "Headless CMS", "MCP"]
 categories: ["Engenharia"]
 author: "Zau Julio"
-readingTime: "6 min de leitura"
+readingTime: "10 min de leitura"
 canonical: ""
 cover: ""
 ---
 
 # O que é o HyperJson?
 
-O **HyperJson** (`@muttum/hyper-json`) é um motor de conteúdo schema-first em JSON para projetos Vite. Você descreve um tipo de conteúdo uma única vez com um `schema.json`, coloca arquivos JSON por idioma ao lado dele, e o HyperJson cuida do resto: ele **valida cada arquivo em tempo de build** e **gera tipos TypeScript ambientes** para que seus dados fiquem totalmente tipados de ponta a ponta — sem backend, sem banco de dados, sem custo em runtime.
+O **HyperJson** (`@muttum/hyper-json`) é um motor de conteúdo JSON-Schema-first para
+projetos Vite. Você descreve um tipo de conteúdo uma única vez num `schema.json`, coloca
+arquivos JSON por idioma ao lado dele, e o HyperJson faz o resto: **valida cada arquivo
+no build** com Ajv e **gera tipos TypeScript ambientes**, de modo que todo import de
+`.json` é completamente tipado de ponta a ponta — sem backend, sem banco de dados, sem
+custo de runtime.
 
-É um dos dois motores independentes deste portfólio. O HyperJson cuida do **JSON estruturado** (skills, educação, música, fotografia), enquanto o [HyperDown](/pt/articles/what-is-hyperdown) cuida do conteúdo em **Markdown/MDX**. Os dois não compartilham código.
+É um dos dois motores independentes do toolkit **Muttum**. O HyperJson cuida do **JSON
+estruturado** — listas de projetos, skills, playlists, álbuns de fotos — enquanto o
+[HyperDown](/pt/articles/what-is-hyperdown) cuida da **prosa em Markdown/MDX**. Eles não
+compartilham código; o HyperJson **não tem nenhuma dependência de frontmatter**.
 
 ## O problema que ele resolve
 
-Conteúdo JSON mantido à mão apodrece. Um erro de digitação numa chave, um campo faltando, uma string onde deveria haver um número — nada disso aparece até algo quebrar em runtime. E consumir esse JSON a partir do TypeScript significa ou escrever interfaces à mão que ficam dessincronizadas, ou fazer cast para `any` e perder toda garantia.
+Conteúdo JSON mantido à mão apodrece. Um typo numa chave, um campo faltando, uma string
+onde deveria haver um número — nada disso aparece até algo quebrar em runtime. E
+consumir esse JSON do TypeScript significa ou escrever interfaces à mão que
+dessincronizam, ou fazer cast para `any` e perder todas as garantias. O HyperJson fecha
+as duas brechas com o schema como fonte única de verdade: conteúdo inválido **derruba o
+build**, e conteúdo válido chega **já tipado**.
 
-O HyperJson fecha as duas brechas usando o schema como única fonte da verdade.
+## Arquitetura: validar, gerar, importar
 
-## Como funciona
+1. **Validação.** Cada arquivo `.json` é checado contra o `schema.json` da sua pasta de
+   categoria, usando Ajv (+ formats) em modo `strict` por padrão — propriedades
+   desconhecidas são rejeitadas. Com `failOnError` (o padrão), um único arquivo inválido
+   encerra o build com código diferente de zero. A varredura cobre as subpastas de
+   idioma (`en/`, `pt-BR/`) e os JSONs na raiz da categoria.
+2. **Codegen.** O `HyperJsonCodegen` compila cada schema pela API **in-process** do
+   `json-schema-to-typescript` — sem subprocesso por schema — dentro de um pool paralelo
+   limitado. A concorrência resolve em ordem de prioridade: opção explícita → variável
+   de ambiente `HYPERJSON_CONCURRENCY` → `cpus - 1` (para o build continuar
+   responsivo). Ele escreve **apenas na árvore `.hyper-json/` do app consumidor**, nunca
+   dentro do pacote instalado. As declarações de módulo ambientes são emitidas por
+   último, depois que todos os tipos por schema terminam, porque agregam todos os
+   arquivos de conteúdo.
+3. **Imports tipados.** Os blocos `declare module` gerados usam o seu alias de caminho
+   `@content/*` (lido do `tsconfig.json#paths`), então
+   `import data from "@content/music/en/playlists.json"` devolve um valor totalmente
+   tipado, sem nenhum cast. O `title` de cada schema vira o nome do tipo gerado.
 
-1. **Escreva um schema.** Cada tipo de conteúdo fica na própria pasta com um `schema.json` (JSON Schema padrão) e pastas de dados por idioma (`en/`, `pt-BR/`).
-2. **Valide no build.** O `hyperjsonValidationPlugin` (de `@muttum/hyper-json/plugins`) checa cada arquivo de conteúdo contra o schema irmão. No modo `strict`, um único arquivo inválido derruba o build.
-3. **Gere os tipos.** `bun run gen:types` roda o codegen — um pool paralelo de workers sobre `bunx json-schema-to-typescript` — emitindo declarações de módulo ambientes para que todo JSON importado fique tipado.
-4. **Consuma com hooks.** `@muttum/hyper-json/hooks` oferece helpers headless para filtrar, ordenar, buscar, paginar e compor sobre o JSON em memória. Nenhuma UI é imposta; você traz seus próprios componentes.
+O plugin Vite (`hyperjsonValidationPlugin`, de `@muttum/hyper-json/plugins`) roda
+validação + codegen no `buildStart` e também serve o **`virtual:hyperjson-config`** — o
+`hyperjson.config.json` parseado como default export, disponível em dev e build.
 
-## Experimente pela CLI
+Por cima disso há uma camada pequena de **hooks headless** (`@muttum/hyper-json/hooks`)
+para moldar os dados em memória no React: `useFilter`, `useSearch`, `useSort`,
+`usePaginate` e `useComposed` (filtro → busca → ordenação → paginação numa chamada só).
+Todos puros, com `useMemo`, sem impor UI:
 
-```bash
-# Cria um novo tipo de conteúdo (schema.json + pastas i18n)
-hyperjson create-content-type --name education \
-  --fields "id:string:required;institution:string;skills:string[]" \
-  --locales en,pt-BR
-
-# Valida config + todos os arquivos de conteúdo
-hyperjson validate both
-
-# Regenera os tipos TypeScript
-hyperjson generate
+```tsx
+const { paginated } = useComposed(playlists, {
+  filters: [{ key: "genre", value: selectedGenre }], // "All"/undefined ⇒ ignorado
+  searchQuery,
+  searchFields: ["title", "artist"],
+  sort: { key: "title", dir: "asc" },
+  page,
+  perPage: 12,
+});
 ```
 
-Há também um **servidor MCP** (`hyperjson-mcp`) que expõe `hyperjson_init`, `hyperjson_validate`, `hyperjson_generate` e `hyperjson_create_content_type`, para que um agente de IA gerencie os tipos de conteúdo diretamente.
+## Estrutura de conteúdo: o que você escreve, o que é gerado
 
-## Por que ele se mantém simples
+Cada **categoria** de conteúdo é uma pasta com um `schema.json` e arquivos de dados por
+idioma. Arquivos novos começam como `{ "<wrapper>": [] }` — a propriedade wrapper
+(padrão `items`) é o array de topo que o schema descreve:
 
-O HyperJson, de propósito, **não depende de frontmatter** — toda lógica de Markdown vive no HyperDown. Ele faz uma coisa só: pegar JSON Schema e tornar seu conteúdo JSON confiável e tipado. Esse foco é o que o mantém plugável em qualquer projeto Vite + TypeScript.
+```text
+meu-app/
+├── content/
+│   └── projects/
+│       ├── schema.json          JSON Schema — a fonte única de verdade
+│       ├── en/projects.json
+│       └── pt-BR/projects.json
+├── .hyper-json/                 gerado — NÃO EDITAR
+│   └── content/
+│       ├── projects/types.ts    tipo gerado a partir do schema.title
+│       └── generated.d.ts       declarações ambientes @content/**/*.json
+├── hyperjson.config.json        contentDir + flags de validação
+└── tsconfig.json                paths: { "@content/*": ["./content/*"] }
+```
+
+A config é deliberadamente pequena — `contentDir` é o único campo obrigatório:
+
+```jsonc
+{
+  "$schema": "./node_modules/@muttum/hyper-json/schemas/hyperjson.config.schema.json",
+  "contentDir": "content",
+  "validation": { "strict": true, "failOnError": true },
+}
+```
+
+## A CLI
+
+| Comando                  | Propósito                                                    |
+| ------------------------ | ------------------------------------------------------------ |
+| `init`                   | Cria um `hyperjson.config.json` padrão.                      |
+| `validate [target]`      | Valida a config e/ou todos os arquivos de conteúdo.          |
+| `generate` (alias `gen`) | Gera tipos + declarações ambientes a partir dos schemas.     |
+| `create-content-type`    | Cria um `schema.json` + arquivos de dados vazios por idioma. |
+
+```bash
+bunx hyperjson init
+
+# Campos separados por ponto e vírgula; o terceiro segmento `required` marca obrigatório
+bunx hyperjson create-content-type \
+  --name projects \
+  --locales "en,pt-BR" \
+  --fields "id:string:required;name:string:required;url:string"
+
+# Gate de CI — sai com código diferente de zero quando qualquer arquivo falha
+bunx hyperjson validate
+
+# Regenera os tipos (limite o pool se precisar)
+HYPERJSON_CONCURRENCY=2 bunx hyperjson generate
+```
+
+Tipos de campo: `string`, `number`, `integer`, `boolean`, `string[]`, `enum` e `date`
+(string restrita a `YYYY-MM-DD`).
+
+## O servidor MCP: agentes como autores de primeira classe
+
+O **`hyperjson-mcp`** é um servidor MCP stdio que embrulha a mesma CLI como
+ferramentas: `hyperjson_init`, `hyperjson_validate`, `hyperjson_generate` e
+`hyperjson_create_content_type`. A ferramenta de criação exige `name` + `fields` —
+prompts interativos ficam desabilitados sob MCP.
+
+**Claude Code** — adicione ao `.mcp.json` do projeto (ou rode
+`claude mcp add hyperjson -- bunx hyperjson-mcp`):
+
+```json
+{
+  "mcpServers": {
+    "hyperjson": { "command": "bunx", "args": ["hyperjson-mcp"] }
+  }
+}
+```
+
+**opencode** — declare como servidor local no `opencode.json`:
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "hyperjson": { "type": "local", "command": ["bunx", "hyperjson-mcp"], "enabled": true }
+  }
+}
+```
+
+Com qualquer um dos clientes, um agente consegue criar um tipo de conteúdo, preencher
+os arquivos de dados e validá-los — checado pelo schema a cada passo.
+
+## O pacote `.agents/`
+
+O pacote npm embute uma árvore `.agents/` para agentes de IA operando o HyperJson no seu
+repo — **rules** (restrições) e **skills** (receitas de tarefa):
+
+- `rules/architecture.md` — validação, codegen, config virtual, hooks.
+- `rules/configuration.md` — os formatos de `hyperjson.config.json` + `schema.json`.
+- `rules/checks.md` — checagens obrigatórias e arquivos gerados que não devem ser editados.
+- `skills/cli.md`, `skills/add-content-type.md`, `skills/change-schema.md` — como criar
+  um tipo e como evoluir um schema existente com segurança.
+
+Aponte seu `AGENTS.md`/`CLAUDE.md` para
+`node_modules/@muttum/hyper-json/.agents/README.md` e o agente herda o manual.
+
+## Como ele é testado
+
+- **O próprio motor** roda `bun test` sobre validação, codegen e os hooks.
+- **Todo app gerado** verifica a coleção de projetos no teste Vitest de integridade de
+  conteúdo (o JSON parseia, o array wrapper não é vazio, os campos têm os tipos certos)
+  e exercita `/projects` na suíte e2e compartilhada em Playwright.
+- **O harness do scaffold** (`bun run test:templates`) empacota o motor como tarball,
+  gera os quatro templates e roda build + typecheck + unit + e2e contra cada um — um
+  schema inválido ou uma regressão de codegen falha de quatro jeitos antes de sair.
+
+## Os scaffolds: quatro frameworks, um contrato
+
+`bun create muttum-app` fia o HyperJson (junto com o HyperDown) em **Vike**,
+**React Router v7**, **TanStack Start** ou **Next.js** — mesmas rotas, mesmos testes,
+mesma árvore de conteúdo nos quatro:
+
+| Capacidade  | Vike            | React Router v7    | TanStack Start   | Next.js           |
+| ----------- | --------------- | ------------------ | ---------------- | ----------------- |
+| Bundler     | Vite            | Vite               | Vite             | Webpack           |
+| Dados (SSR) | loaders `+data` | `loader` de rota   | `createServerFn` | Server Components |
+| Servidor    | Hono            | react-router-serve | srvx             | `next start`      |
+
+E aqui está a parte notável: essas diferenças quase não tocam o HyperJson. Imports JSON
+tipados e os hooks headless funcionam de forma idêntica em todos — é o carregamento de
+MDX do HyperDown que precisa de adapters por framework. Um schema escrito para o
+template Vike vai para o Next.js sem mudar nada.
+
+## Por que ele continua simples
+
+O HyperJson deliberadamente faz uma coisa só: pegar JSON Schema e tornar seu conteúdo
+JSON confiável e tipado — validação que trava o build, tipos que nunca dessincronizam,
+hooks que continuam headless. Toda preocupação com Markdown vive no HyperDown. É esse
+foco que mantém o HyperJson um drop-in para qualquer projeto Vite + TypeScript.

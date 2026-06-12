@@ -1,8 +1,8 @@
 ---
 draft: false
 title: "O que é o HyperDown? Markdown → SQLite com busca full-text, só no servidor"
-description: "O HyperDown compila o frontmatter de Markdown/MDX num índice FTS5 SQLite contentless consultado apenas no servidor. Veja como ele oferece busca full-text rápida e tipada, sem banco no cliente."
-date: "2026-06-05"
+description: "Um tour completo pelo HyperDown: a arquitetura FTS5 contentless, a árvore .hyper-down gerada, a CLI hyperdown, o servidor MCP no Claude Code e no opencode, o pacote .agents, os testes e os quatro scaffolds do create-muttum-app."
+date: "2026-06-12"
 tags:
   [
     "HyperDown",
@@ -14,59 +14,247 @@ tags:
     "Vite",
     "Busca Full-Text",
     "Headless CMS",
+    "MCP",
   ]
 categories: ["Engenharia"]
 author: "Zau Julio"
-readingTime: "7 min de leitura"
+readingTime: "12 min de leitura"
 canonical: ""
 cover: ""
 ---
 
 # O que é o HyperDown?
 
-O **HyperDown** (`@muttum/hyper-down`) é um motor de conteúdo Markdown/MDX → SQLite para projetos Vite + React. Ele compila o **frontmatter** do seu conteúdo num índice **FTS5** SQLite compacto e contentless e o consulta **exclusivamente no servidor**, dentro dos loaders de rota. O resultado é busca full-text rápida e tipada sobre seus artigos e receitas — **sem banco de dados no cliente**, sem worker OPFS e sem `.db` enviado ao navegador.
+O **HyperDown** (`@muttum/hyper-down`) transforma uma pasta de arquivos Markdown/MDX
+numa camada de conteúdo tipada e com busca full-text — **sem serviço de banco de dados,
+sem API e sem servidor de CMS**. No build, ele compila o **frontmatter** do seu conteúdo
+num índice **FTS5** SQLite compacto e contentless; em tempo de requisição, os loaders de
+rota do servidor consultam esse índice com `bun:sqlite` (ou `node:sqlite` no Node ≥ 22,
+como na Vercel). O navegador nunca vê um banco de dados.
 
-É um dos dois motores independentes deste portfólio. O HyperDown cuida de **Markdown/MDX**; seu irmão [HyperJson](/pt/articles/what-is-hyperjson) cuida do **JSON estruturado**. Eles não compartilham código.
+É um dos dois motores independentes do toolkit **Muttum**. O HyperDown cuida da **prosa
+em Markdown/MDX**; seu irmão [HyperJson](/pt/articles/what-is-hyperjson) cuida do
+**JSON estruturado**. Eles não compartilham código — adote um ou os dois.
 
 ## A ideia central: metadados no SQLite, corpo nos globs
 
 O HyperDown divide cada conteúdo em duas partes:
 
-- **Os metadados do frontmatter** (título, tags, data, cozinha…) são parseados e guardados no SQLite. É contra isso que a busca e os filtros rodam.
-- **O corpo MD/MDX nunca é guardado no SQLite.** Ele carrega em tempo de render via módulos estáticos `import.meta.glob`, gerados por codegen na árvore `.hyper-down/` do seu app.
+- **Os metadados do frontmatter** (título, tags, data…) são parseados e persistidos no
+  SQLite — um `.db` por tipo de conteúdo. É contra isso que busca, filtros, facetas e
+  ordenação rodam.
+- **O corpo MD/MDX nunca é guardado no SQLite.** Ele é compilado para um componente
+  React pelo `@mdx-js/rollup` e carregado por um mapa **estático de
+  `import.meta.glob`** que o codegen escreve na árvore `.hyper-down/` do seu app.
 
-As tabelas FTS5 usam `content=""` (contentless), então guardam apenas o índice invertido — não os valores originais dos campos. A coluna do corpo é **tokenizada no índice mas nunca persistida**, então a busca full-text alcança o texto do artigo enquanto o arquivo `.db` permanece minúsculo e o invariante "corpo nunca guardado" se mantém.
+As tabelas FTS5 são **contentless** (`content=""`): guardam apenas o índice invertido,
+nunca o texto original. O corpo **é tokenizado nesse índice** — então a busca full-text
+alcança a sua prosa — mas nunca é persistido, o que mantém o `.db` minúsculo e o
+invariante "corpo nunca guardado" intacto. `tags` e `categories` recebem tratamento
+extra: são guardadas como arrays JSON na tabela de metadados, achatadas no índice FTS e
+espelhadas numa tabela-ponte indexada `<type>_tags`, para que filtros de tag e contagens
+de faceta continuem sargables (nunca um scan com `LIKE`).
 
-## SSR-only por design
+## Arquitetura: três passos de build, dois caminhos de runtime
 
-O SQLite é lido somente no servidor, nos loaders `+data` do Vike, usando `bun:sqlite` (ou `node:sqlite` no Node ≥ 22 para plataformas como a Vercel). O navegador nunca vê um banco. A camada de dados é um `ContentRepository<T>` orientado a objetos exportado de `@muttum/hyper-down/server`, oferecendo:
+No build (o `buildStart` do plugin Vite, o comando `hyperdown gen:db` da CLI, ou o
+adapter de Next.js):
 
-- `search()` — FTS + filtros + ordenação + paginação
-- `distinctValues()` — facetas para UIs de filtro
-- `getMetaBySlug()` — metadados serializáveis com fallback de idioma
+1. **O codegen** escreve de forma idempotente na árvore `.hyper-down/` do app: uma
+   interface ambiente `<Type>Meta` (`types.ts`), um **proxy preguiçoso
+   `<type>Repository`** (`builder.ts` — o `new` é adiado para depois da avaliação do
+   módulo, o que evita uma corrida de ordem de inicialização de chunks no SSR
+   bundleado), um mapa **estático e eager** de `import.meta.glob` dos corpos MDX
+   (`modules.ts`) e um barrel `default.ts` exportando `contentModules`.
+2. **O writer** parseia o frontmatter de todos os arquivos num pool paralelo de
+   leitura/parse/validação e persiste em série numa única transação — emitindo um `.db`
+   por tipo de conteúdo: a tabela de metadados, a ponte `<type>_tags` e a tabela FTS5
+   contentless.
+3. No `closeBundle`, cada `.db` é copiado para `dist/metadata/`, deixando a saída do
+   build **autocontida** — um deploy SSR lê os bancos de lá sem precisar da árvore
+   `content/` de origem.
 
-As páginas de listagem são **dirigidas pela URL**: o loader lê `q`/`tag`/`page`/`sort` da query string, roda o repositório e retorna resultados serializáveis. As páginas de detalhe carregam metadados via `getMetaBySlug` e resolvem o corpo MDX por um resolver seguro para o navegador — então o cliente SQLite é totalmente removido do bundle do cliente.
+No runtime, os caminhos são estritamente separados:
 
-## Experimente pela CLI
+- **Servidor (loaders de rota)** — `ContentRepository<T>`, exportado apenas de
+  `@muttum/hyper-down/server`: `search()` (FTS5 `MATCH` + filtros + ordenação +
+  paginação), `distinctValues()` (facetas para UIs de filtro) e `getMetaBySlug()`
+  (metadados serializáveis com fallback de idioma). O match FTS roda **em todos os
+  idiomas** e é mapeado de volta para slugs — "slow" e "lenta" encontram o mesmo
+  artigo, uma linha por slug no idioma pedido. O `.db` abre somente-leitura do disco,
+  memoizado entre requisições, com cache de prepared statements.
+- **Cliente (views)** — `createContentResolver(contentModules[type])` retorna
+  `getContent(slug, lang)`, que resolve o componente MDX preguiçoso; renderize com
+  `MdxRender`. Esse caminho não toca em código de banco, então os built-ins `node:*`
+  nunca chegam ao bundle do navegador.
 
-```bash
-# Cria config + frontmatter
-hyperdown init both
+Um loader real de um app gerado — as listagens são **dirigidas pela URL** (`?q`,
+`?tag`, `?page`, `?sort`), então o servidor refaz a consulta a cada navegação:
 
-# Cria um novo artigo (.mdx) num idioma
-hyperdown create-item --type article --slug o-que-e-hyperdown --lang pt-BR
-
-# Valida config + frontmatter
-hyperdown validate both
-
-# Gera os bancos SQLite a partir do seu conteúdo
-hyperdown gen:db
+```ts
+const [result, tags] = await Promise.all([
+  articleRepository.search({
+    locale,
+    searchQuery,
+    filters: activeTag ? { tag: activeTag } : {},
+    sort: { sortBy: "date", sortDir: "desc" },
+    pagination: { page, pageSize: 6 },
+  }),
+  articleRepository.distinctValues({ isJson: true, column: "tags", sortByFrequency: true }, locale),
+]);
 ```
 
-Um **servidor MCP** (`hyperdown-mcp`) expõe `hyperdown_init`, `hyperdown_validate`, `hyperdown_update`, `hyperdown_create_frontmatter` e `hyperdown_create_item` — para que um agente de IA crie e escreva conteúdo de ponta a ponta. (Aliás, este próprio artigo foi criado com `hyperdown_create_item`.)
+## Estrutura do projeto: o que você escreve, o que é gerado
 
-## O pipeline de build
+Um app consumidor mantém conteúdo, config e artefatos gerados lado a lado:
 
-O plugin do Vite (`hyperdownPlugin`) roda o codegen no `buildStart`: escreve os arquivos `{types,builder,modules}.ts` por tipo e o `.hyper-down/default.ts`, depois dispara o writer para emitir cada `.db`. No `closeBundle` ele copia cada `.db` para `dist/metadata/`, deixando o `dist` autocontido — um deploy SSR lê os bancos de lá sem precisar da árvore `content/` de origem.
+```text
+meu-app/
+├── content/
+│   └── article/                coleção HyperDown
+│       ├── en/hello.mdx        pastas por idioma; slug = nome do arquivo
+│       └── pt-BR/ola.mdx
+├── .hyper-down/                gerado — NÃO EDITAR
+│   ├── content/article/
+│   │   ├── types.ts            interface ambiente ArticleMeta
+│   │   ├── builder.ts          articleRepository preguiçoso (só servidor)
+│   │   └── modules.ts          import.meta.glob estático dos corpos MDX
+│   └── default.ts              barrel contentModules
+├── frontmatter.json            definições de tipos (formato Front Matter CMS)
+├── hyperdown.config.json       contentDir, sitemap, i18n
+└── vite.config.ts              hyperdownMdxPlugin → framework → hyperdownPlugin
+```
 
-Esse é o HyperDown: escreva em Markdown, busque no SQLite, e não envie nada extra ao cliente.
+Duas regras de fiação importam: o `hyperdownMdxPlugin()` **deve ser registrado antes
+dos plugins do framework** (ele embrulha o `@mdx-js/rollup` e intercepta imports
+`*.mdx?raw`, que o MDX compilaria mesmo com a query string), e a config de SSR mantém
+`bun:sqlite`/`node:sqlite` externos enquanto bundleia o próprio pacote
+(`noExternal: ["@muttum/hyper-down"]`). Depois de um build, `dist/metadata/` contém os
+`.db` finais — o "resultado" deployável do pipeline de conteúdo.
+
+## A CLI
+
+O binário `hyperdown` é instalado com o pacote. Os comandos perguntam interativamente
+quando as flags são omitidas e são totalmente scriptáveis quando não:
+
+| Comando              | Propósito                                                       |
+| -------------------- | --------------------------------------------------------------- |
+| `init [target]`      | Cria `hyperdown.config.json` / `frontmatter.json` / ambos.      |
+| `validate [target]`  | Valida config e/ou frontmatter contra os schemas embutidos.     |
+| `update schemas`     | Rebaixa os schemas do Front Matter CMS e regenera os tipos.     |
+| `gen:db`             | Roda o codegen e escreve os bancos SQLite por tipo.             |
+| `create-frontmatter` | Cria um `frontmatter.json` novo com tipos de conteúdo + i18n.   |
+| `create-content`     | Adiciona um tipo de conteúdo a um `frontmatter.json` existente. |
+| `create-item`        | Cria um novo item `.mdx` na pasta/idioma certos.                |
+
+```bash
+# Bootstrap
+bunx hyperdown init both
+
+# Novo tipo de conteúdo — o sufixo `req|opt` é obrigatório em cada campo
+bunx hyperdown create-content --name product --folder Products \
+  --fields "title:string:req,price:number:opt,status:choice[draft|live]:req"
+
+# Novo item, depois regenere os bancos
+bunx hyperdown create-item --type article --slug ola-mundo --lang pt-BR
+bunx hyperdown gen:db
+
+# Gate de CI — sai com código diferente de zero no primeiro arquivo inválido
+bunx hyperdown validate both
+```
+
+O `gen:db` roda o codegen de `.hyper-down/**` antes do writer, então funciona num
+checkout limpo, sem build prévio.
+
+## O servidor MCP: agentes como autores de primeira classe
+
+O pacote também traz o **`hyperdown-mcp`**, um servidor MCP stdio que expõe a CLI como
+ferramentas: `hyperdown_init`, `hyperdown_validate`, `hyperdown_update`,
+`hyperdown_gen_db`, `hyperdown_create_content`, `hyperdown_create_frontmatter` e
+`hyperdown_create_item`. As ferramentas de criação exigem o conjunto completo de flags —
+prompts interativos ficam desabilitados sob MCP.
+
+**Claude Code** — adicione ao `.mcp.json` do projeto (ou rode
+`claude mcp add hyperdown -- bunx hyperdown-mcp`):
+
+```json
+{
+  "mcpServers": {
+    "hyperdown": { "command": "bunx", "args": ["hyperdown-mcp"] }
+  }
+}
+```
+
+**opencode** — declare como servidor local no `opencode.json`:
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "hyperdown": { "type": "local", "command": ["bunx", "hyperdown-mcp"], "enabled": true }
+  }
+}
+```
+
+Com qualquer um dos clientes, um agente consegue criar um tipo de conteúdo, criar itens
+e regenerar os bancos de ponta a ponta. (Aliás, este próprio artigo foi criado com
+`hyperdown_create_item`.)
+
+## O pacote `.agents/`
+
+O pacote npm embute uma árvore `.agents/` — material de referência para agentes de IA
+trabalhando num repo que instala o HyperDown, dividido em **rules** (restrições) e
+**skills** (receitas de tarefa):
+
+- `rules/architecture.md` — os invariantes do pipeline: SSR-only, FTS5 contentless,
+  repositório preguiçoso, ordem dos plugins, mapa de exports.
+- `rules/configuration.md` — os formatos de `hyperdown.config.json` + `frontmatter.json`.
+- `rules/checks.md` — checagens obrigatórias e arquivos gerados que não devem ser editados.
+- `skills/cli.md`, `skills/add-content-item.md`, `skills/manage-content-types.md` —
+  receitas passo a passo para os fluxos comuns de autoria.
+
+Aponte seu `AGENTS.md`/`CLAUDE.md` para
+`node_modules/@muttum/hyper-down/.agents/README.md` e o agente herda o manual de
+operação inteiro.
+
+## Como ele é testado
+
+- **O próprio motor** roda `bun test` — os testes de componente usam happy-dom +
+  Testing Library; writer, repositório e codegen têm suítes unitárias.
+- **Todo app gerado** traz as mesmas duas camadas: um teste Vitest de **integridade de
+  conteúdo** (varre `content/`, garante que todo `.mdx` tem título + data válidos no
+  frontmatter, nos dois idiomas) e uma suíte **e2e em Playwright** cobrindo artigos,
+  receitas, projetos, busca full-text (uma query que casa mantém resultados; uma query
+  sem sentido mostra o estado vazio), i18n e navegação.
+- **O harness do scaffold** (`bun run test:templates`) empacota os motores como
+  tarballs, gera cada template num diretório temporário, instala, builda, typecheca e
+  roda unit + e2e — quatro frameworks contra um único conjunto de specs.
+
+## Os scaffolds: quatro frameworks, um contrato
+
+`bun create muttum-app` gera um app funcional já fiado ao HyperDown + HyperJson, na sua
+escolha de **Vike**, **React Router v7**, **TanStack Start** ou **Next.js**. Todo
+template traz as **mesmas rotas** (`/articles` com busca ao vivo, `/articles/:slug`,
+`/cooking[/:slug]`, `/projects`, `/pt/*`) e as **mesmas suítes de teste** — o que muda
+é como cada framework alimenta o HyperDown:
+
+| Capacidade  | Vike            | React Router v7    | TanStack Start   | Next.js                        |
+| ----------- | --------------- | ------------------ | ---------------- | ------------------------------ |
+| Bundler     | Vite            | Vite               | Vite             | Webpack                        |
+| Dados (SSR) | loaders `+data` | `loader` de rota   | `createServerFn` | Server Components              |
+| Corpos MDX  | glob do Vite    | glob do Vite       | glob do Vite     | imports explícitos `@next/mdx` |
+| Servidor    | Hono            | react-router-serve | srvx             | `next start`                   |
+
+O caso fora da curva é o **Next.js**: sem Vite, o adapter `@muttum/hyper-down/next`
+(`withHyperDown` + `runHyperDownNextCodegen`) reescreve o `modules.ts` gerado em imports
+explícitos do `@next/mdx` e roda o codegen no predev/prebuild — mesma arquitetura,
+outra estratégia de resolução de módulos. Os três templates baseados em Vite diferem
+principalmente no idioma do loader e no servidor de produção; a camada de dados, a
+árvore de conteúdo e o pipeline de renderização são idênticos.
+
+## Fechando
+
+Esse é o HyperDown: escreva em Markdown, indexe frontmatter **e** corpo num SQLite FTS5
+contentless, consulte apenas no servidor e resolva o corpo MDX por um glob seguro para o
+navegador — com CLI, servidor MCP, pacote `.agents/` e quatro scaffolds que honram o
+mesmo contrato.
