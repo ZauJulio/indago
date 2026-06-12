@@ -16,6 +16,9 @@ build
 .cache
 .react-router
 
+# Generated reference apps — regenerate with `bun run gen:examples`
+examples/
+
 # SQLite content databases — build artifacts the HyperDown writer regenerates on
 # every build (buildStart). Never committed; loaders read them server-side.
 *.db
