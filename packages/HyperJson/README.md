@@ -1,7 +1,7 @@
 # HyperJson
 
 <p align="center">
-  <img src="./assets/logo.svg" alt="HyperJson — Honos et Indago" width="120" height="120" />
+  <img src="./assets/cover.svg" alt="HyperJson — JSON Schema → TypeScript types · validated, typed imports" width="100%" />
 </p>
 
 <p align="center">
@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <img alt="version" src="https://img.shields.io/badge/version-1.0.0-blue" />
+  <a href="https://www.npmjs.com/package/@indago/hyper-json"><img alt="npm" src="https://img.shields.io/npm/v/@indago/hyper-json?color=CB3837&logo=npm" /></a>
   <img alt="license" src="https://img.shields.io/badge/license-MIT-green" />
   <img alt="node" src="https://img.shields.io/badge/node-%3E%3D20-339933?logo=node.js&logoColor=white" />
   <img alt="vite" src="https://img.shields.io/badge/vite-8-646CFF?logo=vite&logoColor=white" />

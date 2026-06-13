@@ -82,7 +82,7 @@ bun --cwd packages/HyperDown run gen:types   # regen schema-types after editing 
 
 ### Releases (`.github/workflows/release.yml`)
 
-- On push to `main` (or manual dispatch), per package — `@indago/hyper-down`, `@indago/hyper-json`, `@indago/create-app` (`@repo/configs` is private, never published): skip if `package.json` version already on the registry; else build + `npm publish --access public` (secret `NPM_TOKEN`) + `gh release create <prefix>-vX.Y.Z` (`hyper-down-v` / `hyper-json-v` / `@indago/create-app-v`). The registry check is the change gate — touching only package A never re-tags/re-publishes B. Existing tags and releases are also checked, so reruns are safe (idempotent skips). `id-token: write` is already granted for the future npm Trusted Publishing migration.
+- On push to `main` (or manual dispatch), per package — `@indago/hyper-down`, `@indago/hyper-json`, `@indago/create-app` (`@repo/configs` is private, never published): skip if `package.json` version already on the registry; else build + `npm publish --access public` (secret `NPM_TOKEN`) + `gh release create <prefix>-vX.Y.Z` (`hyper-down-v` / `hyper-json-v` / `create-app-v`). The registry check is the change gate — touching only package A never re-tags/re-publishes B. Existing tags and releases are also checked, so reruns are safe (idempotent skips). `id-token: write` is already granted for the future npm Trusted Publishing migration.
 - To release: bump the package's `version`, push to `main`.
 
 ### Auto-generated Files — Do Not Edit Manually

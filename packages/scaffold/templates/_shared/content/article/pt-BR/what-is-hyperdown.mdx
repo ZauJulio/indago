@@ -36,6 +36,21 @@ como na Vercel). O navegador nunca vê um banco de dados.
 em Markdown/MDX**; seu irmão [HyperJson](/pt/articles/what-is-hyperjson) cuida do
 **JSON estruturado**. Eles não compartilham código — adote um ou os dois.
 
+<br />
+
+- [O que é o HyperDown?](#o-que-é-o-hyperdown)
+  - [A ideia central: metadados no SQLite, corpo nos globs](#a-ideia-central-metadados-no-sqlite-corpo-nos-globs)
+  - [Arquitetura: três passos de build, dois caminhos de runtime](#arquitetura-três-passos-de-build-dois-caminhos-de-runtime)
+  - [Estrutura do projeto: o que você escreve, o que é gerado](#estrutura-do-projeto-o-que-você-escreve-o-que-é-gerado)
+  - [A CLI](#a-cli)
+  - [O servidor MCP: agentes como autores de primeira classe](#o-servidor-mcp-agentes-como-autores-de-primeira-classe)
+  - [O pacote `.agents/`](#o-pacote-agents)
+  - [Como ele é testado](#como-ele-é-testado)
+  - [Os scaffolds: quatro frameworks, um contrato](#os-scaffolds-quatro-frameworks-um-contrato)
+  - [Fechando](#fechando)
+
+<br />
+
 ## A ideia central: metadados no SQLite, corpo nos globs
 
 O HyperDown divide cada conteúdo em duas partes:

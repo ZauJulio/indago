@@ -26,6 +26,21 @@ estruturado** — listas de projetos, skills, playlists, álbuns de fotos — en
 [HyperDown](/pt/articles/what-is-hyperdown) cuida da **prosa em Markdown/MDX**. Eles não
 compartilham código; o HyperJson **não tem nenhuma dependência de frontmatter**.
 
+<br />
+
+- [O que é o HyperJson?](#o-que-é-o-hyperjson)
+  - [O problema que ele resolve](#o-problema-que-ele-resolve)
+  - [Arquitetura: validar, gerar, importar](#arquitetura-validar-gerar-importar)
+  - [Estrutura de conteúdo: o que você escreve, o que é gerado](#estrutura-de-conteúdo-o-que-você-escreve-o-que-é-gerado)
+  - [A CLI](#a-cli)
+  - [O servidor MCP: agentes como autores de primeira classe](#o-servidor-mcp-agentes-como-autores-de-primeira-classe)
+  - [O pacote `.agents/`](#o-pacote-agents)
+  - [Como ele é testado](#como-ele-é-testado)
+  - [Os scaffolds: quatro frameworks, um contrato](#os-scaffolds-quatro-frameworks-um-contrato)
+  - [Por que ele continua simples](#por-que-ele-continua-simples)
+
+<br />
+
 ## O problema que ele resolve
 
 Conteúdo JSON mantido à mão apodrece. Um typo numa chave, um campo faltando, uma string

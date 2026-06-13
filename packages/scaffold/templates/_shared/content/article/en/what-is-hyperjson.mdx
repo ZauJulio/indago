@@ -25,6 +25,21 @@ It is one of the two independent engines in the **Indago** toolkit. HyperJson ow
 [HyperDown](/articles/what-is-hyperdown) owns **Markdown/MDX prose**. They share no
 code; HyperJson has **no dependency on frontmatter** at all.
 
+<br />
+
+- [What is HyperJson?](#what-is-hyperjson)
+  - [The problem it solves](#the-problem-it-solves)
+  - [Architecture: validate, generate, import](#architecture-validate-generate-import)
+  - [Content layout: what you write, what gets generated](#content-layout-what-you-write-what-gets-generated)
+  - [The CLI](#the-cli)
+  - [The MCP server: agents as first-class authors](#the-mcp-server-agents-as-first-class-authors)
+  - [The `.agents/` pack](#the-agents-pack)
+  - [How it is tested](#how-it-is-tested)
+  - [The scaffolds: four frameworks, one contract](#the-scaffolds-four-frameworks-one-contract)
+  - [Why it stays simple](#why-it-stays-simple)
+
+<br />
+
 ## The problem it solves
 
 Hand-maintained JSON content rots. A typo in a key, a missing field, a string where a

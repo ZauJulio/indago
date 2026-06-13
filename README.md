@@ -26,6 +26,11 @@
   <img alt="Node 20+" src="https://img.shields.io/badge/node-%E2%89%A520-339933?logo=node.js&logoColor=white" />
 </p>
 
+<p align="center">
+  <a href="./packages/HyperDown"><img alt="HyperDown — Markdown/MDX → SQLite FTS5, server-side full-text search" src="./assets/covers/what-is-hyperdown.svg" width="49%" /></a>
+  <a href="./packages/HyperJson"><img alt="HyperJson — JSON Schema → TypeScript types, validated typed imports" src="./assets/covers/what-is-hyperjson.svg" width="49%" /></a>
+</p>
+
 ---
 
 ## Summary

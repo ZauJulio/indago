@@ -36,6 +36,21 @@ It is one of the two independent engines in the **Indago** toolkit. HyperDown ow
 **Markdown/MDX prose**; its sibling [HyperJson](/articles/what-is-hyperjson) owns
 **structured JSON**. They share no code — adopt one or both.
 
+<br />
+
+- [What is HyperDown?](#what-is-hyperdown)
+  - [The core idea: metadata in SQLite, body in globs](#the-core-idea-metadata-in-sqlite-body-in-globs)
+  - [Architecture: three build steps, two runtime paths](#architecture-three-build-steps-two-runtime-paths)
+  - [Project layout: what you write, what gets generated](#project-layout-what-you-write-what-gets-generated)
+  - [The CLI](#the-cli)
+  - [The MCP server: agents as first-class authors](#the-mcp-server-agents-as-first-class-authors)
+  - [The `.agents/` pack](#the-agents-pack)
+  - [How it is tested](#how-it-is-tested)
+  - [The scaffolds: four frameworks, one contract](#the-scaffolds-four-frameworks-one-contract)
+  - [Wrap-up](#wrap-up)
+
+<br />
+
 ## The core idea: metadata in SQLite, body in globs
 
 HyperDown splits every piece of content in two:
