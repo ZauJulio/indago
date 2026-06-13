@@ -1,3 +1,4 @@
+import { createRequire } from "node:module";
 import type { Writable } from "node:stream";
 
 /**
@@ -15,17 +16,25 @@ const isNode = typeof process !== "undefined" && !!process.stdout;
 
 // pino's `transport: { target: "pino-pretty" }` resolves the target module in a
 // worker thread at runtime — inside a bundled serverless function (e.g. Vercel)
-// that resolution fails and crashes the whole import graph. Import pino-pretty
+// that resolution fails and crashes the whole import graph. Load pino-pretty
 // directly instead (dev only) and fall back to plain JSON logs.
+//
+// `createRequire` (sync) rather than `await import(...)`: a top-level await here
+// turns this module — and everything that imports it (e.g. the Next adapter at
+// `@muttum/hyper-down/next`) — into an async ES module, which Next's CJS
+// `require()` of `next.config` cannot load (`ERR_REQUIRE_ASYNC_MODULE`).
 let prettyStream: Writable | undefined;
 if (isNode && process.env.NODE_ENV !== "production") {
   try {
-    const mod = await import("pino-pretty");
-    prettyStream = mod.default({
+    const required = createRequire(import.meta.url)("pino-pretty") as {
+      default?: (opts: unknown) => Writable;
+    } & ((opts: unknown) => Writable);
+    const prettyFactory = required.default ?? required;
+    prettyStream = prettyFactory({
       colorize: true,
       translateTime: "yyyy-mm-dd HH:MM:ss.l",
       ignore: "pid,hostname",
-    }) as Writable;
+    });
   } catch {
     // pino-pretty not available — fall back to JSON output
   }

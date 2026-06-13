@@ -1,6 +1,6 @@
 {
   "name": "@muttum/hyper-json",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "JSON Schema → strict validation + auto-generated TypeScript types + ambient module declarations for typed JSON content imports.",
   "keywords": [
     "ajv",
@@ -29,6 +29,7 @@
     "directory": "packages/HyperJson"
   },
   "bin": {
+    "hyper-json": "./dist/bin/hyperjson.js",
     "hyperjson": "./dist/bin/hyperjson.js",
     "hyperjson-mcp": "./dist/bin/hyperjson-mcp.js"
   },

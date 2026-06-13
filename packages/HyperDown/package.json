@@ -1,6 +1,6 @@
 {
   "name": "@muttum/hyper-down",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Markdown/MDX → SQLite (FTS5 contentless) → server-side route loaders. A drop-in SSR headless CMS for Vike, React Router, TanStack Start, and Next.js — zero backend service.",
   "keywords": [
     "cms",
@@ -33,6 +33,7 @@
     "directory": "packages/HyperDown"
   },
   "bin": {
+    "hyper-down": "./dist/bin/hyperdown.js",
     "hyperdown": "./dist/bin/hyperdown.js",
     "hyperdown-mcp": "./dist/bin/hyperdown-mcp.js"
   },

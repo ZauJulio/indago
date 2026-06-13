@@ -6,7 +6,7 @@
  * Desktop, Continue, Cursor, …) can validate configs, scaffold content,
  * and run codegen without learning the CLI surface.
  *
- * Run via:  `npx hyperdown-mcp`  (registered through the package's `"bin"`).
+ * Run via:  `npx --package @muttum/hyper-down hyperdown-mcp`  (registered through the package's `"bin"`).
  */
 
 import { spawn } from "node:child_process";

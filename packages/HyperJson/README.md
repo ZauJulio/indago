@@ -105,7 +105,7 @@ The `schema.json` `title` becomes the generated TypeScript type name. Validation
 ### 1. Scaffold the config
 
 ```bash
-bunx hyperjson init
+bunx @muttum/hyper-json init
 ```
 
 Creates `hyperjson.config.json`:
@@ -133,7 +133,7 @@ export default defineConfig({
 ### 3. Create a content type
 
 ```bash
-bunx hyperjson create-content-type \
+bunx @muttum/hyper-json create-content-type \
   --name music \
   --locales "en,pt-BR" \
   --fields "title:string:required;genre:string;url:string"
@@ -142,8 +142,8 @@ bunx hyperjson create-content-type \
 ### 4. Validate & generate
 
 ```bash
-bunx hyperjson validate
-bunx hyperjson generate
+bunx @muttum/hyper-json validate
+bunx @muttum/hyper-json generate
 ```
 
 ### 5. Import content with full typing
@@ -163,7 +163,7 @@ import type { MusicContentSchema } from "@muttum/hyper-json";
 
 ## CLI reference
 
-The `hyperjson` binary is installed with the package. Run it via `bunx hyperjson <command>`.
+The `hyperjson` binary is installed with the package. Run it via `bunx @muttum/hyper-json <command>`.
 
 ```text
 hyperjson <command> [target] [options]
@@ -182,7 +182,7 @@ Scaffolds `hyperjson.config.json` in the current directory. Skips with a warning
 file already exists.
 
 ```bash
-bunx hyperjson init
+bunx @muttum/hyper-json init
 ```
 
 <h3 id="hyperjson-validate"><code>validate [target]</code></h3>
@@ -198,9 +198,9 @@ The path flag overrides the default location for the chosen `target`: the config
 | `-p, --path <path>` | target default | Path to the file/dir matching `target` (`config` or `content`). Ignored for `both`. |
 
 ```bash
-bunx hyperjson validate
-bunx hyperjson validate content
-bunx hyperjson validate config --path ./apps/web/hyperjson.config.json
+bunx @muttum/hyper-json validate
+bunx @muttum/hyper-json validate content
+bunx @muttum/hyper-json validate config --path ./apps/web/hyperjson.config.json
 ```
 
 <h3 id="hyperjson-generate"><code>generate</code></h3>
@@ -209,9 +209,9 @@ Generates TypeScript types for every content schema and writes the ambient modul
 declarations. Runs the codegen with a **parallel worker pool** (see [Codegen](#codegen)).
 
 ```bash
-bunx hyperjson generate
-bunx hyperjson gen            # alias
-HYPERJSON_CONCURRENCY=2 bunx hyperjson generate
+bunx @muttum/hyper-json generate
+bunx @muttum/hyper-json gen            # alias
+HYPERJSON_CONCURRENCY=2 bunx @muttum/hyper-json generate
 ```
 
 <h3 id="hyperjson-create-content-type"><code>create-content-type</code></h3>
@@ -233,7 +233,7 @@ Field types: `string`, `number`, `integer`, `boolean`, `string[]`, `enum`, `date
 literal `required`.
 
 ```bash
-bunx hyperjson create-content-type \
+bunx @muttum/hyper-json create-content-type \
   --name skill \
   --locales en \
   --fields "name:string:required;level:string:required"
@@ -245,7 +245,7 @@ bunx hyperjson create-content-type \
 tools for AI agents.
 
 ```bash
-bunx hyperjson-mcp
+bunx --package @muttum/hyper-json hyperjson-mcp
 ```
 
 Tools: `hyperjson_init`, `hyperjson_validate`, `hyperjson_generate`,
@@ -364,7 +364,7 @@ Validated against `schemas/hyperjson.config.schema.json`.
 
 > **Auto-generated files — do not edit:** the per-schema `.hyper-json/src/content/*/types.ts`
 > and the aggregate `.hyper-json/src/content/generated.d.ts` are produced by codegen and
-> will be overwritten — re-run `bunx hyperjson generate` after changing a `schema.json`.
+> will be overwritten — re-run `bunx @muttum/hyper-json generate` after changing a `schema.json`.
 > (Inside this repo, the package's own `src/lib/types.ts` is dev-time codegen:
 > `bun run gen:types`, run automatically on prebuild.)
 

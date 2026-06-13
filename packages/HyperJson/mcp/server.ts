@@ -5,7 +5,7 @@
  * Exposes the `hyperjson` CLI as MCP tools so MCP-aware agents can validate
  * JSON content, regenerate TypeScript types, and bootstrap config files.
  *
- * Run via:  `npx hyperjson-mcp`  (registered through the package's `"bin"`).
+ * Run via:  `npx --package @muttum/hyper-json hyperjson-mcp`  (registered through the package's `"bin"`).
  */
 
 import { spawn } from "node:child_process";

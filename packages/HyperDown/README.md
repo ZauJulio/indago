@@ -100,7 +100,7 @@ HyperDown expects these to be provided by the consuming app:
 ### 1. Scaffold the config files
 
 ```bash
-bunx hyperdown init both
+bunx @muttum/hyper-down init both
 ```
 
 This creates `hyperdown.config.json` and `frontmatter.schema.json` in the current
@@ -158,8 +158,8 @@ prerenders them to static HTML).
 ### 3. Add content
 
 ```bash
-bunx hyperdown create-content --name article --folder Articles --fields "title:string:req,tags:tags:opt"
-bunx hyperdown create-item --type article --slug hello-world --lang en
+bunx @muttum/hyper-down create-content --name article --folder Articles --fields "title:string:req,tags:tags:opt"
+bunx @muttum/hyper-down create-item --type article --slug hello-world --lang en
 ```
 
 ```mdx
@@ -393,7 +393,7 @@ prefixes (`/pt`, …) are derived from the i18n `strategy` (`folder`) or `filePa
 
 ## CLI reference
 
-The `hyperdown` binary is installed with the package. Run it via `bunx hyperdown <command>`
+The `hyperdown` binary is installed with the package. Run it via `bunx @muttum/hyper-down <command>`
 (or `npx`, etc.). Commands are interactive where it makes sense and fully scriptable via
 flags.
 
@@ -417,8 +417,8 @@ Scaffolds config files. `target` is one of `config`, `frontmatter`, or `both`
 (default: `both`). Existing files are left untouched.
 
 ```bash
-bunx hyperdown init both
-bunx hyperdown init config
+bunx @muttum/hyper-down init both
+bunx @muttum/hyper-down init config
 ```
 
 <h3 id="hyperdown-validate"><code>validate [target]</code></h3>
@@ -435,8 +435,8 @@ The path flag defaults per `target`: `./hyperdown.config.json` for `config`,
 | `-p, --path <path>` | target default | Path to the file matching `target` (`config` or `frontmatter`). Ignored for `both`. |
 
 ```bash
-bunx hyperdown validate
-bunx hyperdown validate config --path ./apps/web/hyperdown.config.json
+bunx @muttum/hyper-down validate
+bunx @muttum/hyper-down validate config --path ./apps/web/hyperdown.config.json
 ```
 
 <h3 id="hyperdown-update"><code>update [target]</code></h3>
@@ -450,8 +450,8 @@ defaults to `schemas`. **Network access is required.**
 | `-o, --output <path>` | `src/frontmatter/schema-types.ts` (in-package) | Output path for the generated `schema-types.ts`. |
 
 ```bash
-bunx hyperdown update schemas
-bunx hyperdown update --output ./types/frontmatter-schema-types.ts
+bunx @muttum/hyper-down update schemas
+bunx @muttum/hyper-down update --output ./types/frontmatter-schema-types.ts
 ```
 
 <h3 id="hyperdown-gendb"><code>gen:db</code></h3>
@@ -464,8 +464,8 @@ front-matter content — self-sufficient on a fresh checkout (no prior build nee
 | `-p, --path <path>` | `./hyperdown.config.json` | Path to `hyperdown.config.json`. |
 
 ```bash
-bunx hyperdown gen:db
-bunx hyperdown gen:db --path ./apps/web/hyperdown.config.json
+bunx @muttum/hyper-down gen:db
+bunx @muttum/hyper-down gen:db --path ./apps/web/hyperdown.config.json
 ```
 
 <h3 id="hyperdown-create-content"><code>create-content</code></h3>
@@ -486,7 +486,7 @@ entries are silently skipped). Types: `string`, `number`, `boolean`, `datetime`,
 `draft`, `tags`, `categories`, `image`, `choice[a|b|c]`.
 
 ```bash
-bunx hyperdown create-content \
+bunx @muttum/hyper-down create-content \
   --name product \
   --folder Products \
   --fields "title:string:req,price:number:opt,status:choice[draft|published]:req"
@@ -506,7 +506,7 @@ a default content type with `title`, `description`, `date`, `draft`, and `tags` 
 | `-o, --output <path>` | `frontmatter.json` | Output file path.                                 |
 
 ```bash
-bunx hyperdown create-frontmatter --name post --locales "en,pt-BR" --output frontmatter.json
+bunx @muttum/hyper-down create-frontmatter --name post --locales "en,pt-BR" --output frontmatter.json
 ```
 
 <h3 id="hyperdown-create-item"><code>create-item</code></h3>
@@ -522,7 +522,7 @@ front-matter fields. Interactive when `--type`, `--slug`, or `--lang` is omitted
 | `-p, --path <path>` | `./hyperdown.config.json` | Path to the config file.                |
 
 ```bash
-bunx hyperdown create-item --type article --slug hello-world --lang en
+bunx @muttum/hyper-down create-item --type article --slug hello-world --lang en
 ```
 
 ### MCP server
@@ -532,7 +532,7 @@ exposes the CLI as tools so MCP-aware agents (Claude Desktop, Cursor, Continue, 
 scaffold, validate, and generate without learning the CLI surface.
 
 ```bash
-bunx hyperdown-mcp
+bunx --package @muttum/hyper-down hyperdown-mcp
 ```
 
 Tools: `hyperdown_init`, `hyperdown_validate`, `hyperdown_update`, `hyperdown_gen_db`,

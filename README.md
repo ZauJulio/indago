@@ -97,9 +97,9 @@ suite. Generated reference apps live in [`examples/`](./examples).
 
 ```bash
 bun add @muttum/hyper-down
-bunx hyperdown init both        # hyperdown.config.json + frontmatter schema
-bunx hyperdown create-frontmatter --name article --locales "en,pt-BR"
-bunx hyperdown create-item --type article --slug hello-world --lang en
+bunx @muttum/hyper-down init both        # hyperdown.config.json + frontmatter schema
+bunx @muttum/hyper-down create-frontmatter --name article --locales "en,pt-BR"
+bunx @muttum/hyper-down create-item --type article --slug hello-world --lang en
 ```
 
 ```ts
@@ -120,9 +120,9 @@ browser-safe resolver — full walkthrough in the
 
 ```bash
 bun add @muttum/hyper-json
-bunx hyperjson init
-bunx hyperjson create-content-type --name projects --fields "id:string:required;name:string:required;url:string"
-bunx hyperjson generate
+bunx @muttum/hyper-json init
+bunx @muttum/hyper-json create-content-type --name projects --fields "id:string:required;name:string:required;url:string"
+bunx @muttum/hyper-json generate
 ```
 
 ```ts
