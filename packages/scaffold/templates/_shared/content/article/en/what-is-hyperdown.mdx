@@ -20,7 +20,7 @@ categories: ["Engineering"]
 author: "Zau Julio"
 readingTime: "12 min read"
 canonical: ""
-cover: ""
+cover: "https://raw.githubusercontent.com/ZauJulio/muttum/main/assets/covers/what-is-hyperdown.png"
 ---
 
 # What is HyperDown?
@@ -148,18 +148,18 @@ are omitted and are fully scriptable when they are not:
 
 ```bash
 # Bootstrap
-bunx hyperdown init both
+bunx @muttum/hyper-down init both
 
 # New content type — `req|opt` suffix is mandatory per field
-bunx hyperdown create-content --name product --folder Products \
+bunx @muttum/hyper-down create-content --name product --folder Products \
   --fields "title:string:req,price:number:opt,status:choice[draft|live]:req"
 
 # New item, then regenerate the databases
-bunx hyperdown create-item --type article --slug hello-world --lang en
-bunx hyperdown gen:db
+bunx @muttum/hyper-down create-item --type article --slug hello-world --lang en
+bunx @muttum/hyper-down gen:db
 
 # CI gate — exits non-zero on the first invalid file
-bunx hyperdown validate both
+bunx @muttum/hyper-down validate both
 ```
 
 `gen:db` runs the `.hyper-down/**` codegen itself before the writer, so it works on a
@@ -173,7 +173,7 @@ tools: `hyperdown_init`, `hyperdown_validate`, `hyperdown_update`, `hyperdown_ge
 Creation tools require their full flag set — interactive prompts are disabled under MCP.
 
 **Claude Code** — add it to the project's `.mcp.json` (or run
-`claude mcp add hyperdown -- bunx hyperdown-mcp`):
+`claude mcp add hyperdown -- bunx --package @muttum/hyper-down hyperdown-mcp`):
 
 ```json
 {

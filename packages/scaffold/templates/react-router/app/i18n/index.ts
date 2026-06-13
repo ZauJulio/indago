@@ -42,6 +42,7 @@ function createInstance(lng: Locale): I18nInstance {
     resources,
     interpolation: { escapeValue: false }, // React already escapes — avoid double-escaping.
     returnNull: false,
+    showSupportNotice: false, // silence i18next v25 Locize promo console.info
     react: { useSuspense: false },
   });
   return instance;

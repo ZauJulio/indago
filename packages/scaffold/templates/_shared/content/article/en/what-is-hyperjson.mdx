@@ -9,7 +9,7 @@ categories: ["Engineering"]
 author: "Zau Julio"
 readingTime: "10 min read"
 canonical: ""
-cover: ""
+cover: "https://raw.githubusercontent.com/ZauJulio/muttum/main/assets/covers/what-is-hyperjson.png"
 ---
 
 # What is HyperJson?
@@ -114,19 +114,19 @@ The config is deliberately small — `contentDir` is the only required field:
 | `create-content-type`    | Scaffold a `schema.json` + empty per-locale data files. |
 
 ```bash
-bunx hyperjson init
+bunx @muttum/hyper-json init
 
 # Semicolon-separated fields; third segment `required` marks a field required
-bunx hyperjson create-content-type \
+bunx @muttum/hyper-json create-content-type \
   --name projects \
   --locales "en,pt-BR" \
   --fields "id:string:required;name:string:required;url:string"
 
 # CI gate — exits non-zero when any file fails
-bunx hyperjson validate
+bunx @muttum/hyper-json validate
 
 # Regenerate types (bound the pool if you need to)
-HYPERJSON_CONCURRENCY=2 bunx hyperjson generate
+HYPERJSON_CONCURRENCY=2 bunx @muttum/hyper-json generate
 ```
 
 Field types: `string`, `number`, `integer`, `boolean`, `string[]`, `enum`, and `date`
@@ -140,7 +140,7 @@ Field types: `string`, `number`, `integer`, `boolean`, `string[]`, `enum`, and `
 interactive prompts are disabled under MCP.
 
 **Claude Code** — add it to the project's `.mcp.json` (or run
-`claude mcp add hyperjson -- bunx hyperjson-mcp`):
+`claude mcp add hyperjson -- bunx --package @muttum/hyper-json hyperjson-mcp`):
 
 ```json
 {

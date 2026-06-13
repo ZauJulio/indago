@@ -10,14 +10,17 @@ export const LOGO_LINES = [
 
 const RESET = "\x1b[0m";
 
-// 24-bit truecolor gradient (cyan → violet) applied per line.
+// 24-bit truecolor gradient across the two brand colors of the Muttum logo
+// (assets/logo.svg): the terracotta mark #BB795A on top — the color you read as
+// "the logo" — fading down into the plum #290C29 base. The plum end is lifted to
+// #43254A so every banner line stays legible on a dark terminal.
 const GRADIENT: ReadonlyArray<readonly [number, number, number]> = [
-  [34, 211, 238],
-  [56, 189, 248],
-  [96, 165, 250],
-  [129, 140, 248],
-  [167, 139, 250],
-  [192, 132, 252],
+  [187, 121, 90], // Step 1: #BB795A — brand terracotta (logo mark)
+  [176, 112, 92], // Step 2: #B0705C
+  [154, 94, 90], // Step 3: #9A5E5A
+  [126, 76, 86], // Step 4: #7E4C56
+  [92, 52, 80], // Step 5: #5C3450
+  [67, 37, 74], // Step 6: #43254A — brand plum #290C29, lifted for legibility
 ];
 
 const colorsEnabled = (): boolean =>

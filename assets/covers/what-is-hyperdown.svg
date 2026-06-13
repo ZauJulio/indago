@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" font-family="'DejaVu Sans','Inter',Arial,sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2E0E2D"/>
+      <stop offset="1" stop-color="#1A0720"/>
+    </linearGradient>
+    <linearGradient id="terr" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#CB8A64"/>
+      <stop offset="1" stop-color="#A8654A"/>
+    </linearGradient>
+    <filter id="soft" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.40"/>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <circle cx="1080" cy="110" r="240" fill="#BB795A" opacity="0.06"/>
+  <circle cx="110" cy="580" r="190" fill="#BB795A" opacity="0.05"/>
+
+  <!-- Header -->
+  <rect x="80" y="64" width="66" height="66" rx="18" fill="url(#terr)"/>
+  <path d="M100 90 l13 16 13 -16" fill="none" stroke="#241022" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="166" y="98" font-size="42" font-weight="700" fill="#F6EEE9">HyperDown</text>
+  <text x="167" y="128" font-size="21" font-weight="500" fill="#D6A488">Markdown → SQLite FTS5 · full-text search, server-side</text>
+
+  <!-- Pipeline -->
+  <g filter="url(#soft)">
+    <!-- 1: source files -->
+    <rect x="80" y="266" width="280" height="176" rx="22" fill="#371A35" stroke="#6E4357" stroke-width="1.5"/>
+    <rect x="120" y="306" width="118" height="96" rx="10" fill="#2A1228" stroke="#BB795A" stroke-width="2"/>
+    <line x1="138" y1="332" x2="220" y2="332" stroke="#D6A488" stroke-width="5" stroke-linecap="round"/>
+    <line x1="138" y1="352" x2="206" y2="352" stroke="#7E5C6E" stroke-width="5" stroke-linecap="round"/>
+    <line x1="138" y1="372" x2="214" y2="372" stroke="#7E5C6E" stroke-width="5" stroke-linecap="round"/>
+    <text x="258" y="345" font-size="22" font-weight="700" fill="#F6EEE9">.md</text>
+    <text x="258" y="378" font-size="22" font-weight="700" fill="#F6EEE9">.mdx</text>
+    <text x="220" y="424" font-size="17" fill="#C9B3C0" text-anchor="middle">content/</text>
+
+    <!-- 2: SQLite FTS5 (highlighted) -->
+    <rect x="460" y="266" width="280" height="176" rx="22" fill="url(#terr)"/>
+    <ellipse cx="600" cy="318" rx="58" ry="16" fill="#2A1228" opacity="0.85"/>
+    <path d="M542 318 v44 a58 16 0 0 0 116 0 v-44" fill="none" stroke="#2A1228" stroke-width="6" opacity="0.85"/>
+    <path d="M542 340 a58 16 0 0 0 116 0" fill="none" stroke="#2A1228" stroke-width="6" opacity="0.85"/>
+    <text x="600" y="392" font-size="25" font-weight="800" fill="#241022" text-anchor="middle">SQLite</text>
+    <text x="600" y="422" font-size="20" font-weight="800" fill="#3B1A2E" text-anchor="middle">FTS5 · contentless</text>
+
+    <!-- 3: search -->
+    <rect x="840" y="266" width="280" height="176" rx="22" fill="#371A35" stroke="#6E4357" stroke-width="1.5"/>
+    <rect x="876" y="300" width="208" height="46" rx="23" fill="#2A1228" stroke="#BB795A" stroke-width="2"/>
+    <circle cx="904" cy="323" r="11" fill="none" stroke="#D6A488" stroke-width="4"/>
+    <line x1="912" y1="331" x2="922" y2="341" stroke="#D6A488" stroke-width="4" stroke-linecap="round"/>
+    <text x="936" y="330" font-size="18" fill="#C9B3C0">search…</text>
+    <line x1="876" y1="372" x2="1064" y2="372" stroke="#BB795A" stroke-width="5" stroke-linecap="round"/>
+    <line x1="876" y1="394" x2="1020" y2="394" stroke="#6E4357" stroke-width="5" stroke-linecap="round"/>
+    <line x1="876" y1="416" x2="1044" y2="416" stroke="#6E4357" stroke-width="5" stroke-linecap="round"/>
+  </g>
+
+  <!-- Arrows -->
+  <g stroke="#D6A488" stroke-width="4" fill="#D6A488">
+    <line x1="372" y1="354" x2="446" y2="354" stroke-linecap="round"/>
+    <path d="M446 354 l-14 -8 v16 z"/>
+    <line x1="752" y1="354" x2="826" y2="354" stroke-linecap="round"/>
+    <path d="M826 354 l-14 -8 v16 z"/>
+  </g>
+  <text x="409" y="334" font-size="15" fill="#A98B9C" text-anchor="middle">build</text>
+  <text x="789" y="334" font-size="15" fill="#A98B9C" text-anchor="middle">query</text>
+
+  <!-- Footer -->
+  <line x1="80" y1="520" x2="1120" y2="520" stroke="#4A2A45" stroke-width="1.5"/>
+  <text x="80" y="560" font-size="19" font-weight="600" fill="#BB795A" font-family="'DejaVu Sans Mono',monospace">@muttum/hyper-down</text>
+  <text x="1120" y="560" font-size="18" fill="#9A8194" text-anchor="end">body tokenized, never stored — the .db stays tiny</text>
+</svg>

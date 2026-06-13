@@ -7,13 +7,17 @@ import { MdxRender } from "@muttum/hyper-down";
 import { Link } from "@/components/Link";
 import { articleRepository } from "@/content/repositories.server";
 import { getArticleContent } from "@/content/resolvers";
-import { localeFromPath, useLocale } from "@/i18n";
+import { I18N, localeFromPath, useLocale } from "@/i18n";
 import { contentMeta } from "@/seo";
 
 /** SSR: article metadata for the detail page (MDX body resolved in the view). */
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const locale = localeFromPath(new URL(request.url).pathname);
-  const article = await articleRepository.getMetaBySlug(params.slug, locale);
+  // Map the app locale (`en`/`pt`) to the DB tag (`en`/`pt-BR`) the repository filters on.
+  const article = await articleRepository.getMetaBySlug(
+    params.slug,
+    I18N.locales[locale].canonical,
+  );
   return { article: article ?? null };
 }
 

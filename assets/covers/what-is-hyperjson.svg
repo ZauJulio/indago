@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" font-family="'DejaVu Sans','Inter',Arial,sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2E0E2D"/>
+      <stop offset="1" stop-color="#1A0720"/>
+    </linearGradient>
+    <linearGradient id="terr" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#CB8A64"/>
+      <stop offset="1" stop-color="#A8654A"/>
+    </linearGradient>
+    <filter id="soft" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.40"/>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <circle cx="1080" cy="110" r="240" fill="#BB795A" opacity="0.06"/>
+  <circle cx="110" cy="580" r="190" fill="#BB795A" opacity="0.05"/>
+
+  <!-- Header -->
+  <rect x="80" y="64" width="66" height="66" rx="18" fill="url(#terr)"/>
+  <text x="113" y="112" font-size="40" font-weight="800" fill="#241022" text-anchor="middle" font-family="'DejaVu Sans Mono',monospace">{ }</text>
+  <text x="166" y="98" font-size="42" font-weight="700" fill="#F6EEE9">HyperJson</text>
+  <text x="167" y="128" font-size="21" font-weight="500" fill="#D6A488">JSON Schema → TypeScript types · validated, typed imports</text>
+
+  <!-- Pipeline -->
+  <g filter="url(#soft)">
+    <!-- 1: json + schema -->
+    <rect x="80" y="266" width="280" height="176" rx="22" fill="#371A35" stroke="#6E4357" stroke-width="1.5"/>
+    <text x="118" y="324" font-size="20" font-weight="700" fill="#F6EEE9" font-family="'DejaVu Sans Mono',monospace">data.json</text>
+    <text x="132" y="352" font-size="16" fill="#C9B3C0" font-family="'DejaVu Sans Mono',monospace">{ "id": 1,</text>
+    <text x="132" y="374" font-size="16" fill="#C9B3C0" font-family="'DejaVu Sans Mono',monospace">  "name": "…" }</text>
+    <rect x="116" y="392" width="150" height="30" rx="15" fill="#2A1228" stroke="#BB795A" stroke-width="1.5"/>
+    <path d="M132 407 l8 8 16 -18" fill="none" stroke="#D6A488" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="166" y="412" font-size="15" fill="#D6A488" font-family="'DejaVu Sans Mono',monospace">schema.json</text>
+
+    <!-- 2: types.ts (highlighted) -->
+    <rect x="460" y="266" width="280" height="176" rx="22" fill="url(#terr)"/>
+    <rect x="556" y="296" width="88" height="42" rx="9" fill="#241022"/>
+    <text x="600" y="325" font-size="22" font-weight="800" fill="#CB8A64" text-anchor="middle" font-family="'DejaVu Sans Mono',monospace">TS</text>
+    <text x="600" y="372" font-size="24" font-weight="800" fill="#241022" text-anchor="middle" font-family="'DejaVu Sans Mono',monospace">types.ts</text>
+    <text x="600" y="406" font-size="17" font-weight="700" fill="#3B1A2E" text-anchor="middle">interface + d.ts</text>
+
+    <!-- 3: typed consumption / autocomplete -->
+    <rect x="840" y="266" width="280" height="176" rx="22" fill="#371A35" stroke="#6E4357" stroke-width="1.5"/>
+    <text x="872" y="312" font-size="16" fill="#C9B3C0" font-family="'DejaVu Sans Mono',monospace">data.</text>
+    <rect x="936" y="296" width="150" height="118" rx="8" fill="#2A1228" stroke="#BB795A" stroke-width="1.5"/>
+    <rect x="936" y="296" width="150" height="30" rx="8" fill="#4A2336"/>
+    <text x="950" y="316" font-size="14" fill="#F0DCCF" font-family="'DejaVu Sans Mono',monospace">id: number</text>
+    <text x="950" y="348" font-size="14" fill="#C9B3C0" font-family="'DejaVu Sans Mono',monospace">name: string</text>
+    <text x="950" y="376" font-size="14" fill="#C9B3C0" font-family="'DejaVu Sans Mono',monospace">tags: string[]</text>
+    <text x="950" y="404" font-size="14" fill="#C9B3C0" font-family="'DejaVu Sans Mono',monospace">url?: string</text>
+  </g>
+
+  <!-- Arrows -->
+  <g stroke="#D6A488" stroke-width="4" fill="#D6A488">
+    <line x1="372" y1="354" x2="446" y2="354" stroke-linecap="round"/>
+    <path d="M446 354 l-14 -8 v16 z"/>
+    <line x1="752" y1="354" x2="826" y2="354" stroke-linecap="round"/>
+    <path d="M826 354 l-14 -8 v16 z"/>
+  </g>
+  <text x="409" y="334" font-size="15" fill="#A98B9C" text-anchor="middle">codegen</text>
+  <text x="789" y="334" font-size="15" fill="#A98B9C" text-anchor="middle">import</text>
+
+  <!-- Footer -->
+  <line x1="80" y1="520" x2="1120" y2="520" stroke="#4A2A45" stroke-width="1.5"/>
+  <text x="80" y="560" font-size="19" font-weight="600" fill="#BB795A" font-family="'DejaVu Sans Mono',monospace">@muttum/hyper-json</text>
+  <text x="1120" y="560" font-size="18" fill="#9A8194" text-anchor="end">strict validation at build · autocomplete in your editor</text>
+</svg>

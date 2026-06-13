@@ -1,6 +1,6 @@
 {
   "name": "create-muttum-app",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Scaffold a Vite/Vike/React-Router/TanStack/Next.js app wired to the HyperDown (Markdown → SQLite FTS5) and HyperJson (JSON Schema → typed content) engines.",
   "keywords": [
     "cli",
