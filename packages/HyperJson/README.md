@@ -1,7 +1,7 @@
 # HyperJson
 
 <p align="center">
-  <img src="./assets/logo.svg" alt="HyperJson — Honos et Muttum" width="120" height="120" />
+  <img src="./assets/logo.svg" alt="HyperJson — Honos et Indago" width="120" height="120" />
 </p>
 
 <p align="center">
@@ -58,10 +58,10 @@ on front-matter** — all front-matter logic lives in HyperDown.
 
 ```bash
 # bun (recommended)
-bun add @muttum/hyper-json
+bun add @indago/hyper-json
 
 # npm / pnpm / yarn
-npm install @muttum/hyper-json
+npm install @indago/hyper-json
 ```
 
 ### Peer dependencies
@@ -105,14 +105,14 @@ The `schema.json` `title` becomes the generated TypeScript type name. Validation
 ### 1. Scaffold the config
 
 ```bash
-bunx @muttum/hyper-json init
+bunx @indago/hyper-json init
 ```
 
 Creates `hyperjson.config.json`:
 
 ```jsonc
 {
-  "$schema": "./node_modules/@muttum/hyper-json/schemas/hyperjson.config.schema.json",
+  "$schema": "./node_modules/@indago/hyper-json/schemas/hyperjson.config.schema.json",
   "contentDir": "src/content",
   "validation": { "strict": true, "failOnError": true },
 }
@@ -122,7 +122,7 @@ Creates `hyperjson.config.json`:
 
 ```ts
 // vite.config.ts
-import { hyperjsonValidationPlugin } from "@muttum/hyper-json";
+import { hyperjsonValidationPlugin } from "@indago/hyper-json";
 import { defineConfig } from "vite";
 
 export default defineConfig({
@@ -133,7 +133,7 @@ export default defineConfig({
 ### 3. Create a content type
 
 ```bash
-bunx @muttum/hyper-json create-content-type \
+bunx @indago/hyper-json create-content-type \
   --name music \
   --locales "en,pt-BR" \
   --fields "title:string:required;genre:string;url:string"
@@ -142,15 +142,15 @@ bunx @muttum/hyper-json create-content-type \
 ### 4. Validate & generate
 
 ```bash
-bunx @muttum/hyper-json validate
-bunx @muttum/hyper-json generate
+bunx @indago/hyper-json validate
+bunx @indago/hyper-json generate
 ```
 
 ### 5. Import content with full typing
 
 ```ts
 import enPlaylists from "@content/music/en/playlists.json";
-import type { MusicContentSchema } from "@muttum/hyper-json";
+import type { MusicContentSchema } from "@indago/hyper-json";
 
 // `enPlaylists` is typed via the generated ambient module declaration.
 ```
@@ -163,7 +163,7 @@ import type { MusicContentSchema } from "@muttum/hyper-json";
 
 ## CLI reference
 
-The `hyperjson` binary is installed with the package. Run it via `bunx @muttum/hyper-json <command>`.
+The `hyperjson` binary is installed with the package. Run it via `bunx @indago/hyper-json <command>`.
 
 ```text
 hyperjson <command> [target] [options]
@@ -182,7 +182,7 @@ Scaffolds `hyperjson.config.json` in the current directory. Skips with a warning
 file already exists.
 
 ```bash
-bunx @muttum/hyper-json init
+bunx @indago/hyper-json init
 ```
 
 <h3 id="hyperjson-validate"><code>validate [target]</code></h3>
@@ -198,9 +198,9 @@ The path flag overrides the default location for the chosen `target`: the config
 | `-p, --path <path>` | target default | Path to the file/dir matching `target` (`config` or `content`). Ignored for `both`. |
 
 ```bash
-bunx @muttum/hyper-json validate
-bunx @muttum/hyper-json validate content
-bunx @muttum/hyper-json validate config --path ./apps/web/hyperjson.config.json
+bunx @indago/hyper-json validate
+bunx @indago/hyper-json validate content
+bunx @indago/hyper-json validate config --path ./apps/web/hyperjson.config.json
 ```
 
 <h3 id="hyperjson-generate"><code>generate</code></h3>
@@ -209,9 +209,9 @@ Generates TypeScript types for every content schema and writes the ambient modul
 declarations. Runs the codegen with a **parallel worker pool** (see [Codegen](#codegen)).
 
 ```bash
-bunx @muttum/hyper-json generate
-bunx @muttum/hyper-json gen            # alias
-HYPERJSON_CONCURRENCY=2 bunx @muttum/hyper-json generate
+bunx @indago/hyper-json generate
+bunx @indago/hyper-json gen            # alias
+HYPERJSON_CONCURRENCY=2 bunx @indago/hyper-json generate
 ```
 
 <h3 id="hyperjson-create-content-type"><code>create-content-type</code></h3>
@@ -233,7 +233,7 @@ Field types: `string`, `number`, `integer`, `boolean`, `string[]`, `enum`, `date
 literal `required`.
 
 ```bash
-bunx @muttum/hyper-json create-content-type \
+bunx @indago/hyper-json create-content-type \
   --name skill \
   --locales en \
   --fields "name:string:required;level:string:required"
@@ -245,7 +245,7 @@ bunx @muttum/hyper-json create-content-type \
 tools for AI agents.
 
 ```bash
-bunx --package @muttum/hyper-json hyperjson-mcp
+bunx --package @indago/hyper-json hyperjson-mcp
 ```
 
 Tools: `hyperjson_init`, `hyperjson_validate`, `hyperjson_generate`,
@@ -280,9 +280,9 @@ The package exposes three entry points:
 
 | Import                       | Provides                                                                                                                                                  |
 | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `@muttum/hyper-json`         | `loadHyperJsonConfig`, `validateHyperJsonConfig`, `validateContentSchemas`, `hyperjsonValidationPlugin`, loggers, and the generated content/config types. |
-| `@muttum/hyper-json/hooks`   | Client-side React hooks: `useFilter`, `useSearch`, `useSort`, `usePaginate`, `useComposed`.                                                               |
-| `@muttum/hyper-json/plugins` | The Vite plugin entry.                                                                                                                                    |
+| `@indago/hyper-json`         | `loadHyperJsonConfig`, `validateHyperJsonConfig`, `validateContentSchemas`, `hyperjsonValidationPlugin`, loggers, and the generated content/config types. |
+| `@indago/hyper-json/hooks`   | Client-side React hooks: `useFilter`, `useSearch`, `useSort`, `usePaginate`, `useComposed`.                                                               |
+| `@indago/hyper-json/plugins` | The Vite plugin entry.                                                                                                                                    |
 
 ### Validation & config
 
@@ -291,7 +291,7 @@ import {
   loadHyperJsonConfig, // (appRootDir) => HyperJsonConfiguration (validated)
   validateHyperJsonConfig, // (config, path?) => boolean (type guard)
   validateContentSchemas, // (contentDir?) => { passed, failed, results, schemaDirs }
-} from "@muttum/hyper-json";
+} from "@indago/hyper-json";
 ```
 
 ### Codegen
@@ -301,7 +301,7 @@ in-process `json-schema-to-typescript` API, run through a bounded promise pool. 
 only into the consuming app's `.hyper-json/` tree.
 
 ```ts
-import { HyperJsonCodegen } from "@muttum/hyper-json"; // via the package's codegen export
+import { HyperJsonCodegen } from "@indago/hyper-json"; // via the package's codegen export
 
 const codegen = new HyperJsonCodegen({
   appRootDir: process.cwd(),
@@ -332,7 +332,7 @@ import {
   useSort, // (data, SortConfig | null) => T[]
   usePaginate, // (data, page, perPage) => { items, page, totalPages, total }
   useComposed, // filter → search → sort → paginate, all in one
-} from "@muttum/hyper-json/hooks";
+} from "@indago/hyper-json/hooks";
 ```
 
 ```tsx
@@ -364,7 +364,7 @@ Validated against `schemas/hyperjson.config.schema.json`.
 
 > **Auto-generated files — do not edit:** the per-schema `.hyper-json/src/content/*/types.ts`
 > and the aggregate `.hyper-json/src/content/generated.d.ts` are produced by codegen and
-> will be overwritten — re-run `bunx @muttum/hyper-json generate` after changing a `schema.json`.
+> will be overwritten — re-run `bunx @indago/hyper-json generate` after changing a `schema.json`.
 > (Inside this repo, the package's own `src/lib/types.ts` is dev-time codegen:
 > `bun run gen:types`, run automatically on prebuild.)
 

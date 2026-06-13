@@ -11,12 +11,12 @@ TypeScript monorepo: **Bun** (package manager + runtime) · **Turbo** · **Vite 
 Linting/formatting via **OXC** (`oxlint` + `oxfmt`) — **not** Biome/ESLint/Prettier.
 Library builds via **tsdown** (Rolldown).
 
-- `packages/HyperDown` (`@muttum/hyper-down`) — Markdown/MDX CMS: frontmatter parser,
+- `packages/HyperDown` (`@indago/hyper-down`) — Markdown/MDX CMS: frontmatter parser,
   SQLite (FTS5 contentless) generation, Vite plugins, virtual modules, server-side
   `ContentRepository`, browser-safe MDX resolver, Next.js adapter. **SSR-only**.
-- `packages/HyperJson` (`@muttum/hyper-json`) — typed JSON content: schema validation +
+- `packages/HyperJson` (`@indago/hyper-json`) — typed JSON content: schema validation +
   TypeScript codegen (parallel pool, `HYPERJSON_CONCURRENCY`) + headless hooks.
-- `packages/scaffold` (`create-muttum-app`) — scaffolder CLI: 4 templates (vike /
+- `packages/scaffold` (`@indago/create-app`) — scaffolder CLI: 4 templates (vike /
   react-router / tanstack / next), same routes + e2e suite. Harness:
   `bun run test:templates`; examples: `bun run gen:examples` (→ `examples/`).
 - `packages/configs` (`@repo/configs`) — shared tsconfig/oxlint/oxfmt/Tailwind/Vite presets.
@@ -37,7 +37,7 @@ Fix every error **and warning** before considering a task done.
 ```bash
 hyperdown init|validate|update|gen:db|create-content|create-frontmatter|create-item
 hyperjson init|validate|generate|create-content-type
-bun create muttum-app my-app
+bun create @indago/app my-app
 ```
 
 MCP stdio servers: `hyperdown-mcp`

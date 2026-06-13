@@ -15,8 +15,8 @@ function ensure<T>(value: T | symbol): T {
 export async function promptProjectDir(initial?: string): Promise<string> {
   const value = await text({
     message: "Where should we create your project?",
-    placeholder: "./my-muttum-app",
-    initialValue: initial ?? "./my-muttum-app",
+    placeholder: "./my-indago-app",
+    initialValue: initial ?? "./my-indago-app",
     validate(v) {
       if (!v || v.trim().length === 0) return "Please enter a directory.";
       return undefined;

@@ -1,7 +1,7 @@
 ---
 draft: false
 title: "O que é o HyperJson? Conteúdo JSON schema-first para Vite"
-description: "Um tour completo pelo HyperJson: validação estrita com Ajv, codegen de tipos in-process, a árvore .hyper-json gerada, a CLI hyperjson, o servidor MCP no Claude Code e no opencode, o pacote .agents, os testes e os scaffolds do create-muttum-app."
+description: "Um tour completo pelo HyperJson: validação estrita com Ajv, codegen de tipos in-process, a árvore .hyper-json gerada, a CLI hyperjson, o servidor MCP no Claude Code e no opencode, o pacote .agents, os testes e os scaffolds do @indago/create-app."
 date: "2026-06-12"
 tags:
   ["HyperJson", "JSON Schema", "TypeScript", "Vite", "Codegen", "Validação", "Headless CMS", "MCP"]
@@ -9,19 +9,19 @@ categories: ["Engenharia"]
 author: "Zau Julio"
 readingTime: "10 min de leitura"
 canonical: ""
-cover: "https://raw.githubusercontent.com/ZauJulio/muttum/main/assets/covers/what-is-hyperjson.png"
+cover: "https://raw.githubusercontent.com/ZauJulio/indago/main/assets/covers/what-is-hyperjson.webp"
 ---
 
 # O que é o HyperJson?
 
-O **HyperJson** (`@muttum/hyper-json`) é um motor de conteúdo JSON-Schema-first para
+O **HyperJson** (`@indago/hyper-json`) é um motor de conteúdo JSON-Schema-first para
 projetos Vite. Você descreve um tipo de conteúdo uma única vez num `schema.json`, coloca
 arquivos JSON por idioma ao lado dele, e o HyperJson faz o resto: **valida cada arquivo
 no build** com Ajv e **gera tipos TypeScript ambientes**, de modo que todo import de
 `.json` é completamente tipado de ponta a ponta — sem backend, sem banco de dados, sem
 custo de runtime.
 
-É um dos dois motores independentes do toolkit **Muttum**. O HyperJson cuida do **JSON
+É um dos dois motores independentes do toolkit **Indago**. O HyperJson cuida do **JSON
 estruturado** — listas de projetos, skills, playlists, álbuns de fotos — enquanto o
 [HyperDown](/pt/articles/what-is-hyperdown) cuida da **prosa em Markdown/MDX**. Eles não
 compartilham código; o HyperJson **não tem nenhuma dependência de frontmatter**.
@@ -55,11 +55,11 @@ build**, e conteúdo válido chega **já tipado**.
    `import data from "@content/music/en/playlists.json"` devolve um valor totalmente
    tipado, sem nenhum cast. O `title` de cada schema vira o nome do tipo gerado.
 
-O plugin Vite (`hyperjsonValidationPlugin`, de `@muttum/hyper-json/plugins`) roda
+O plugin Vite (`hyperjsonValidationPlugin`, de `@indago/hyper-json/plugins`) roda
 validação + codegen no `buildStart` e também serve o **`virtual:hyperjson-config`** — o
 `hyperjson.config.json` parseado como default export, disponível em dev e build.
 
-Por cima disso há uma camada pequena de **hooks headless** (`@muttum/hyper-json/hooks`)
+Por cima disso há uma camada pequena de **hooks headless** (`@indago/hyper-json/hooks`)
 para moldar os dados em memória no React: `useFilter`, `useSearch`, `useSort`,
 `usePaginate` e `useComposed` (filtro → busca → ordenação → paginação numa chamada só).
 Todos puros, com `useMemo`, sem impor UI:
@@ -100,7 +100,7 @@ A config é deliberadamente pequena — `contentDir` é o único campo obrigató
 
 ```jsonc
 {
-  "$schema": "./node_modules/@muttum/hyper-json/schemas/hyperjson.config.schema.json",
+  "$schema": "./node_modules/@indago/hyper-json/schemas/hyperjson.config.schema.json",
   "contentDir": "content",
   "validation": { "strict": true, "failOnError": true },
 }
@@ -116,19 +116,19 @@ A config é deliberadamente pequena — `contentDir` é o único campo obrigató
 | `create-content-type`    | Cria um `schema.json` + arquivos de dados vazios por idioma. |
 
 ```bash
-bunx @muttum/hyper-json init
+bunx @indago/hyper-json init
 
 # Campos separados por ponto e vírgula; o terceiro segmento `required` marca obrigatório
-bunx @muttum/hyper-json create-content-type \
+bunx @indago/hyper-json create-content-type \
   --name projects \
   --locales "en,pt-BR" \
   --fields "id:string:required;name:string:required;url:string"
 
 # Gate de CI — sai com código diferente de zero quando qualquer arquivo falha
-bunx @muttum/hyper-json validate
+bunx @indago/hyper-json validate
 
 # Regenera os tipos (limite o pool se precisar)
-HYPERJSON_CONCURRENCY=2 bunx @muttum/hyper-json generate
+HYPERJSON_CONCURRENCY=2 bunx @indago/hyper-json generate
 ```
 
 Tipos de campo: `string`, `number`, `integer`, `boolean`, `string[]`, `enum` e `date`
@@ -142,7 +142,7 @@ ferramentas: `hyperjson_init`, `hyperjson_validate`, `hyperjson_generate` e
 prompts interativos ficam desabilitados sob MCP.
 
 **Claude Code** — adicione ao `.mcp.json` do projeto (ou rode
-`claude mcp add hyperjson -- bunx --package @muttum/hyper-json hyperjson-mcp`):
+`claude mcp add hyperjson -- bunx --package @indago/hyper-json hyperjson-mcp`):
 
 ```json
 {
@@ -178,7 +178,7 @@ repo — **rules** (restrições) e **skills** (receitas de tarefa):
   um tipo e como evoluir um schema existente com segurança.
 
 Aponte seu `AGENTS.md`/`CLAUDE.md` para
-`node_modules/@muttum/hyper-json/.agents/README.md` e o agente herda o manual.
+`node_modules/@indago/hyper-json/.agents/README.md` e o agente herda o manual.
 
 ## Como ele é testado
 
@@ -192,7 +192,7 @@ Aponte seu `AGENTS.md`/`CLAUDE.md` para
 
 ## Os scaffolds: quatro frameworks, um contrato
 
-`bun create muttum-app` fia o HyperJson (junto com o HyperDown) em **Vike**,
+`bun create @indago/app` fia o HyperJson (junto com o HyperDown) em **Vike**,
 **React Router v7**, **TanStack Start** ou **Next.js** — mesmas rotas, mesmos testes,
 mesma árvore de conteúdo nos quatro:
 

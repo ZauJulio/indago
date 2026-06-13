@@ -4,9 +4,9 @@
  *
  * It mirrors `test-templates.ts` but is **persistent**: it packs the two local
  * engines into `examples/.engines/*.tgz`, scaffolds each template into
- * `examples/<id>/`, rewrites the `@muttum/*` deps to those tarballs via a
+ * `examples/<id>/`, rewrites the `@indago/*` deps to those tarballs via a
  * *relative* `file:` link (so the tree stays portable and identical to what a
- * real `create-muttum-app` consumer gets), installs, then builds + runs the
+ * real `@indago/create-app` consumer gets), installs, then builds + runs the
  * Playwright e2e suite against each template's production server. Nothing is
  * cleaned up — the apps are left in place to run.
  *
@@ -28,8 +28,8 @@ const EXAMPLES_DIR = join(REPO_ROOT, "examples");
 const ENGINES_DIR = join(EXAMPLES_DIR, ".engines");
 
 const ENGINES = [
-  { name: "@muttum/hyper-down", dir: join(REPO_ROOT, "packages", "HyperDown") },
-  { name: "@muttum/hyper-json", dir: join(REPO_ROOT, "packages", "HyperJson") },
+  { name: "@indago/hyper-down", dir: join(REPO_ROOT, "packages", "HyperDown") },
+  { name: "@indago/hyper-json", dir: join(REPO_ROOT, "packages", "HyperJson") },
 ];
 
 function run(cmd: string, args: string[], cwd: string, env?: NodeJS.ProcessEnv): void {
@@ -47,7 +47,7 @@ function buildAndPack(dir: string, dest: string): string {
   return join(dest, fileName);
 }
 
-/** Point the app's `@muttum/*` deps at the packed tarballs via a relative `file:` link. */
+/** Point the app's `@indago/*` deps at the packed tarballs via a relative `file:` link. */
 function linkEngines(appDir: string, tarballs: Record<string, string>): void {
   const pkgPath = join(appDir, "package.json");
   const pkg = JSON.parse(readFileSync(pkgPath, "utf8")) as {

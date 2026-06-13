@@ -1,4 +1,4 @@
-// ─── HyperDown — server-only entry (`@muttum/hyper-down/server`) ──────────────
+// ─── HyperDown — server-only entry (`@indago/hyper-down/server`) ──────────────
 //
 // SSR-only: these symbols query SQLite and therefore must run **on the server**
 // (route loaders, ideally from a `*.server.ts` module). They are kept out of the

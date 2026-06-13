@@ -9,7 +9,7 @@
     "projects": "Projetos"
   },
   "home": {
-    "title": "create-muttum-app",
+    "title": "@indago/create-app",
     "subtitle": "Um starter integrado ao HyperDown (Markdown → SQLite FTS) e HyperJson (JSON Schema → tipos).",
     "explore": "Explorar"
   },

@@ -13,8 +13,8 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
-    "@muttum/hyper-down": "^0.4.2",
-    "@muttum/hyper-json": "^1.0.1",
+    "@indago/hyper-down": "^0.4.2",
+    "@indago/hyper-json": "^1.0.1",
     "@vikejs/hono": "^0.2.0",
     "hono": "^4.12.23",
     "i18next": "^25.6.0",

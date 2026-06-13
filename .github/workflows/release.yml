@@ -29,14 +29,14 @@ jobs:
       matrix:
         include:
           - dir: packages/HyperDown
-            pkg: "@muttum/hyper-down"
+            pkg: "@indago/hyper-down"
             tag_prefix: hyper-down-v
           - dir: packages/HyperJson
-            pkg: "@muttum/hyper-json"
+            pkg: "@indago/hyper-json"
             tag_prefix: hyper-json-v
           - dir: packages/scaffold
-            pkg: "create-muttum-app"
-            tag_prefix: create-muttum-app-v
+            pkg: "@indago/create-app"
+            tag_prefix: create-app-v
     steps:
       - uses: actions/checkout@v4
 

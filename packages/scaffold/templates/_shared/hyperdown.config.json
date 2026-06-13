@@ -1,5 +1,5 @@
 {
-  "$schema": "./node_modules/@muttum/hyper-down/schemas/hyperdown.config.schema.json",
+  "$schema": "./node_modules/@indago/hyper-down/schemas/hyperdown.config.schema.json",
   "database": {
     "contentDir": "./content",
     "frontmatterJsonPath": "./frontmatter.json"

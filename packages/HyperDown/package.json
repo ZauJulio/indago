@@ -1,5 +1,5 @@
 {
-  "name": "@muttum/hyper-down",
+  "name": "@indago/hyper-down",
   "version": "0.4.2",
   "description": "Markdown/MDX → SQLite (FTS5 contentless) → server-side route loaders. A drop-in SSR headless CMS for Vike, React Router, TanStack Start, and Next.js — zero backend service.",
   "keywords": [
@@ -21,15 +21,15 @@
     "vite",
     "vite-plugin"
   ],
-  "homepage": "https://github.com/ZauJulio/zaujulio.github.io/tree/main/packages/HyperDown",
+  "homepage": "https://github.com/ZauJulio/indago/tree/main/packages/HyperDown",
   "bugs": {
-    "url": "https://github.com/ZauJulio/zaujulio.github.io/issues"
+    "url": "https://github.com/ZauJulio/indago/issues"
   },
   "license": "MIT",
   "author": "Zau Julio <zaujulio.dev@gmail.com>",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ZauJulio/zaujulio.github.io.git",
+    "url": "git+https://github.com/ZauJulio/indago.git",
     "directory": "packages/HyperDown"
   },
   "bin": {

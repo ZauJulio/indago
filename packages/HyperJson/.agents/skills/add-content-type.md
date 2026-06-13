@@ -6,7 +6,7 @@
 3. `hyperjson validate content`.
 4. `hyperjson generate` — emits the ambient types.
 5. Consume: `import data from "@content/projects/<lang>/file.json"` (typed), optionally
-   through `@muttum/hyper-json/hooks`.
+   through `@indago/hyper-json/hooks`.
 
 `strict: true` ⇒ unknown properties **fail validation**; keep data and schema in sync.
 Checks: [../rules/checks.md](../rules/checks.md).

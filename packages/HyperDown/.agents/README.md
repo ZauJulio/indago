@@ -1,6 +1,6 @@
 # HyperDown · Agent Resources
 
-Reference for AI agents operating `@muttum/hyper-down`. **Rules** are constraints;
+Reference for AI agents operating `@indago/hyper-down`. **Rules** are constraints;
 **skills** are task recipes.
 
 - [rules/architecture.md](rules/architecture.md) — pipeline, SSR runtime, plugins, exports.

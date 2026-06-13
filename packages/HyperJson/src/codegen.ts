@@ -83,7 +83,7 @@ export class HyperJsonCodegen {
         .map((line) => (line.length > 0 ? `  ${line}` : line))
         .join("\n");
 
-      const finalContent = `${banner}\ndeclare module "@muttum/hyper-json" {\n${indentedCode}}\n`;
+      const finalContent = `${banner}\ndeclare module "@indago/hyper-json" {\n${indentedCode}}\n`;
       writeFileSync(typesPath, finalContent);
 
       codegenLog.info(`Generated ${typesPath}`);
@@ -179,7 +179,7 @@ export class HyperJsonCodegen {
   private renderAmbientModule(modulePath: string, typeName: string): string {
     return (
       `declare module "${modulePath}" {\n` +
-      `  import type { ${typeName} } from "@muttum/hyper-json";\n` +
+      `  import type { ${typeName} } from "@indago/hyper-json";\n` +
       `  const value: ${typeName};\n` +
       `  export default value;\n` +
       `}\n`

@@ -1,4 +1,4 @@
-import { withHyperDown } from "@muttum/hyper-down/next";
+import { withHyperDown } from "@indago/hyper-down/next";
 import createMDX from "@next/mdx";
 import rehypeSlug from "rehype-slug";
 import remarkFrontmatter from "remark-frontmatter";

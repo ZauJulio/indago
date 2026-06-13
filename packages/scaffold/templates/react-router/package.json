@@ -12,8 +12,8 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
-    "@muttum/hyper-down": "^0.4.2",
-    "@muttum/hyper-json": "^1.0.1",
+    "@indago/hyper-down": "^0.4.2",
+    "@indago/hyper-json": "^1.0.1",
     "@react-router/node": "^7.17.0",
     "@react-router/serve": "^7.17.0",
     "i18next": "^25.6.0",

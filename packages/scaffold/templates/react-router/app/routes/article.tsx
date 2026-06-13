@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import type { LoaderFunctionArgs, MetaFunction } from "react-router";
 import { useLoaderData } from "react-router";
 
-import { MdxRender } from "@muttum/hyper-down";
+import { MdxRender } from "@indago/hyper-down";
 
 import { Link } from "@/components/Link";
 import { articleRepository } from "@/content/repositories.server";

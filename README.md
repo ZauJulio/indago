@@ -1,7 +1,7 @@
-# Muttum — Local Headless CMS Toolkit
+# Indago — Local Headless CMS Toolkit
 
 <p align="center">
-  <img src="./packages/HyperDown/assets/logo.svg" alt="Muttum — Honos et Muttum" width="130" height="130" />
+  <img src="./packages/HyperDown/assets/logo.svg" alt="Indago — Honos et Indago" width="130" height="130" />
 </p>
 
 <p align="center">
@@ -10,10 +10,10 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/ZauJulio/muttum/actions/workflows/release.yml"><img alt="Release" src="https://github.com/ZauJulio/muttum/actions/workflows/release.yml/badge.svg" /></a>
-  <a href="https://www.npmjs.com/package/@muttum/hyper-down"><img alt="@muttum/hyper-down" src="https://img.shields.io/npm/v/@muttum/hyper-down?label=%40muttum%2Fhyper-down&color=CB3837&logo=npm" /></a>
-  <a href="https://www.npmjs.com/package/@muttum/hyper-json"><img alt="@muttum/hyper-json" src="https://img.shields.io/npm/v/@muttum/hyper-json?label=%40muttum%2Fhyper-json&color=CB3837&logo=npm" /></a>
-  <a href="https://www.npmjs.com/package/create-muttum-app"><img alt="create-muttum-app" src="https://img.shields.io/npm/v/create-muttum-app?label=create-muttum-app&color=CB3837&logo=npm" /></a>
+  <a href="https://github.com/ZauJulio/indago/actions/workflows/release.yml"><img alt="Release" src="https://github.com/ZauJulio/indago/actions/workflows/release.yml/badge.svg" /></a>
+  <a href="https://www.npmjs.com/package/@indago/hyper-down"><img alt="@indago/hyper-down" src="https://img.shields.io/npm/v/@indago/hyper-down?label=%40indago%2Fhyper-down&color=CB3837&logo=npm" /></a>
+  <a href="https://www.npmjs.com/package/@indago/hyper-json"><img alt="@indago/hyper-json" src="https://img.shields.io/npm/v/@indago/hyper-json?label=%40indago%2Fhyper-json&color=CB3837&logo=npm" /></a>
+  <a href="https://www.npmjs.com/package/@indago/create-app"><img alt="@indago/create-app" src="https://img.shields.io/npm/v/@indago/create-app?label=%40indago%2Fcreate-app&color=CB3837&logo=npm" /></a>
   <a href="./LICENSE"><img alt="MIT" src="https://img.shields.io/badge/license-MIT-green" /></a>
 </p>
 
@@ -30,7 +30,7 @@
 
 ## Summary
 
-- [What is Muttum?](#what-is-muttum)
+- [What is Indago?](#what-is-indago)
 - [Packages](#packages)
 - [Quick start](#quick-start)
   - [Option A — scaffold a new app](#option-a--scaffold-a-new-app)
@@ -46,9 +46,9 @@
 
 ---
 
-## What is Muttum?
+## What is Indago?
 
-**Muttum is a monorepo of npm packages** — two independent, zero-backend content engines
+**Indago is a monorepo of npm packages** — two independent, zero-backend content engines
 and a scaffolder:
 
 - **HyperDown** handles _prose_: Markdown/MDX files with front-matter become a compact
@@ -56,7 +56,7 @@ and a scaffolder:
   MDX bodies compile to React components.
 - **HyperJson** handles _data_: JSON files validated against JSON Schemas at build time,
   with generated TypeScript types so every import is fully typed.
-- **create-muttum-app** scaffolds a working app on either of four frameworks, already
+- **@indago/create-app** scaffolds a working app on either of four frameworks, already
   wired to both engines.
 
 Everything ships as static assets next to your app. Each engine exposes a **Vite
@@ -65,12 +65,12 @@ its JSON Schemas for editor + runtime validation.
 
 ## Packages
 
-| Package                                      | npm                                                                      | One-liner                                                                              | Docs                                     |
-| -------------------------------------------- | ------------------------------------------------------------------------ | -------------------------------------------------------------------------------------- | ---------------------------------------- |
-| [`packages/HyperDown`](./packages/HyperDown) | [`@muttum/hyper-down`](https://www.npmjs.com/package/@muttum/hyper-down) | Markdown/MDX → SQLite (contentless FTS5) → SSR route loaders + lazy MDX rendering.     | [README](./packages/HyperDown/README.md) |
-| [`packages/HyperJson`](./packages/HyperJson) | [`@muttum/hyper-json`](https://www.npmjs.com/package/@muttum/hyper-json) | JSON Schema → strict Ajv validation + generated TS types + typed `.json` imports.      | [README](./packages/HyperJson/README.md) |
-| [`packages/scaffold`](./packages/scaffold)   | [`create-muttum-app`](https://www.npmjs.com/package/create-muttum-app)   | `bun create muttum-app` — Vike, React Router v7, TanStack Start, or Next.js templates. | [README](./packages/scaffold/README.md)  |
-| [`packages/configs`](./packages/configs)     | — (internal)                                                             | Shared tsconfig / oxlint / oxfmt / Tailwind / Vite presets for this repo.              | —                                        |
+| Package                                      | npm                                                                      | One-liner                                                                               | Docs                                     |
+| -------------------------------------------- | ------------------------------------------------------------------------ | --------------------------------------------------------------------------------------- | ---------------------------------------- |
+| [`packages/HyperDown`](./packages/HyperDown) | [`@indago/hyper-down`](https://www.npmjs.com/package/@indago/hyper-down) | Markdown/MDX → SQLite (contentless FTS5) → SSR route loaders + lazy MDX rendering.      | [README](./packages/HyperDown/README.md) |
+| [`packages/HyperJson`](./packages/HyperJson) | [`@indago/hyper-json`](https://www.npmjs.com/package/@indago/hyper-json) | JSON Schema → strict Ajv validation + generated TS types + typed `.json` imports.       | [README](./packages/HyperJson/README.md) |
+| [`packages/scaffold`](./packages/scaffold)   | [`@indago/create-app`](https://www.npmjs.com/package/@indago/create-app) | `bun create @indago/app` — Vike, React Router v7, TanStack Start, or Next.js templates. | [README](./packages/scaffold/README.md)  |
+| [`packages/configs`](./packages/configs)     | — (internal)                                                             | Shared tsconfig / oxlint / oxfmt / Tailwind / Vite presets for this repo.               | —                                        |
 
 > **The two engines are independent** — neither depends on the other; adopt one or both.
 > The reference consumer is the [portifolio](https://github.com/ZauJulio/portifolio) app,
@@ -81,8 +81,8 @@ its JSON Schemas for editor + runtime validation.
 ### Option A — scaffold a new app
 
 ```bash
-bun create muttum-app my-app          # interactive picker
-bunx create-muttum-app my-app --vike  # non-interactive (--react-router | --tanstack | --next)
+bun create @indago/app my-app          # interactive picker
+bunx @indago/create-app my-app --vike  # non-interactive (--react-router | --tanstack | --next)
 
 cd my-app && bun install && bun run dev
 ```
@@ -96,19 +96,19 @@ suite. Generated reference apps live in [`examples/`](./examples).
 **HyperDown** (Markdown/MDX + search):
 
 ```bash
-bun add @muttum/hyper-down
-bunx @muttum/hyper-down init both        # hyperdown.config.json + frontmatter schema
-bunx @muttum/hyper-down create-frontmatter --name article --locales "en,pt-BR"
-bunx @muttum/hyper-down create-item --type article --slug hello-world --lang en
+bun add @indago/hyper-down
+bunx @indago/hyper-down init both        # hyperdown.config.json + frontmatter schema
+bunx @indago/hyper-down create-frontmatter --name article --locales "en,pt-BR"
+bunx @indago/hyper-down create-item --type article --slug hello-world --lang en
 ```
 
 ```ts
 // vite.config.ts — order matters: MDX plugin BEFORE the framework plugins
-import { hyperdownMdxPlugin, hyperdownPlugin } from "@muttum/hyper-down/plugins";
+import { hyperdownMdxPlugin, hyperdownPlugin } from "@indago/hyper-down/plugins";
 
 export default defineConfig({
   plugins: [hyperdownMdxPlugin(), /* vike()/react()/… */ hyperdownPlugin()],
-  ssr: { external: ["bun:sqlite", "node:sqlite"], noExternal: ["@muttum/hyper-down"] },
+  ssr: { external: ["bun:sqlite", "node:sqlite"], noExternal: ["@indago/hyper-down"] },
 });
 ```
 
@@ -119,10 +119,10 @@ browser-safe resolver — full walkthrough in the
 **HyperJson** (typed JSON):
 
 ```bash
-bun add @muttum/hyper-json
-bunx @muttum/hyper-json init
-bunx @muttum/hyper-json create-content-type --name projects --fields "id:string:required;name:string:required;url:string"
-bunx @muttum/hyper-json generate
+bun add @indago/hyper-json
+bunx @indago/hyper-json init
+bunx @indago/hyper-json create-content-type --name projects --fields "id:string:required;name:string:required;url:string"
+bunx @indago/hyper-json generate
 ```
 
 ```ts
@@ -192,15 +192,15 @@ flowchart LR
 - **Server (route loaders)**: `ContentRepository<T>` — `search()` (FTS5 `MATCH` across all
   locales mapped back to one row per slug; filters; sort; pagination), `distinctValues()`
   (facets), `getMetaBySlug()` (locale fallback). Read-only `bun:sqlite`, or `node:sqlite`
-  on Node ≥ 22 (e.g. Vercel). Exported only from `@muttum/hyper-down/server`.
+  on Node ≥ 22 (e.g. Vercel). Exported only from `@indago/hyper-down/server`.
 - **Client (views)**: `createContentResolver(contentModules[type])` →
   `getContent(slug, lang)` resolves the lazy MDX component; rendered with `MdxRender`.
   No database code ever reaches the browser bundle.
 
 **Plugins / adapters**: `hyperdownMdxPlugin` (wraps `@mdx-js/rollup`, intercepts
 `*.mdx?raw`; register before the framework plugins) · `hyperdownSitemapPlugin` ·
-`withHyperDown` / `runHyperDownNextCodegen` (`@muttum/hyper-down/next`) ·
-`@muttum/hyper-down/drizzle` (optional Drizzle proxy).
+`withHyperDown` / `runHyperDownNextCodegen` (`@indago/hyper-down/next`) ·
+`@indago/hyper-down/drizzle` (optional Drizzle proxy).
 
 ### HyperJson — typed JSON engine
 
@@ -212,7 +212,7 @@ flowchart LR
 3. **Hooks**: pure in-memory React hooks — `useFilter`, `useSort`, `useSearch`,
    `usePaginate`, `useComposed`.
 
-### create-muttum-app — scaffolder
+### @indago/create-app — scaffolder
 
 Overlays `templates/_shared/` (content, e2e suite, configs) with `templates/<id>/`
 (framework code), applying token replacement. Same routes + same Playwright specs in all
@@ -222,9 +222,9 @@ runs build + typecheck + unit + e2e per template.
 ## Repository structure
 
 ```text
-muttum/
+indago/
 ├── packages/
-│   ├── HyperDown/            @muttum/hyper-down
+│   ├── HyperDown/            @indago/hyper-down
 │   │   ├── src/
 │   │   │   ├── frontmatter/  parser · validator · writer · codegen · SQL schema
 │   │   │   ├── db/           ContentRepository · lazy proxy · SSR SQLite client
@@ -236,10 +236,10 @@ muttum/
 │   │   ├── mcp/              `hyperdown-mcp` (stdio MCP server)
 │   │   ├── schemas/          bundled JSON Schemas (config + FrontMatter CMS)
 │   │   └── .agents/          rules + skills for AI agents
-│   ├── HyperJson/            @muttum/hyper-json
+│   ├── HyperJson/            @indago/hyper-json
 │   │   ├── src/              codegen · lib (config/validate) · hooks · plugins
 │   │   └── cli/  mcp/  schemas/  .agents/
-│   ├── scaffold/             create-muttum-app
+│   ├── scaffold/             @indago/create-app
 │   │   ├── src/              CLI · template registry · scaffold engine
 │   │   ├── templates/        _shared + vike + react-router + tanstack + next
 │   │   └── scripts/          test-templates harness · gen-examples
@@ -273,7 +273,7 @@ my-app/
 
 ```jsonc
 {
-  "$schema": "./node_modules/@muttum/hyper-down/schemas/hyperdown.config.schema.json",
+  "$schema": "./node_modules/@indago/hyper-down/schemas/hyperdown.config.schema.json",
   "database": {
     "contentDir": "./content", // where .mdx lives; also the .hyper-down/ output root
     "frontmatterJsonPath": "frontmatter.json", // relative to THIS config file
@@ -302,7 +302,7 @@ locales }`. The first `contentTypes` entry names the SQLite table and the
 
 ```jsonc
 {
-  "$schema": "./node_modules/@muttum/hyper-json/schemas/hyperjson.config.schema.json",
+  "$schema": "./node_modules/@indago/hyper-json/schemas/hyperjson.config.schema.json",
   "contentDir": "content", // the only required field
   "validation": { "strict": true, "failOnError": true },
 }

@@ -1,16 +1,16 @@
 # {{PROJECT_NAME}}
 
-Generated with [`create-muttum-app`](https://www.npmjs.com/package/create-muttum-app) using the `{{TEMPLATE_ID}}` template. It wires two independent, backend-free content engines:
+Generated with [`@indago/create-app`](https://www.npmjs.com/package/@indago/create-app) using the `{{TEMPLATE_ID}}` template. It wires two independent, backend-free content engines:
 
-- **[HyperDown](https://www.npmjs.com/package/@muttum/hyper-down)** — Markdown/MDX → a contentless
+- **[HyperDown](https://www.npmjs.com/package/@indago/hyper-down)** — Markdown/MDX → a contentless
   SQLite **FTS5** index, queried **only on the server** inside route loaders. Powers `/articles`
   and `/cooking`.
-- **[HyperJson](https://www.npmjs.com/package/@muttum/hyper-json)** — JSON Schema → build-time
+- **[HyperJson](https://www.npmjs.com/package/@indago/hyper-json)** — JSON Schema → build-time
   validation + generated TypeScript types. Powers `/projects`.
 
 ## Routes
 
-The same routes ship in every `create-muttum-app` template:
+The same routes ship in every `@indago/create-app` template:
 
 | Route             | Engine    | What it shows                                   |
 | ----------------- | --------- | ----------------------------------------------- |

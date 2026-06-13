@@ -2,7 +2,7 @@
 
 import { useTranslation } from "react-i18next";
 
-import { MdxRender } from "@muttum/hyper-down";
+import { MdxRender } from "@indago/hyper-down";
 
 import { Link } from "@/components/Link";
 import type { getArticleData } from "@/content/queries";

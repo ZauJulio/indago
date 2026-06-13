@@ -4,8 +4,8 @@ import {
   hyperdownMdxPlugin,
   hyperdownPlugin,
   hyperdownSitemapPlugin,
-} from "@muttum/hyper-down/plugins";
-import { hyperjsonValidationPlugin } from "@muttum/hyper-json/plugins";
+} from "@indago/hyper-down/plugins";
+import { hyperjsonValidationPlugin } from "@indago/hyper-json/plugins";
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact from "@vitejs/plugin-react";
@@ -41,10 +41,10 @@ export default defineConfig({
   ],
   ssr: {
     external: ["pino", "pino-pretty", "bun:sqlite", "node:sqlite"],
-    noExternal: ["@muttum/hyper-down"],
+    noExternal: ["@indago/hyper-down"],
   },
   optimizeDeps: {
-    exclude: ["@muttum/hyper-down"],
+    exclude: ["@indago/hyper-down"],
   },
   build: {
     assetsInlineLimit: (filePath: string) => (filePath.endsWith(".db") ? false : undefined),

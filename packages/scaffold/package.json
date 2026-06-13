@@ -1,5 +1,5 @@
 {
-  "name": "create-muttum-app",
+  "name": "@indago/create-app",
   "version": "0.1.1",
   "description": "Scaffold a Vite/Vike/React-Router/TanStack/Next.js app wired to the HyperDown (Markdown → SQLite FTS5) and HyperJson (JSON Schema → typed content) engines.",
   "keywords": [
@@ -18,19 +18,19 @@
     "template",
     "vike"
   ],
-  "homepage": "https://github.com/ZauJulio/zaujulio.github.io/tree/main/packages/scaffold",
+  "homepage": "https://github.com/ZauJulio/indago/tree/main/packages/scaffold",
   "bugs": {
-    "url": "https://github.com/ZauJulio/zaujulio.github.io/issues"
+    "url": "https://github.com/ZauJulio/indago/issues"
   },
   "license": "MIT",
   "author": "Zau Julio <zaujulio.dev@gmail.com>",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ZauJulio/zaujulio.github.io.git",
+    "url": "git+https://github.com/ZauJulio/indago.git",
     "directory": "packages/scaffold"
   },
   "bin": {
-    "create-muttum-app": "./dist/index.mjs"
+    "create-app": "./dist/index.mjs"
   },
   "files": [
     "dist",

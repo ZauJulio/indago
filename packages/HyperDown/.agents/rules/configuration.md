@@ -6,7 +6,7 @@ Two files, both with bundled JSON Schemas under `schemas/`; `hyperdown validate`
 
 ```jsonc
 {
-  "$schema": "./node_modules/@muttum/hyper-down/schemas/hyperdown.config.schema.json",
+  "$schema": "./node_modules/@indago/hyper-down/schemas/hyperdown.config.schema.json",
   "database": {
     "contentDir": "./content", // where .mdx lives; also the .hyper-down/ output root
     "frontmatterJsonPath": "frontmatter.json", // relative to THIS config file

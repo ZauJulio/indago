@@ -21,7 +21,7 @@ const isNode = typeof process !== "undefined" && !!process.stdout;
 //
 // `createRequire` (sync) rather than `await import(...)`: a top-level await here
 // turns this module — and everything that imports it (e.g. the Next adapter at
-// `@muttum/hyper-down/next`) — into an async ES module, which Next's CJS
+// `@indago/hyper-down/next`) — into an async ES module, which Next's CJS
 // `require()` of `next.config` cannot load (`ERR_REQUIRE_ASYNC_MODULE`).
 let prettyStream: Writable | undefined;
 if (isNode && process.env.NODE_ENV !== "production") {

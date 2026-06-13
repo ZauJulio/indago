@@ -1,7 +1,7 @@
 ---
 draft: false
 title: "O que é o HyperDown? Markdown → SQLite com busca full-text, só no servidor"
-description: "Um tour completo pelo HyperDown: a arquitetura FTS5 contentless, a árvore .hyper-down gerada, a CLI hyperdown, o servidor MCP no Claude Code e no opencode, o pacote .agents, os testes e os quatro scaffolds do create-muttum-app."
+description: "Um tour completo pelo HyperDown: a arquitetura FTS5 contentless, a árvore .hyper-down gerada, a CLI hyperdown, o servidor MCP no Claude Code e no opencode, o pacote .agents, os testes e os quatro scaffolds do @indago/create-app."
 date: "2026-06-12"
 tags:
   [
@@ -20,19 +20,19 @@ categories: ["Engenharia"]
 author: "Zau Julio"
 readingTime: "12 min de leitura"
 canonical: ""
-cover: "https://raw.githubusercontent.com/ZauJulio/muttum/main/assets/covers/what-is-hyperdown.png"
+cover: "https://raw.githubusercontent.com/ZauJulio/indago/main/assets/covers/what-is-hyperdown.webp"
 ---
 
 # O que é o HyperDown?
 
-O **HyperDown** (`@muttum/hyper-down`) transforma uma pasta de arquivos Markdown/MDX
+O **HyperDown** (`@indago/hyper-down`) transforma uma pasta de arquivos Markdown/MDX
 numa camada de conteúdo tipada e com busca full-text — **sem serviço de banco de dados,
 sem API e sem servidor de CMS**. No build, ele compila o **frontmatter** do seu conteúdo
 num índice **FTS5** SQLite compacto e contentless; em tempo de requisição, os loaders de
 rota do servidor consultam esse índice com `bun:sqlite` (ou `node:sqlite` no Node ≥ 22,
 como na Vercel). O navegador nunca vê um banco de dados.
 
-É um dos dois motores independentes do toolkit **Muttum**. O HyperDown cuida da **prosa
+É um dos dois motores independentes do toolkit **Indago**. O HyperDown cuida da **prosa
 em Markdown/MDX**; seu irmão [HyperJson](/pt/articles/what-is-hyperjson) cuida do
 **JSON estruturado**. Eles não compartilham código — adote um ou os dois.
 
@@ -77,7 +77,7 @@ adapter de Next.js):
 No runtime, os caminhos são estritamente separados:
 
 - **Servidor (loaders de rota)** — `ContentRepository<T>`, exportado apenas de
-  `@muttum/hyper-down/server`: `search()` (FTS5 `MATCH` + filtros + ordenação +
+  `@indago/hyper-down/server`: `search()` (FTS5 `MATCH` + filtros + ordenação +
   paginação), `distinctValues()` (facetas para UIs de filtro) e `getMetaBySlug()`
   (metadados serializáveis com fallback de idioma). O match FTS roda **em todos os
   idiomas** e é mapeado de volta para slugs — "slow" e "lenta" encontram o mesmo
@@ -129,7 +129,7 @@ Duas regras de fiação importam: o `hyperdownMdxPlugin()` **deve ser registrado
 dos plugins do framework** (ele embrulha o `@mdx-js/rollup` e intercepta imports
 `*.mdx?raw`, que o MDX compilaria mesmo com a query string), e a config de SSR mantém
 `bun:sqlite`/`node:sqlite` externos enquanto bundleia o próprio pacote
-(`noExternal: ["@muttum/hyper-down"]`). Depois de um build, `dist/metadata/` contém os
+(`noExternal: ["@indago/hyper-down"]`). Depois de um build, `dist/metadata/` contém os
 `.db` finais — o "resultado" deployável do pipeline de conteúdo.
 
 ## A CLI
@@ -149,18 +149,18 @@ quando as flags são omitidas e são totalmente scriptáveis quando não:
 
 ```bash
 # Bootstrap
-bunx @muttum/hyper-down init both
+bunx @indago/hyper-down init both
 
 # Novo tipo de conteúdo — o sufixo `req|opt` é obrigatório em cada campo
-bunx @muttum/hyper-down create-content --name product --folder Products \
+bunx @indago/hyper-down create-content --name product --folder Products \
   --fields "title:string:req,price:number:opt,status:choice[draft|live]:req"
 
 # Novo item, depois regenere os bancos
-bunx @muttum/hyper-down create-item --type article --slug ola-mundo --lang pt-BR
-bunx @muttum/hyper-down gen:db
+bunx @indago/hyper-down create-item --type article --slug ola-mundo --lang pt-BR
+bunx @indago/hyper-down gen:db
 
 # Gate de CI — sai com código diferente de zero no primeiro arquivo inválido
-bunx @muttum/hyper-down validate both
+bunx @indago/hyper-down validate both
 ```
 
 O `gen:db` roda o codegen de `.hyper-down/**` antes do writer, então funciona num
@@ -175,7 +175,7 @@ ferramentas: `hyperdown_init`, `hyperdown_validate`, `hyperdown_update`,
 prompts interativos ficam desabilitados sob MCP.
 
 **Claude Code** — adicione ao `.mcp.json` do projeto (ou rode
-`claude mcp add hyperdown -- bunx --package @muttum/hyper-down hyperdown-mcp`):
+`claude mcp add hyperdown -- bunx --package @indago/hyper-down hyperdown-mcp`):
 
 ```json
 {
@@ -214,7 +214,7 @@ trabalhando num repo que instala o HyperDown, dividido em **rules** (restriçõe
   receitas passo a passo para os fluxos comuns de autoria.
 
 Aponte seu `AGENTS.md`/`CLAUDE.md` para
-`node_modules/@muttum/hyper-down/.agents/README.md` e o agente herda o manual de
+`node_modules/@indago/hyper-down/.agents/README.md` e o agente herda o manual de
 operação inteiro.
 
 ## Como ele é testado
@@ -232,7 +232,7 @@ operação inteiro.
 
 ## Os scaffolds: quatro frameworks, um contrato
 
-`bun create muttum-app` gera um app funcional já fiado ao HyperDown + HyperJson, na sua
+`bun create @indago/app` gera um app funcional já fiado ao HyperDown + HyperJson, na sua
 escolha de **Vike**, **React Router v7**, **TanStack Start** ou **Next.js**. Todo
 template traz as **mesmas rotas** (`/articles` com busca ao vivo, `/articles/:slug`,
 `/cooking[/:slug]`, `/projects`, `/pt/*`) e as **mesmas suítes de teste** — o que muda
@@ -245,7 +245,7 @@ template traz as **mesmas rotas** (`/articles` com busca ao vivo, `/articles/:sl
 | Corpos MDX  | glob do Vite    | glob do Vite       | glob do Vite     | imports explícitos `@next/mdx` |
 | Servidor    | Hono            | react-router-serve | srvx             | `next start`                   |
 
-O caso fora da curva é o **Next.js**: sem Vite, o adapter `@muttum/hyper-down/next`
+O caso fora da curva é o **Next.js**: sem Vite, o adapter `@indago/hyper-down/next`
 (`withHyperDown` + `runHyperDownNextCodegen`) reescreve o `modules.ts` gerado em imports
 explícitos do `@next/mdx` e roda o codegen no predev/prebuild — mesma arquitetura,
 outra estratégia de resolução de módulos. Os três templates baseados em Vite diferem

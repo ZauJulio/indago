@@ -61,8 +61,8 @@ export class HyperDownCodegen {
 
   private generateTypesCode(typeName: string, ct: TypedFrontMatterContentType): string {
     let tsCode = this.banner;
-    tsCode += `import type { ContentMeta } from "@muttum/hyper-down/types";\n\n`;
-    tsCode += `declare module "@muttum/hyper-down" {\n`;
+    tsCode += `import type { ContentMeta } from "@indago/hyper-down/types";\n\n`;
+    tsCode += `declare module "@indago/hyper-down" {\n`;
 
     const interfaceName = typeName.charAt(0).toUpperCase() + typeName.slice(1) + "Meta";
     tsCode += `  export interface ${interfaceName} extends ContentMeta {\n`;
@@ -96,8 +96,8 @@ export class HyperDownCodegen {
     const interfaceName = tableName.charAt(0).toUpperCase() + tableName.slice(1) + "Meta";
 
     let code = this.banner;
-    code += `import { createLazyRepository } from "@muttum/hyper-down/server";\n\n`;
-    code += `import type { ${interfaceName} } from "@muttum/hyper-down";\n\n`;
+    code += `import { createLazyRepository } from "@indago/hyper-down/server";\n\n`;
+    code += `import type { ${interfaceName} } from "@indago/hyper-down";\n\n`;
     code += `// Server-only DAO for the \`${tableName}\` collection — imported by \`+data.ts\`\n`;
     code += `// loaders (SSR-only), never by browser code. Lazily instantiated.\n`;
     code += `export const ${tableName}Repository = createLazyRepository<${interfaceName}>({\n`;
@@ -114,7 +114,7 @@ export class HyperDownCodegen {
   private generateModulesCode(contentName: string, contentRel: string): string {
     let code = this.banner;
 
-    code += `import type { ContentModuleMap } from "@muttum/hyper-down/types";\n\n`;
+    code += `import type { ContentModuleMap } from "@indago/hyper-down/types";\n\n`;
     code += `export default import.meta.glob("/${contentRel}/${contentName}/**/*.mdx", { eager: true }) as ContentModuleMap;\n`;
 
     return code;

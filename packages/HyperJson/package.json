@@ -1,5 +1,5 @@
 {
-  "name": "@muttum/hyper-json",
+  "name": "@indago/hyper-json",
   "version": "1.0.1",
   "description": "JSON Schema → strict validation + auto-generated TypeScript types + ambient module declarations for typed JSON content imports.",
   "keywords": [
@@ -17,15 +17,15 @@
     "vite",
     "vite-plugin"
   ],
-  "homepage": "https://github.com/ZauJulio/zaujulio.github.io/tree/main/packages/HyperJson",
+  "homepage": "https://github.com/ZauJulio/indago/tree/main/packages/HyperJson",
   "bugs": {
-    "url": "https://github.com/ZauJulio/zaujulio.github.io/issues"
+    "url": "https://github.com/ZauJulio/indago/issues"
   },
   "license": "MIT",
   "author": "Zau Julio <zaujulio.dev@gmail.com>",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ZauJulio/zaujulio.github.io.git",
+    "url": "git+https://github.com/ZauJulio/indago.git",
     "directory": "packages/HyperJson"
   },
   "bin": {

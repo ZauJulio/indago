@@ -1,7 +1,7 @@
 # HyperDown
 
 <p align="center">
-  <img src="./assets/logo.svg" alt="HyperDown — Honos et Muttum" width="120" height="120" />
+  <img src="./assets/logo.svg" alt="HyperDown — Honos et Indago" width="120" height="120" />
 </p>
 
 <p align="center">
@@ -44,7 +44,7 @@ compiled to a React component by `@mdx-js/rollup`, and rendered with `MdxRender`
 The result: a strongly-typed, searchable, internationalised content layer with no
 backend service, served via SSR (pre-rendered to static HTML by default).
 
-> **Starting fresh?** `bun create muttum-app` scaffolds a ready-made app (Vike,
+> **Starting fresh?** `bun create @indago/app` scaffolds a ready-made app (Vike,
 > React Router v7, TanStack Start, or Next.js) already wired to HyperDown + HyperJson.
 
 ---
@@ -71,10 +71,10 @@ backend service, served via SSR (pre-rendered to static HTML by default).
 
 ```bash
 # bun (recommended)
-bun add @muttum/hyper-down
+bun add @indago/hyper-down
 
 # npm / pnpm / yarn
-npm install @muttum/hyper-down
+npm install @indago/hyper-down
 ```
 
 ### Peer dependencies
@@ -100,7 +100,7 @@ HyperDown expects these to be provided by the consuming app:
 ### 1. Scaffold the config files
 
 ```bash
-bunx @muttum/hyper-down init both
+bunx @indago/hyper-down init both
 ```
 
 This creates `hyperdown.config.json` and `frontmatter.schema.json` in the current
@@ -115,7 +115,7 @@ import {
   hyperdownPlugin,
   hyperdownMdxPlugin,
   hyperdownSitemapPlugin,
-} from "@muttum/hyper-down/plugins";
+} from "@indago/hyper-down/plugins";
 import remarkGfm from "remark-gfm";
 import { defineConfig } from "vite";
 
@@ -131,10 +131,10 @@ export default defineConfig({
   // keep the SQLite builtins external (loaded lazily in the loader path).
   ssr: {
     external: ["bun:sqlite", "node:sqlite"],
-    noExternal: ["@muttum/hyper-down"],
+    noExternal: ["@indago/hyper-down"],
   },
   optimizeDeps: {
-    exclude: ["@muttum/hyper-down"],
+    exclude: ["@indago/hyper-down"],
   },
 });
 ```
@@ -158,8 +158,8 @@ prerenders them to static HTML).
 ### 3. Add content
 
 ```bash
-bunx @muttum/hyper-down create-content --name article --folder Articles --fields "title:string:req,tags:tags:opt"
-bunx @muttum/hyper-down create-item --type article --slug hello-world --lang en
+bunx @indago/hyper-down create-content --name article --folder Articles --fields "title:string:req,tags:tags:opt"
+bunx @indago/hyper-down create-item --type article --slug hello-world --lang en
 ```
 
 ```mdx
@@ -188,7 +188,7 @@ The build codegen writes everything you need into the app's `.hyper-down/` tree
 ```ts
 // src/pages/articles/data.ts  (browser-safe — imported by components)
 import { contentModules } from "@hyper-down/default";
-import { createContentResolver } from "@muttum/hyper-down";
+import { createContentResolver } from "@indago/hyper-down";
 
 // Resolves the lazy MDX body component for a slug+lang.
 export const getArticleContent = createContentResolver(contentModules["article"]);
@@ -203,7 +203,7 @@ export { articleRepository } from "@hyper-down/content/article/builder";
 
 ```tsx
 // src/pages/articles/[slug].tsx
-import { MdxRender } from "@muttum/hyper-down";
+import { MdxRender } from "@indago/hyper-down";
 import { getArticleContent } from "./data";
 import { articleRepository } from "./data.server";
 import type { Route } from "./+types/[slug]";
@@ -233,17 +233,17 @@ The package exposes four entry points via its `exports` map:
 
 | Import                       | Provides                                                                                                       |
 | ---------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| `@muttum/hyper-down`         | Browser-safe surface: `createContentResolver`, `MdxRender`, MDX components, parser, i18n utils, content types. |
-| `@muttum/hyper-down/server`  | Server-only runtime: `ContentRepository`, `createLazyRepository`, `hyperDownClient`.                           |
-| `@muttum/hyper-down/types`   | Raw content types (`ContentItem`, `ContentMeta`, `MdxComponent`).                                              |
-| `@muttum/hyper-down/plugins` | Vite plugins: `hyperdownPlugin`, `hyperdownMdxPlugin`, `hyperdownSitemapPlugin`.                               |
-| `@muttum/hyper-down/next`    | Next.js adapter: `withHyperDown` (next.config wrapper), `runHyperDownNextCodegen` (predev/prebuild).           |
-| `@muttum/hyper-down/drizzle` | Re-exports of `drizzle-orm/sqlite-core` plus `sql`, `eq`, `and`, `or`, `desc`, `asc`, `inArray`.               |
+| `@indago/hyper-down`         | Browser-safe surface: `createContentResolver`, `MdxRender`, MDX components, parser, i18n utils, content types. |
+| `@indago/hyper-down/server`  | Server-only runtime: `ContentRepository`, `createLazyRepository`, `hyperDownClient`.                           |
+| `@indago/hyper-down/types`   | Raw content types (`ContentItem`, `ContentMeta`, `MdxComponent`).                                              |
+| `@indago/hyper-down/plugins` | Vite plugins: `hyperdownPlugin`, `hyperdownMdxPlugin`, `hyperdownSitemapPlugin`.                               |
+| `@indago/hyper-down/next`    | Next.js adapter: `withHyperDown` (next.config wrapper), `runHyperDownNextCodegen` (predev/prebuild).           |
+| `@indago/hyper-down/drizzle` | Re-exports of `drizzle-orm/sqlite-core` plus `sql`, `eq`, `and`, `or`, `desc`, `asc`, `inArray`.               |
 
 ### `ContentRepository<T>` (server-side)
 
 The OOP data-access object for one content collection, imported from
-`@muttum/hyper-down/server`. **Use it only in route loaders** (ideally from a
+`@indago/hyper-down/server`. **Use it only in route loaders** (ideally from a
 `*.server.ts` module). Every method queries the generated `.db` through
 `bun:sqlite` / `node:sqlite`.
 
@@ -252,7 +252,7 @@ Prefer the codegen-generated `<type>Repository` (`@hyper-down/<contentDir>/<type
 instantiate manually:
 
 ```ts
-import { ContentRepository } from "@muttum/hyper-down/server";
+import { ContentRepository } from "@indago/hyper-down/server";
 
 const articleRepository = new ContentRepository<ArticleMeta>({
   contentName: "article",
@@ -301,7 +301,7 @@ loader returned.
 
 ```ts
 import { contentModules } from "@hyper-down/default";
-import { createContentResolver } from "@muttum/hyper-down";
+import { createContentResolver } from "@indago/hyper-down";
 
 export const getArticleContent = createContentResolver(contentModules["article"]);
 ```
@@ -315,7 +315,7 @@ export const getArticleContent = createContentResolver(contentModules["article"]
 ### `MdxRender`
 
 ```tsx
-import { MdxRender } from "@muttum/hyper-down";
+import { MdxRender } from "@indago/hyper-down";
 
 <MdxRender
   content={data.content} // MdxComponent | null
@@ -343,7 +343,7 @@ import {
   getLocale, // (i18n?) => canonical DB locale ("en" | "pt-BR")
   getDisplayLocale, // (lang?) => BCP 47 locale for Intl APIs
   getFallbackLocale, // (lang)  => the other locale (en ↔ pt-BR)
-} from "@muttum/hyper-down";
+} from "@indago/hyper-down";
 ```
 
 ### Vite plugins
@@ -393,7 +393,7 @@ prefixes (`/pt`, …) are derived from the i18n `strategy` (`folder`) or `filePa
 
 ## CLI reference
 
-The `hyperdown` binary is installed with the package. Run it via `bunx @muttum/hyper-down <command>`
+The `hyperdown` binary is installed with the package. Run it via `bunx @indago/hyper-down <command>`
 (or `npx`, etc.). Commands are interactive where it makes sense and fully scriptable via
 flags.
 
@@ -417,8 +417,8 @@ Scaffolds config files. `target` is one of `config`, `frontmatter`, or `both`
 (default: `both`). Existing files are left untouched.
 
 ```bash
-bunx @muttum/hyper-down init both
-bunx @muttum/hyper-down init config
+bunx @indago/hyper-down init both
+bunx @indago/hyper-down init config
 ```
 
 <h3 id="hyperdown-validate"><code>validate [target]</code></h3>
@@ -435,8 +435,8 @@ The path flag defaults per `target`: `./hyperdown.config.json` for `config`,
 | `-p, --path <path>` | target default | Path to the file matching `target` (`config` or `frontmatter`). Ignored for `both`. |
 
 ```bash
-bunx @muttum/hyper-down validate
-bunx @muttum/hyper-down validate config --path ./apps/web/hyperdown.config.json
+bunx @indago/hyper-down validate
+bunx @indago/hyper-down validate config --path ./apps/web/hyperdown.config.json
 ```
 
 <h3 id="hyperdown-update"><code>update [target]</code></h3>
@@ -450,8 +450,8 @@ defaults to `schemas`. **Network access is required.**
 | `-o, --output <path>` | `src/frontmatter/schema-types.ts` (in-package) | Output path for the generated `schema-types.ts`. |
 
 ```bash
-bunx @muttum/hyper-down update schemas
-bunx @muttum/hyper-down update --output ./types/frontmatter-schema-types.ts
+bunx @indago/hyper-down update schemas
+bunx @indago/hyper-down update --output ./types/frontmatter-schema-types.ts
 ```
 
 <h3 id="hyperdown-gendb"><code>gen:db</code></h3>
@@ -464,8 +464,8 @@ front-matter content — self-sufficient on a fresh checkout (no prior build nee
 | `-p, --path <path>` | `./hyperdown.config.json` | Path to `hyperdown.config.json`. |
 
 ```bash
-bunx @muttum/hyper-down gen:db
-bunx @muttum/hyper-down gen:db --path ./apps/web/hyperdown.config.json
+bunx @indago/hyper-down gen:db
+bunx @indago/hyper-down gen:db --path ./apps/web/hyperdown.config.json
 ```
 
 <h3 id="hyperdown-create-content"><code>create-content</code></h3>
@@ -486,7 +486,7 @@ entries are silently skipped). Types: `string`, `number`, `boolean`, `datetime`,
 `draft`, `tags`, `categories`, `image`, `choice[a|b|c]`.
 
 ```bash
-bunx @muttum/hyper-down create-content \
+bunx @indago/hyper-down create-content \
   --name product \
   --folder Products \
   --fields "title:string:req,price:number:opt,status:choice[draft|published]:req"
@@ -506,7 +506,7 @@ a default content type with `title`, `description`, `date`, `draft`, and `tags` 
 | `-o, --output <path>` | `frontmatter.json` | Output file path.                                 |
 
 ```bash
-bunx @muttum/hyper-down create-frontmatter --name post --locales "en,pt-BR" --output frontmatter.json
+bunx @indago/hyper-down create-frontmatter --name post --locales "en,pt-BR" --output frontmatter.json
 ```
 
 <h3 id="hyperdown-create-item"><code>create-item</code></h3>
@@ -522,7 +522,7 @@ front-matter fields. Interactive when `--type`, `--slug`, or `--lang` is omitted
 | `-p, --path <path>` | `./hyperdown.config.json` | Path to the config file.                |
 
 ```bash
-bunx @muttum/hyper-down create-item --type article --slug hello-world --lang en
+bunx @indago/hyper-down create-item --type article --slug hello-world --lang en
 ```
 
 ### MCP server
@@ -532,7 +532,7 @@ exposes the CLI as tools so MCP-aware agents (Claude Desktop, Cursor, Continue, 
 scaffold, validate, and generate without learning the CLI surface.
 
 ```bash
-bunx --package @muttum/hyper-down hyperdown-mcp
+bunx --package @indago/hyper-down hyperdown-mcp
 ```
 
 Tools: `hyperdown_init`, `hyperdown_validate`, `hyperdown_update`, `hyperdown_gen_db`,
@@ -604,7 +604,7 @@ Validated against `schemas/hyperdown.config.schema.json`. The three top-level se
 
 ```jsonc
 {
-  "$schema": "./node_modules/@muttum/hyper-down/schemas/hyperdown.config.schema.json",
+  "$schema": "./node_modules/@indago/hyper-down/schemas/hyperdown.config.schema.json",
   "database": {
     "contentDir": "src/content", // base content directory (required)
     "frontmatterJsonPath": "frontmatter.json", // path to frontmatter.json (required)

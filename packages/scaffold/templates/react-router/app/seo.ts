@@ -1,6 +1,6 @@
 // SEO helpers producing React Router `meta` descriptors.
 
-export const SITE_NAME = "create-muttum-app";
+export const SITE_NAME = "@indago/create-app";
 export const SITE_DESCRIPTION = "HyperDown + HyperJson starter (React Router).";
 
 type MetaDescriptor =

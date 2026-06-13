@@ -101,7 +101,7 @@ describe("hyperjson generate", () => {
     expect(existsSync(typesPath)).toBe(true);
 
     const ts = readFileSync(typesPath, "utf-8");
-    expect(ts).toContain('declare module "@muttum/hyper-json"');
+    expect(ts).toContain('declare module "@indago/hyper-json"');
     expect(ts).toContain("ProjectsContentSchema");
   });
 });

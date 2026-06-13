@@ -17,7 +17,7 @@ import type {
 } from "./repository-types.ts";
 import type { ContentMeta, ContentRow, DistinctValueRow } from "./types.ts";
 
-// Re-export public types for `@muttum/hyper-down/server` and the main barrel.
+// Re-export public types for `@indago/hyper-down/server` and the main barrel.
 export type {
   ContentRepositoryOptions,
   ContentSearchParams,

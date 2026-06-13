@@ -1,6 +1,6 @@
 # HyperJson · Agent Resources
 
-Reference for AI agents operating `@muttum/hyper-json`. Independent of HyperDown — it owns
+Reference for AI agents operating `@indago/hyper-json`. Independent of HyperDown — it owns
 structured `.json` content; HyperDown owns Markdown. **Rules** are constraints; **skills**
 are task recipes.
 
