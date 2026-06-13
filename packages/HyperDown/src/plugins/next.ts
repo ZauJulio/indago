@@ -41,9 +41,11 @@ export interface NextCodegenOptions {
 
 function listMdx(dir: string): string[] {
   if (!existsSync(dir)) return [];
+
   return readdirSync(dir).flatMap((name) => {
     const full = join(dir, name);
     if (statSync(full).isDirectory()) return listMdx(full);
+
     return full.endsWith(".mdx") ? [full] : [];
   });
 }
@@ -61,13 +63,16 @@ function writeNextModules(type: string, root: string, contentDir: string): void 
 
   const imports: string[] = [];
   const entries: string[] = [];
+
   files.forEach((file, i) => {
     const importPath = relative(modulesDir, file).replace(/\\/g, "/");
     // Resolver key must end with `/<lang>/<slug>.mdx`.
     const key = "/" + relative(root, file).replace(/\\/g, "/");
+
     imports.push(
       `import * as m${i} from "${importPath.startsWith(".") ? importPath : "./" + importPath}";`,
     );
+
     entries.push(`  "${key}": m${i},`);
   });
 
@@ -79,12 +84,15 @@ function writeNextModules(type: string, root: string, contentDir: string): void 
  *  `../`. Probe every layout (source, top-level entry, nested chunk); first wins. */
 function resolveWriterScript(): string {
   const here = dirname(fileURLToPath(import.meta.url));
+
   const candidates = [
     resolve(here, "../frontmatter/writer.ts"), // source: src/plugins → src/frontmatter
     resolve(here, "src/frontmatter/writer.js"), // dist entry: dist → dist/src/frontmatter
     resolve(here, "../frontmatter/writer.js"), // dist chunk: dist/src/plugins → dist/src/frontmatter
   ];
+
   const found = candidates.find(existsSync);
+
   if (!found) {
     throw new Error(
       `HyperDown: could not locate the SQLite writer script. Looked in:\n${candidates.join("\n")}`,
@@ -116,12 +124,15 @@ export function runHyperDownNextCodegen(options: NextCodegenOptions = {}): void 
   // 3 + 4. Next-compatible modules + copy each `.db` into the served folder.
   const hdConfig = JSON.parse(readFileSync(join(root, configFile), "utf8")) as HyperdownConfigShape;
   const contentDir = hdConfig.database?.contentDir ?? "./content";
+
   const fmPath = hdConfig.database?.frontmatterJsonPath ?? "./frontmatter.json";
   const fm = JSON.parse(readFileSync(join(root, fmPath), "utf8")) as FrontmatterShape;
+
   const types = (fm["frontMatter.taxonomy.contentTypes"] ?? []).map((t) => t.name);
 
   const metadataDir = join(root, metadataDirName);
   mkdirSync(metadataDir, { recursive: true });
+
   for (const type of types) {
     writeNextModules(type, root, contentDir);
     const db = join(root, contentDir.replace(/^\.\//, ""), type, `${type}.db`);
