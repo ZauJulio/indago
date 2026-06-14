@@ -3,6 +3,7 @@ import { describe, expect, test } from "bun:test";
 import {
   buildFilterEntries,
   buildFtsQuery,
+  buildRelatedQuery,
   parseJsonFields,
   toMetaItem,
 } from "../../src/db/repository-sql.ts";
@@ -42,6 +43,42 @@ describe("buildFilterEntries", () => {
   });
 });
 
+describe("buildRelatedQuery", () => {
+  test("ranks by tag priority, excludes the source slug, scopes to locale", () => {
+    const { sql, bind } = buildRelatedQuery({
+      table: "article",
+      slug: "current",
+      tags: ["A", "B", "C"],
+      field: "tags",
+      locale: "en",
+      limit: 3,
+    });
+
+    expect(sql).toContain("MIN(CASE t.value WHEN ? THEN 0 WHEN ? THEN 1 WHEN ? THEN 2 END)");
+    expect(sql).toContain("JOIN article_tags t ON t.content_id = c.id");
+    expect(sql).toContain("t.value IN (?, ?, ?)");
+    expect(sql).toContain("c.slug != ?");
+    expect(sql).toContain("c.locale = ?");
+    expect(sql).toContain("GROUP BY c.id ORDER BY _rank ASC, c.date DESC LIMIT ?");
+
+    // CASE tags → field → IN tags → slug → locale → limit (left-to-right `?` order).
+    expect(bind).toEqual(["A", "B", "C", "tags", "A", "B", "C", "current", "en", 3]);
+  });
+
+  test("omits the locale predicate when no locale is given", () => {
+    const { sql, bind } = buildRelatedQuery({
+      table: "recipe",
+      slug: "s",
+      tags: ["x"],
+      field: "tags",
+      limit: 2,
+    });
+
+    expect(sql).not.toContain("c.locale = ?");
+    expect(bind).toEqual(["x", "tags", "x", "s", 2]);
+  });
+});
+
 describe("parseJsonFields", () => {
   test("revives JSON-array strings, leaving scalars untouched", () => {
     const out = parseJsonFields({ tags: '["a","b"]', title: "Hello", n: "5" }) as Record<
@@ -72,6 +109,14 @@ describe("toMetaItem", () => {
 
   test("leaves a row without internal columns untouched (beyond JSON parsing)", () => {
     const meta = toMetaItem({ slug: "s", title: "T" }) as unknown as Record<string, unknown>;
+    expect(meta).toEqual({ slug: "s", title: "T" });
+  });
+
+  test("strips the related-query `_rank` ranking column", () => {
+    const meta = toMetaItem({ slug: "s", title: "T", _rank: 0 }) as unknown as Record<
+      string,
+      unknown
+    >;
     expect(meta).toEqual({ slug: "s", title: "T" });
   });
 });

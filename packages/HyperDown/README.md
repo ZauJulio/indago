@@ -32,8 +32,8 @@ At build time it parses the front-matter of every content file and writes a comp
 no client-side database:
 
 - The OOP **`ContentRepository`** runs **FTS5** full-text search, filters, sorting,
-  pagination, and by-slug lookups, reading the `.db` from disk with `bun:sqlite` (or
-  `node:sqlite` on Node ≥ 22 / Vercel).
+  pagination, by-slug lookups, and tag-ranked `related()` suggestions, reading the `.db`
+  from disk with `bun:sqlite` (or `node:sqlite` on Node ≥ 22 / Vercel).
 - Listing routes are URL-driven (`?q`, `?tag`, `?page`, `?sort`); the loader re-runs
   server-side on each change. Detail routes return serializable metadata.
 
@@ -57,7 +57,7 @@ backend service, served via SSR (pre-rendered to static HTML by default).
   index, never the original text.
 - 🖥️ **SSR-only** — SQLite is queried in route loaders via `bun:sqlite` / `node:sqlite`;
   no client database, no Web Worker, no OPFS.
-- 🧱 **OOP data layer** — a typed `ContentRepository<T>` for search / facets / by-slug.
+- 🧱 **OOP data layer** — a typed `ContentRepository<T>` for search / facets / by-slug / related.
 - 🌍 **i18n** with folder-based locales and automatic locale fallback.
 - ⚙️ **Vite plugins** for database generation, MDX compilation, and sitemap output.
 - 🧰 **Full CLI** (`hyperdown`) to scaffold, validate, and generate everything.
@@ -276,6 +276,16 @@ const tags = await articleRepository.distinctValues(
 
 // Metadata-only lookup by slug (JSON-serializable; locale fallback applied).
 const article = await articleRepository.getMetaBySlug("hello-world", "en");
+
+// "You might also like" — up to `limit` items ranked by tag order: a candidate's
+// rank is the position of the highest-priority tag it shares, so `tags[0]` matches
+// fill first, then `tags[1]` complements, etc. The source slug is always excluded.
+const suggestions = await articleRepository.related({
+  slug: "hello-world",
+  tags: ["react", "typescript", "vite"], // priority order
+  locale: "en",
+  limit: 3,
+});
 ```
 
 | `ContentSearchParams` field | Type                                           | Default                  |

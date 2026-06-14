@@ -22,7 +22,8 @@ queried only on the server; there is no client-side database.
 - **Server loaders**: import the generated `<type>Repository` (never `new ContentRepository`
   directly). API: `search()` (FTS + filters + sort + pagination, cross-locale match → one
   row per slug in the requested locale), `distinctValues()` (facets), `getMetaBySlug()`
-  (locale fallback, serializable). `.db` opened read-only via `bun:sqlite`, or `node:sqlite`
+  (locale fallback, serializable), `related()` (up to `limit` other items ranked by tag
+  order — highest-priority shared tag wins, source slug excluded). `.db` opened read-only via `bun:sqlite`, or `node:sqlite`
   on Node ≥ 22 (e.g. Vercel). Server code is exported only from `@indago/hyper-down/server`.
 - **Views**: `createContentResolver(contentModules[type])` → `getContent(slug, lang)`;
   render with `MdxRender`. No DB code on this path.

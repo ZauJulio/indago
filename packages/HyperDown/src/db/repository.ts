@@ -4,6 +4,7 @@ import { hyperDownClient } from "./client/index.ts";
 import {
   buildFilterEntries,
   buildFtsQuery,
+  buildRelatedQuery,
   parseJsonFields,
   toMetaItem,
 } from "./repository-sql.ts";
@@ -13,6 +14,7 @@ import type {
   ContentRepositoryOptions,
   ContentSearchParams,
   DistinctValuesOptions,
+  RelatedParams,
   SearchResult,
 } from "./repository-types.ts";
 import type { ContentMeta, ContentRow, DistinctValueRow } from "./types.ts";
@@ -23,6 +25,7 @@ export type {
   ContentSearchParams,
   DistinctValuesOptions,
   PaginationConfig,
+  RelatedParams,
   SearchFilters,
   SearchResult,
   SortConfig,
@@ -149,6 +152,30 @@ export class ContentRepository<T extends ContentMeta = ContentMeta> {
       totalPages,
       currentPage: pagination?.page ?? 1,
     };
+  }
+
+  /**
+   * Up to `limit` other rows that share a tag with the source item, ranked **by
+   * tag order**: a row's position is decided by the highest-priority tag it
+   * shares, so `tags[0]` matches come first and lower-priority tags only fill
+   * the remaining slots. Ties break by most-recent `date`; the source `slug` is
+   * always excluded. Powers "you might also like" / suggested-content UIs.
+   */
+  async related(params: RelatedParams<T>): Promise<T[]> {
+    const { slug, tags, locale, limit = 3, field = "tags" } = params;
+    if (tags.length === 0 || limit <= 0) return [];
+
+    const { sql, bind } = buildRelatedQuery({
+      table: this.contentName,
+      slug,
+      tags,
+      field: field as string,
+      locale,
+      limit,
+    });
+
+    const rows = await hyperDownClient.query<ContentRow<T>>(sql, bind, this.contentName);
+    return rows.map((row) => toMetaItem<T>(row));
   }
 
   /**

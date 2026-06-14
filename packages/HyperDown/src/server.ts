@@ -12,6 +12,7 @@ export type {
   ContentSearchParams,
   DistinctValuesOptions,
   PaginationConfig,
+  RelatedParams,
   SearchFilters,
   SearchResult,
   SortConfig,

@@ -45,6 +45,28 @@ export interface SearchResult<T extends ContentMeta> {
   currentPage: number;
 }
 
+/** Parameters accepted by `ContentRepository.related`. */
+export interface RelatedParams<T> {
+  /** Slug of the source item — always excluded from the results. */
+  slug: string;
+  /**
+   * Candidate tags in **priority order** (`tags[0]` is the strongest signal).
+   * A row's rank is the position of the highest-priority tag it shares, so
+   * `tags[0]` matches fill the list first, then `tags[1]` complements up to
+   * `limit`, and so on ("rank by tag order").
+   */
+  tags: string[];
+  /**
+   * Canonical DB locale to scope the query to (e.g. `"en"`, `"pt-BR"`).
+   * When omitted, the lookup spans **every** locale.
+   */
+  locale?: string;
+  /** Maximum rows to return. Defaults to `3`. */
+  limit?: number;
+  /** Array field the tags live in (bridge table). Defaults to `"tags"`. */
+  field?: [keyof T] extends [string] ? keyof T : string;
+}
+
 /** Options for `ContentRepository.distinctValues`. */
 export interface DistinctValuesOptions<T> {
   /** Column to read distinct values from (e.g. `"tags"`, `"cuisine"`). */
