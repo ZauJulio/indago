@@ -33,11 +33,18 @@ program
 
 program
   .command("create-content-type")
-  .description("Scaffold a new JSON content type (schema.json + i18n dirs)")
+  .description(
+    "Scaffold a new JSON content type (schema.json + i18n dirs). " +
+      "Run with no --fields/--fields-json for an interactive builder that supports nesting and recursion.",
+  )
   .option("--name <name>", "Content folder name")
   .option("--title <title>", "Schema title")
   .option("--locales <locales>", "Comma-separated locale codes")
-  .option("--fields <fields>", "Semicolon-separated fields (name:type[:required])")
+  .option("--fields <fields>", "Semicolon-separated flat fields (name:type[:required])")
+  .option(
+    "--fields-json <json>",
+    "Structured fields as JSON — supports nested objects, arrays, and recursive refs",
+  )
   .option("--content-dir <dir>", "Content directory", "src/content")
   .option("--wrapper <prop>", "Top-level array property name", "items")
   .action(async (opts) => new CreateContentTypeCommand().run(opts));

@@ -78,7 +78,10 @@ const tools: ToolDef[] = [
   {
     name: "hyperjson_create_content_type",
     description:
-      "Scaffold a new JSON content type — creates schema.json and i18n data folders. Both --name and --fields are REQUIRED for non-interactive mode.",
+      "Scaffold a new JSON content type — creates schema.json and i18n data folders. " +
+      "Provide `name` plus EITHER `fields` (flat) OR `fieldsJson` (nested/recursive). " +
+      "Use `fieldsJson` for objects-within-objects, arrays of objects, or recursive types " +
+      "(name an object via `def`, then reference it with a `ref` field — e.g. a tree node whose children are the same type).",
     inputSchema: {
       type: "object",
       properties: {
@@ -86,23 +89,89 @@ const tools: ToolDef[] = [
         fields: {
           type: "string",
           description:
-            "Semicolon-separated fields: name:type[:required] (e.g. 'id:string:required;skills:string[]').",
+            "Flat fields for simple, non-nested types: name:type[:required] joined by ';' (e.g. 'id:string:required;skills:string[]').",
+        },
+        fieldsJson: {
+          type: "array",
+          description:
+            "Structured fields for nested/recursive schemas (array of FieldSpec). Prefer this over `fields` when any field is an object, an array of objects, or a self-reference.",
+          items: { $ref: "#/$defs/fieldSpec" },
         },
         locales: { type: "string", description: "Comma-separated locale codes.", default: "en" },
         title: { type: "string", description: "Schema title override." },
+        wrapper: {
+          type: "string",
+          description: "Top-level array property name (default 'items').",
+        },
       },
-      required: ["name", "fields"],
+      required: ["name"],
+      $defs: {
+        fieldSpec: {
+          type: "object",
+          properties: {
+            name: { type: "string" },
+            type: {
+              enum: [
+                "string",
+                "number",
+                "integer",
+                "boolean",
+                "date",
+                "enum",
+                "object",
+                "array",
+                "ref",
+              ],
+            },
+            required: { type: "boolean" },
+            enumValues: {
+              type: "array",
+              items: { type: "string" },
+              description: "For type 'enum': the allowed values.",
+            },
+            format: {
+              type: "string",
+              description:
+                "For type 'string': a JSON Schema format (uri, email, uuid, date-time, …).",
+            },
+            fields: {
+              type: "array",
+              items: { $ref: "#/$defs/fieldSpec" },
+              description: "For type 'object': the nested fields.",
+            },
+            items: {
+              $ref: "#/$defs/fieldSpec",
+              description: "For type 'array': the element spec (its `name` is ignored).",
+            },
+            def: {
+              type: "string",
+              description:
+                "For type 'object': register it as a named, reusable definition so it (or siblings) can `ref` it — this is what enables recursion.",
+            },
+            ref: {
+              type: "string",
+              description:
+                "For type 'ref': the name of a definition to reference (e.g. the item title, for a recursive tree).",
+            },
+          },
+          required: ["name", "type"],
+        },
+      },
     },
     args: (input) => {
-      const a = [
-        "create-content-type",
-        "--name",
-        String(input.name),
-        "--fields",
-        String(input.fields),
-      ];
+      const a = ["create-content-type", "--name", String(input.name)];
+      if (input.fieldsJson !== undefined) {
+        const json =
+          typeof input.fieldsJson === "string"
+            ? input.fieldsJson
+            : JSON.stringify(input.fieldsJson);
+        a.push("--fields-json", json);
+      } else if (input.fields !== undefined) {
+        a.push("--fields", String(input.fields));
+      }
       if (input.locales) a.push("--locales", String(input.locales));
       if (input.title) a.push("--title", String(input.title));
+      if (input.wrapper) a.push("--wrapper", String(input.wrapper));
       return a;
     },
   },

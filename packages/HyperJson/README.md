@@ -217,18 +217,20 @@ HYPERJSON_CONCURRENCY=2 bunx @indago/hyper-json generate
 <h3 id="hyperjson-create-content-type"><code>create-content-type</code></h3>
 
 Scaffolds a new JSON content type: a `schema.json` and empty `{ "<wrapper>": [] }` data
-files per locale. Interactive when `--name` and `--fields` are not both provided.
+files per locale. With neither `--fields` nor `--fields-json`, it launches an **interactive
+builder** that supports nested objects, arrays, and recursion.
 
-| Option                | Default               | Description                                             |
-| --------------------- | --------------------- | ------------------------------------------------------- |
-| `--name <name>`       | —                     | Content folder name.                                    |
-| `--title <title>`     | `<Name>ContentSchema` | Schema title (becomes the generated type name).         |
-| `--locales <locales>` | `en`                  | Comma-separated locale codes.                           |
-| `--fields <fields>`   | —                     | Semicolon-separated `name:type[:required]` definitions. |
-| `--content-dir <dir>` | `src/content`         | Content directory.                                      |
-| `--wrapper <prop>`    | `items`               | Top-level array property name.                          |
+| Option                 | Default               | Description                                                  |
+| ---------------------- | --------------------- | ------------------------------------------------------------ |
+| `--name <name>`        | —                     | Content folder name.                                         |
+| `--title <title>`      | `<Name>ContentSchema` | Schema title (becomes the generated type name).              |
+| `--locales <locales>`  | `en`                  | Comma-separated locale codes.                                |
+| `--fields <fields>`    | —                     | Semicolon-separated flat `name:type[:required]` definitions. |
+| `--fields-json <json>` | —                     | JSON `FieldSpec[]` — nested objects, arrays, recursion.      |
+| `--content-dir <dir>`  | `src/content`         | Content directory.                                           |
+| `--wrapper <prop>`     | `items`               | Top-level array property name.                               |
 
-Field types: `string`, `number`, `integer`, `boolean`, `string[]`, `enum`, `date`
+Flat field types: `string`, `number`, `integer`, `boolean`, `string[]`, `enum`, `date`
 (string with a `YYYY-MM-DD` pattern). A field is required when the third segment is the
 literal `required`.
 
@@ -237,6 +239,19 @@ bunx @indago/hyper-json create-content-type \
   --name skill \
   --locales en \
   --fields "name:string:required;level:string:required"
+```
+
+For nesting and recursion, pass a `FieldSpec[]` to `--fields-json`. Each spec is
+`{ name, type, required?, enumValues?, format?, fields?, items?, def?, ref? }` — `object`
+nests `fields`, `array` nests an `items` element spec, and a named `def` can be reused with
+`ref` (including by itself, for trees/menus):
+
+```bash
+bunx @indago/hyper-json create-content-type --name menu \
+  --fields-json '[
+    {"name":"label","type":"string","required":true},
+    {"name":"children","type":"array","items":{"name":"","type":"ref","ref":"MenuItem"}}
+  ]'
 ```
 
 ### MCP server

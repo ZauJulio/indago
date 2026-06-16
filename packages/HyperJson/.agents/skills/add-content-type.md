@@ -1,7 +1,10 @@
 # Skill — Add a new content type
 
 1. `hyperjson create-content-type --name projects --title Project --fields "id:string:required;name:string:required;url:string"`
-   — fields are `name:type[:required]`, `;`-separated ([format](cli.md)).
+   — flat fields are `name:type[:required]`, `;`-separated ([format](cli.md)).
+   - **Nested / recursive** types (objects in objects, arrays of objects, trees): use
+     `--fields-json '<FieldSpec[]>'`, or run with no field flags for the interactive builder.
+     See [cli.md](cli.md).
 2. Add data files: `<contentDir>/projects/<lang>/*.json`.
 3. `hyperjson validate content`.
 4. `hyperjson generate` — emits the ambient types.
