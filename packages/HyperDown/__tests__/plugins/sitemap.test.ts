@@ -20,7 +20,11 @@ beforeAll(() => {
 
   writeFileSync(
     join(dir, "frontmatter.json"),
-    JSON.stringify({ "frontMatter.taxonomy.contentTypes": [{ name: "article", fields: [] }] }),
+    JSON.stringify({
+      "frontMatter.taxonomy.contentTypes": [
+        { name: "article", fields: [{ title: "Draft", name: "draft", type: "draft" }] },
+      ],
+    }),
   );
 
   writeFileSync(
@@ -48,6 +52,11 @@ beforeAll(() => {
   mkdirSync(ptDir, { recursive: true });
   writeFileSync(join(enDir, "hello.mdx"), "---\ntitle: Hello\ndate: 2026-01-02\n---\nBody\n");
   writeFileSync(join(ptDir, "hello.mdx"), "---\ntitle: Ola\ndate: 2026-01-03\n---\nCorpo\n");
+  // A draft must never leak into the sitemap (it would reveal an unpublished URL).
+  writeFileSync(
+    join(enDir, "secret.mdx"),
+    "---\ntitle: Secret\ndate: 2026-01-09\ndraft: true\n---\nHidden\n",
+  );
 
   const plugin = hyperdownSitemapPlugin({ configPath: join(dir, "hyperdown.config.json") });
   plugin.closeBundle();
@@ -91,5 +100,9 @@ describe("hyperdownSitemapPlugin", () => {
   test("applies the content type's changefreq/priority", () => {
     expect(xml).toContain("<changefreq>monthly</changefreq>");
     expect(xml).toContain("<priority>0.7</priority>");
+  });
+
+  test("never emits a draft item's URL", () => {
+    expect(xml).not.toContain("/articles/secret");
   });
 });

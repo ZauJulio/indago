@@ -6,6 +6,7 @@ import { Database } from "bun:sqlite";
 import { writerLog } from "../utils/logger.server.ts";
 import { runPool } from "../utils/pool.ts";
 import { CollectionSchema } from "./collection-schema.ts";
+import { draftFieldNames, isDraftData } from "./draft.ts";
 
 import type { TypedFrontMatterContentType } from "./config.ts";
 import type { FrontmatterParser } from "./parser.ts";
@@ -48,6 +49,8 @@ export interface CollectionBuildContext {
  */
 export class CollectionDbBuilder {
   private readonly schema: CollectionSchema;
+  /** Names of the `type: "draft"` fields — items with any of them truthy are skipped. */
+  private readonly draftFields: string[];
 
   constructor(
     private readonly ctx: CollectionBuildContext,
@@ -55,6 +58,7 @@ export class CollectionDbBuilder {
     private readonly validator: FrontmatterValidator,
   ) {
     this.schema = new CollectionSchema(ctx.name, ctx.contentType.fields);
+    this.draftFields = draftFieldNames(ctx.contentType.fields);
   }
 
   /** Runs Phase 1 (parallel prepare) then Phase 2 (serial persist). */
@@ -83,6 +87,10 @@ export class CollectionDbBuilder {
     const filePath = join(this.ctx.targetDir, file);
     const raw = await readFile(filePath, "utf-8");
     const { data, content } = this.parser.parse(raw);
+
+    // Drafts are skipped entirely (before validation) so unpublished, possibly
+    // incomplete items never reach the index — and never log validation noise.
+    if (this.draftFields.length > 0 && isDraftData(data, this.draftFields)) return null;
 
     if (!data.title) return null;
 

@@ -1,8 +1,10 @@
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
-import { resolve, join } from "node:path";
+import { readFileSync, readdirSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
+import { resolve, join, sep } from "node:path";
 
 import { GENERATED_BANNER } from "../plugins/templates.ts";
 import { scriptLog } from "../utils/logger.server.ts";
+import { draftFieldNames, isDraftData } from "./draft.ts";
+import { FrontmatterParser } from "./parser.ts";
 
 import type {
   FrontmatterJson,
@@ -112,12 +114,51 @@ export class HyperDownCodegen {
    *  skeleton instead. Trade-off: every body ships in the detail page's client JS
    *  (fine for small sets; prefer SSR for large collections). */
   private generateModulesCode(contentName: string, contentRel: string): string {
-    let code = this.banner;
+    const include = `/${contentRel}/${contentName}/**/*.mdx`;
+    const drafts = this.findDraftFiles(contentName, contentRel);
 
+    let code = this.banner;
     code += `import type { ContentModuleMap } from "@indago/hyper-down/types";\n\n`;
-    code += `export default import.meta.glob("/${contentRel}/${contentName}/**/*.mdx", { eager: true }) as ContentModuleMap;\n`;
+
+    if (drafts.length === 0) {
+      code += `export default import.meta.glob("${include}", { eager: true }) as ContentModuleMap;\n`;
+      return code;
+    }
+
+    // Negative patterns keep draft bodies out of the bundle entirely — Vite never
+    // imports them, so @mdx-js/rollup never compiles them. (Vite supports `!`.)
+    const patterns = [include, ...drafts.map((d) => `!${d}`)]
+      .map((p) => `\n  ${JSON.stringify(p)},`)
+      .join("");
+    code += `// Draft items are excluded so their MD/MDX is never compiled or shipped.\n`;
+    code += `export default import.meta.glob([${patterns}\n], { eager: true }) as ContentModuleMap;\n`;
 
     return code;
+  }
+
+  /** Paths (Vite-root-absolute, e.g. `/src/content/article/en/wip.mdx`) of the
+   *  collection's draft `.mdx` files, sorted for deterministic codegen output. */
+  private findDraftFiles(contentName: string, contentRel: string): string[] {
+    const ct = this.contentTypes.find((c) => c.name === contentName);
+    const draftFields = ct ? draftFieldNames(ct.fields) : [];
+    if (draftFields.length === 0) return [];
+
+    const dir = join(this.appDir, contentRel, contentName);
+    if (!existsSync(dir)) return [];
+
+    const parser = new FrontmatterParser();
+    const drafts: string[] = [];
+
+    for (const entry of readdirSync(dir, { recursive: true })) {
+      if (typeof entry !== "string" || !entry.endsWith(".mdx")) continue;
+
+      const { data } = parser.parse(readFileSync(join(dir, entry), "utf-8"));
+      if (isDraftData(data, draftFields)) {
+        drafts.push(`/${contentRel}/${contentName}/${entry.split(sep).join("/")}`);
+      }
+    }
+
+    return drafts.sort();
   }
 
   /** Barrel exporting a single `contentModules` map keyed by content-type name,

@@ -652,6 +652,19 @@ The keys HyperDown reads are:
   their locales (`defaultLocale`, `locales`).
 - `frontMatter.content.i18n` — the locale list used to build the locale map.
 
+#### Drafts (`type: "draft"`)
+
+A field of type **`draft`** is a publish gate. When an item's draft field is truthy
+(`draft: true`), HyperDown excludes it from **everything the build produces**: it is not
+written to the SQLite metadata/FTS index, its MD/MDX body is negated out of the generated
+`import.meta.glob` so it is **never compiled into the client bundle**, and it is omitted from
+the sitemap. The source file stays in the repo, but the deployed site has no trace of it — so
+an unpublished draft can't be found by guessing its slug or fuzzing the build output.
+
+The field **name is configurable** — it is whatever you call the `type: "draft"` field
+(`draft`, `unpublished`, `wip`, …), and a content type may declare more than one (the item is
+a draft if any is truthy). Setting `draft: false` (or omitting it) publishes the item.
+
 Use `hyperdown create-frontmatter` / `create-content` to generate and extend this file
 rather than editing it by hand.
 

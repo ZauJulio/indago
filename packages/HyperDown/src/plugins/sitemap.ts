@@ -1,6 +1,7 @@
 import { readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { basename, extname, join, resolve } from "node:path";
 
+import { draftFieldNames, isDraftData } from "../frontmatter/draft.ts";
 import { sitemapLog } from "../utils/logger.server.ts";
 import { validateConfig } from "../utils/validator.ts";
 
@@ -34,7 +35,7 @@ interface I18nConfig {
 }
 
 interface HyperDownConfig {
-  database: { contentDir: string };
+  database: { contentDir: string; frontmatterJsonPath?: string };
   sitemap: SitemapConfig;
   i18n: I18nConfig;
 }
@@ -88,6 +89,27 @@ export function hyperdownSitemapPlugin(
       const { sitemap: sitemapConfig, i18n: i18nConfig } = config;
       const CONTENT_DIR = resolve(CONFIG_DIR, config.database.contentDir);
       const OUTPUT_PATH = resolve(CONFIG_DIR, sitemapConfig.outputPath);
+
+      // Map each content type to its draft-flag field name(s) so unpublished
+      // items never appear in the sitemap (which would leak their existence).
+      const draftFieldsByType: Record<string, string[]> = {};
+      try {
+        const fmPath = resolve(
+          CONFIG_DIR,
+          config.database.frontmatterJsonPath ?? "frontmatter.json",
+        );
+        const fm = JSON.parse(readFileSync(fmPath, "utf-8")) as {
+          "frontMatter.taxonomy.contentTypes"?: {
+            name: string;
+            fields?: { name: string; type: string }[];
+          }[];
+        };
+        for (const ct of fm["frontMatter.taxonomy.contentTypes"] ?? []) {
+          draftFieldsByType[ct.name] = draftFieldNames(ct.fields ?? []);
+        }
+      } catch {
+        // No frontmatter.json / unreadable — no draft filtering to apply.
+      }
 
       function getMarkdownFiles(dir: string): string[] {
         const files: string[] = [];
@@ -195,6 +217,7 @@ export function hyperdownSitemapPlugin(
           const contentType = typeConfig.name;
           const contentDir = join(CONTENT_DIR, contentType);
           const files = getMarkdownFiles(contentDir);
+          const draftFields = draftFieldsByType[contentType] ?? [];
 
           sitemapLog.info({ contentType, count: files.length }, "Found md/mdx files for sitemap");
 
@@ -202,6 +225,12 @@ export function hyperdownSitemapPlugin(
             try {
               const content = readFileSync(file, "utf-8");
               const frontmatter = extractFrontmatter(content);
+
+              // Never emit a draft URL — that would defeat the build-time exclusion.
+              if (frontmatter && draftFields.length > 0 && isDraftData(frontmatter, draftFields)) {
+                continue;
+              }
+
               const slug = deriveSlug(file);
 
               const lastmod = frontmatter?.date || getFileLastModified(file);
