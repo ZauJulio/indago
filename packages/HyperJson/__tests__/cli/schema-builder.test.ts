@@ -189,4 +189,50 @@ describe("create-content-type --fields-json (end to end)", () => {
     );
     expect(ts).toContain("MenuItem");
   });
+
+  test("generates correct TypeScript for a nested object + array-of-objects schema", () => {
+    runCli(["init"], dir);
+
+    const fieldsJson = JSON.stringify([
+      { name: "title", type: "string", required: true },
+      {
+        name: "author",
+        type: "object",
+        required: true,
+        fields: [
+          { name: "name", type: "string", required: true },
+          { name: "site", type: "string", format: "uri" },
+        ],
+      },
+      {
+        name: "sections",
+        type: "array",
+        items: {
+          name: "",
+          type: "object",
+          fields: [{ name: "heading", type: "string", required: true }],
+        },
+      },
+      { name: "tags", type: "array", items: { name: "", type: "string" } },
+    ]);
+    expect(
+      runCli(
+        ["create-content-type", "--name", "post", "--fields-json", fieldsJson, "--locales", "en"],
+        dir,
+      ).exitCode,
+    ).toBe(0);
+
+    expect(runCli(["validate", "both"], dir).exitCode).toBe(0);
+    expect(runCli(["generate"], dir).exitCode).toBe(0);
+
+    // The generated types reflect the full nested shape: the object, its nested
+    // fields, the array-of-objects element field, and the string[] tags.
+    const ts = readFileSync(
+      join(dir, ".hyper-json", "src", "content", "post", "types.ts"),
+      "utf-8",
+    );
+    for (const fragment of ["PostItem", "author", "name", "site", "sections", "heading", "tags"]) {
+      expect(ts).toContain(fragment);
+    }
+  });
 });
