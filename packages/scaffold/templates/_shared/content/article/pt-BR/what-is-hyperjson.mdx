@@ -1,7 +1,7 @@
 ---
 draft: false
 title: "O que é o HyperJson? Conteúdo JSON schema-first para Vite"
-description: "Um tour completo pelo HyperJson: validação estrita com Ajv, codegen de tipos in-process, a árvore .hyper-json gerada, a CLI hyperjson, o servidor MCP no Claude Code e no opencode, o pacote .agents, os testes e os scaffolds do @indago/create-app."
+description: "Pare de escrever interfaces TypeScript à mão para o seu conteúdo JSON. O HyperJson valida cada arquivo JSON contra um schema no build e gera os tipos para você — conteúdo inválido derruba o build, conteúdo válido chega completamente tipado, sem backend e sem custo de runtime."
 date: "2026-06-12"
 tags:
   ["HyperJson", "JSON Schema", "TypeScript", "Vite", "Codegen", "Validação", "Headless CMS", "MCP"]
@@ -13,6 +13,11 @@ cover: "https://raw.githubusercontent.com/ZauJulio/indago/refs/heads/main/packag
 ---
 
 # O que é o HyperJson?
+
+**Seu conteúdo JSON, validado no build e tipado automaticamente — sem backend, sem custo de
+runtime.** Descreva um formato uma vez como JSON Schema, coloque seus arquivos de dados ao
+lado, e todo import volta completamente tipado enquanto dados inválidos derrubam o build em
+vez dos seus usuários.
 
 O **HyperJson** (`@indago/hyper-json`) é um motor de conteúdo JSON-Schema-first para
 projetos Vite. Você descreve um tipo de conteúdo uma única vez num `schema.json`, coloca
@@ -30,6 +35,7 @@ compartilham código; o HyperJson **não tem nenhuma dependência de frontmatter
 
 - [O que é o HyperJson?](#o-que-é-o-hyperjson)
   - [O problema que ele resolve](#o-problema-que-ele-resolve)
+  - [Por que o HyperJson?](#por-que-o-hyperjson)
   - [Arquitetura: validar, gerar, importar](#arquitetura-validar-gerar-importar)
   - [Estrutura de conteúdo: o que você escreve, o que é gerado](#estrutura-de-conteúdo-o-que-você-escreve-o-que-é-gerado)
   - [A CLI](#a-cli)
@@ -37,7 +43,7 @@ compartilham código; o HyperJson **não tem nenhuma dependência de frontmatter
   - [O pacote `.agents/`](#o-pacote-agents)
   - [Como ele é testado](#como-ele-é-testado)
   - [Os scaffolds: quatro frameworks, um contrato](#os-scaffolds-quatro-frameworks-um-contrato)
-  - [Por que ele continua simples](#por-que-ele-continua-simples)
+  - [Comece a construir em minutos](#comece-a-construir-em-minutos)
 
 <br />
 
@@ -49,6 +55,28 @@ consumir esse JSON do TypeScript significa ou escrever interfaces à mão que
 dessincronizam, ou fazer cast para `any` e perder todas as garantias. O HyperJson fecha
 as duas brechas com o schema como fonte única de verdade: conteúdo inválido **derruba o
 build**, e conteúdo válido chega **já tipado**.
+
+## Por que o HyperJson?
+
+Se o seu site renderiza qualquer dado estruturado — uma lista de projetos, uma matriz de
+skills, playlists, álbuns de fotos — o HyperJson torna esse dado confiável e tipado pelo preço
+de um arquivo de schema:
+
+- **Conteúdo inválido não sobe.** O Ajv valida cada arquivo em modo `strict` no `buildStart`;
+  um tipo errado ou uma chave a mais derruba o build. Seu CI **é** o seu CMS.
+- **Tipos que você nunca escreve nem mantém.** O schema gera o TypeScript, então
+  `import data from "@content/projects/en/projects.json"` é completamente tipado, sem cast — e
+  não tem como dessincronizar, porque não há nada escrito à mão para dessincronizar.
+- **Sem backend, sem runtime.** Validação e codegen rodam no build; o que sobe são imports
+  JSON tipados puros — nada para deployar, nada para chamar, nada para pagar.
+- **Hooks headless, a sua UI.** `useFilter`, `useSearch`, `useSort`, `usePaginate` e
+  `useComposed` moldam os dados em React sem impor um único componente.
+- **Orientado por schema, dirigido por agentes.** Um servidor MCP embutido deixa o Claude Code
+  ou o opencode criar um tipo de conteúdo e preencher seus arquivos de dados, validados a cada
+  passo.
+
+Ele faz exatamente um trabalho — transformar JSON Schema em conteúdo confiável e tipado — e
+sai do seu caminho. Veja como.
 
 ## Arquitetura: validar, gerar, importar
 
@@ -222,9 +250,28 @@ tipados e os hooks headless funcionam de forma idêntica em todos — é o carre
 MDX do HyperDown que precisa de adapters por framework. Um schema escrito para o
 template Vike vai para o Next.js sem mudar nada.
 
-## Por que ele continua simples
+## Comece a construir em minutos
 
-O HyperJson deliberadamente faz uma coisa só: pegar JSON Schema e tornar seu conteúdo
-JSON confiável e tipado — validação que trava o build, tipos que nunca dessincronizam,
-hooks que continuam headless. Toda preocupação com Markdown vive no HyperDown. É esse
-foco que mantém o HyperJson um drop-in para qualquer projeto Vite + TypeScript.
+Faça o scaffold de um app completo já ligado ao HyperJson (e ao HyperDown) em um comando:
+
+```bash
+bun create @indago/app
+```
+
+Ou adicione a um app que você já tem:
+
+```bash
+bunx @indago/hyper-json init
+bunx @indago/hyper-json create-content-type --name projects --locales "en,pt-BR" \
+  --fields "id:string:required;name:string:required;url:string"
+bunx @indago/hyper-json generate     # tipos a partir dos seus schemas
+```
+
+É essa a história inteira. O HyperJson deliberadamente faz uma coisa só — pegar JSON Schema e
+tornar seu conteúdo JSON confiável e tipado, com validação que trava o build, tipos que nunca
+dessincronizam e hooks que continuam headless — e é exatamente isso que o mantém um drop-in
+para qualquer projeto Vite + TypeScript. Toda preocupação com Markdown vive no irmão
+[HyperDown](/pt/articles/what-is-hyperdown).
+
+O código está no [GitHub](https://github.com/ZauJulio/indago) — dê um schema a ele e deixe o
+resto por conta dele.

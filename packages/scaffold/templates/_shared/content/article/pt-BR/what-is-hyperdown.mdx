@@ -1,7 +1,7 @@
 ---
 draft: false
 title: "O que é o HyperDown? Markdown → SQLite com busca full-text, só no servidor"
-description: "Um tour completo pelo HyperDown: a arquitetura FTS5 contentless, a árvore .hyper-down gerada, a CLI hyperdown, o servidor MCP no Claude Code e no opencode, o pacote .agents, os testes e os quatro scaffolds do @indago/create-app."
+description: "Adicione busca full-text de verdade ao seu site sem subir nenhum serviço de backend, API ou CMS. O HyperDown transforma uma pasta de Markdown/MDX numa camada de conteúdo tipada e pesquisável que vai dentro do seu build — por que você vai querer usar e como começar em minutos."
 date: "2026-06-12"
 tags:
   [
@@ -25,6 +25,10 @@ cover: "https://raw.githubusercontent.com/ZauJulio/indago/refs/heads/main/packag
 
 # O que é o HyperDown?
 
+**Quer busca full-text de verdade no seu site sem subir um único serviço de backend?** É essa
+a proposta inteira. Você escreve Markdown; o HyperDown te entrega uma camada de conteúdo
+tipada e pesquisável que vai _dentro do seu build_ e não custa nada para rodar.
+
 O **HyperDown** (`@indago/hyper-down`) transforma uma pasta de arquivos Markdown/MDX
 numa camada de conteúdo tipada e com busca full-text — **sem serviço de banco de dados,
 sem API e sem servidor de CMS**. No build, ele compila o **frontmatter** do seu conteúdo
@@ -39,6 +43,7 @@ em Markdown/MDX**; seu irmão [HyperJson](/pt/articles/what-is-hyperjson) cuida 
 <br />
 
 - [O que é o HyperDown?](#o-que-é-o-hyperdown)
+  - [Por que o HyperDown?](#por-que-o-hyperdown)
   - [A ideia central: metadados no SQLite, corpo nos globs](#a-ideia-central-metadados-no-sqlite-corpo-nos-globs)
   - [Arquitetura: três passos de build, dois caminhos de runtime](#arquitetura-três-passos-de-build-dois-caminhos-de-runtime)
   - [Estrutura do projeto: o que você escreve, o que é gerado](#estrutura-do-projeto-o-que-você-escreve-o-que-é-gerado)
@@ -47,9 +52,33 @@ em Markdown/MDX**; seu irmão [HyperJson](/pt/articles/what-is-hyperjson) cuida 
   - [O pacote `.agents/`](#o-pacote-agents)
   - [Como ele é testado](#como-ele-é-testado)
   - [Os scaffolds: quatro frameworks, um contrato](#os-scaffolds-quatro-frameworks-um-contrato)
-  - [Fechando](#fechando)
+  - [Comece a construir em cinco minutos](#comece-a-construir-em-cinco-minutos)
 
 <br />
+
+## Por que o HyperDown?
+
+A maioria dos "sites de conteúdo" recorre a um CMS headless, a um banco de dados hospedado ou
+a um SaaS de busca — três peças móveis para provisionar, pagar e proteger só para publicar
+alguns artigos. O HyperDown elimina essa camada inteira. Em troca, você ganha:
+
+- **Busca full-text de verdade, zero infraestrutura.** Busca FTS5 por prefixo em títulos,
+  descrições **e** corpos — rodando a partir de um arquivo SQLite que vai dentro do seu build.
+  Sem Algolia, sem Elasticsearch, sem linha gerenciada parada na sua fatura.
+- **Seu conteúdo continua no git.** Artigos são só arquivos `.mdx` numa pasta: revise em pull
+  requests, compare diffs, crie branches, reverta — o fluxo que seu time já tem.
+- **Tipado de ponta a ponta, sem desvio.** O frontmatter vira uma interface TypeScript gerada,
+  então um campo renomeado quebra o build, não a produção.
+- **Um banco pequeno e autocontido.** O índice FTS é _contentless_ — guarda tokens e
+  metadados, nunca a prosa — então o `.db` fica pequeno e viaja junto com o seu deploy. Nada
+  para hospedar.
+- **Pronto para agentes.** Um servidor MCP embutido deixa o Claude Code ou o opencode criar
+  tipos de conteúdo e escrever artigos por você. (Este post foi criado assim.)
+- **Uma camada, quatro frameworks.** Um único `bun create @indago/app` roda a mesma camada de
+  conteúdo em Vike, React Router v7, TanStack Start ou Next.js.
+
+Se você publica Markdown e já pensou _"eu só queria busca sem rodar um servidor para isso"_ —
+isto foi feito para você. O resto do post mostra como ele faz isso acontecer.
 
 ## A ideia central: metadados no SQLite, corpo nos globs
 
@@ -267,9 +296,29 @@ outra estratégia de resolução de módulos. Os três templates baseados em Vit
 principalmente no idioma do loader e no servidor de produção; a camada de dados, a
 árvore de conteúdo e o pipeline de renderização são idênticos.
 
-## Fechando
+## Comece a construir em cinco minutos
 
-Esse é o HyperDown: escreva em Markdown, indexe frontmatter **e** corpo num SQLite FTS5
+O caminho mais rápido é o scaffold — um app completo e testado, já ligado ao HyperDown, em um
+comando:
+
+```bash
+bun create @indago/app
+```
+
+Já tem um app? Adicione o HyperDown direto nele:
+
+```bash
+bunx @indago/hyper-down init both     # config + frontmatter
+bunx @indago/hyper-down create-item --type article --slug hello-world --lang en
+bunx @indago/hyper-down gen:db        # constrói o banco pesquisável
+```
+
+Esse é o loop inteiro: escreva em Markdown, indexe frontmatter **e** corpo num SQLite FTS5
 contentless, consulte apenas no servidor e resolva o corpo MDX por um glob seguro para o
-navegador — com CLI, servidor MCP, pacote `.agents/` e quatro scaffolds que honram o
-mesmo contrato.
+navegador — com CLI, servidor MCP, pacote `.agents/` e quatro scaffolds que honram o mesmo
+contrato.
+
+O código está no [GitHub](https://github.com/ZauJulio/indago), e se o seu problema é JSON
+estruturado em vez de prosa, o irmão [HyperJson](/pt/articles/what-is-hyperjson) faz pelo
+conteúdo tipado o que o HyperDown faz pela busca. Construa algo com ele — eu vou adorar ver o
+que você criar.
