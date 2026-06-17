@@ -1,6 +1,6 @@
 {
   "name": "@indago/hyper-down",
-  "version": "1.3.1",
+  "version": "1.4.0",
   "description": "Markdown/MDX → SQLite (FTS5 contentless) → server-side route loaders. A drop-in SSR headless CMS for Vike, React Router, TanStack Start, and Next.js — zero backend service.",
   "keywords": [
     "cms",

@@ -69,6 +69,26 @@ function branchIds(nodes: SectionNode[], acc: Set<string> = new Set()): Set<stri
   return acc;
 }
 
+/** Collapse indicator — a chevron that rotates from ▸ (closed) to ▾ (open). */
+function Chevron({ open }: { open: boolean }): ReactNode {
+  return (
+    <svg
+      className={`hd-sidebar-chevron${open ? " hd-sidebar-chevron--open" : ""}`}
+      width="10"
+      height="10"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="3"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M9 6l6 6-6 6" />
+    </svg>
+  );
+}
+
 function Badge({ badge }: { badge: SectionBadge }): ReactNode {
   return (
     <span
@@ -103,7 +123,8 @@ function SidebarNode({
   const isOpen = expanded.has(node.id);
   const isActive = activeId === node.id;
 
-  const linkStyle: CSSProperties = { paddingLeft: `${(node.level - 1) * INDENT_PER_LEVEL}px` };
+  // Base left padding (matches the CSS) + one indent step per nesting level.
+  const linkStyle: CSSProperties = { paddingLeft: `${8 + (node.level - 1) * INDENT_PER_LEVEL}px` };
   const cls = [
     "hd-sidebar-link",
     node.bold ? "hd-sidebar-link--bold" : "",
@@ -116,38 +137,31 @@ function SidebarNode({
 
   return (
     <li className="hd-sidebar-item">
-      <div className="hd-sidebar-row" style={linkStyle}>
-        {hasChildren ? (
-          <button
-            type="button"
-            className="hd-sidebar-toggle"
-            aria-expanded={isOpen}
-            aria-label={isOpen ? "Collapse section" : "Expand section"}
-            onClick={() => toggle(node.id)}
-          >
-            {isOpen ? "v" : ">"}
-          </button>
-        ) : (
-          <span className="hd-sidebar-toggle hd-sidebar-toggle--leaf" aria-hidden="true" />
-        )}
-
-        <a
-          href={`#${node.id}`}
-          className={cls}
-          aria-current={isActive ? "location" : undefined}
-          onClick={(e) => {
-            e.preventDefault();
-            onSelect(node.id);
-          }}
+      {/* The whole row is the click target: it scrolls to the section and, when
+          the section has children, also toggles its collapse state. */}
+      <a
+        href={`#${node.id}`}
+        className={cls}
+        style={linkStyle}
+        aria-current={isActive ? "location" : undefined}
+        aria-expanded={hasChildren ? isOpen : undefined}
+        onClick={(e) => {
+          e.preventDefault();
+          onSelect(node.id);
+          if (hasChildren) toggle(node.id);
+        }}
+      >
+        <span
+          className={`hd-sidebar-toggle${hasChildren ? "" : " hd-sidebar-toggle--leaf"}`}
+          aria-hidden="true"
         >
-          <span className="hd-sidebar-title" style={node.bold ? { fontWeight: 700 } : undefined}>
-            {node.title}
-          </span>
-          {node.badges.map((badge) => (
-            <Badge key={`${badge.label}/${badge.color}`} badge={badge} />
-          ))}
-        </a>
-      </div>
+          {hasChildren ? <Chevron open={isOpen} /> : null}
+        </span>
+        <span className="hd-sidebar-title">{node.title}</span>
+        {node.badges.map((badge) => (
+          <Badge key={`${badge.label}/${badge.color}`} badge={badge} />
+        ))}
+      </a>
 
       {hasChildren && isOpen && (
         <ul className="hd-sidebar-children">
