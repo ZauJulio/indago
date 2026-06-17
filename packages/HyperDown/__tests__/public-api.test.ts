@@ -20,6 +20,9 @@ describe("@indago/hyper-down (browser-safe barrel)", () => {
       "getLocale",
       "getDisplayLocale",
       "getFallbackLocale",
+      "Sidebar",
+      "parseSections",
+      "extractSectionRecords",
     ]) {
       expect(main[name as keyof typeof main], name).toBeDefined();
     }
@@ -45,6 +48,16 @@ describe("@indago/hyper-down/plugins", () => {
   test("the MDX plugin enforces 'pre' (must run before vike/react)", () => {
     const p = plugins.hyperdownMdxPlugin({}) as { enforce?: string };
     expect(p.enforce).toBe("pre");
+  });
+
+  test("exports remarkHeadingBadges (strips `#[label/#color]` from headings)", () => {
+    expect(typeof plugins.remarkHeadingBadges).toBe("function");
+    const tree = {
+      type: "root",
+      children: [{ type: "heading", children: [{ type: "text", value: "Setup #[beta/#000000]" }] }],
+    };
+    plugins.remarkHeadingBadges()(tree as never);
+    expect((tree.children[0].children[0] as { value: string }).value).toBe("Setup");
   });
 
   test("the sitemap plugin is a build-only plugin with the expected name", () => {

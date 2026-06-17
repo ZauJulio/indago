@@ -59,5 +59,9 @@ export default defineConfig({
   deps: {
     neverBundle: [...sharedExternal, "vite", "vitest"],
   },
-  copy: [{ from: "schemas/*", to: "dist/schemas" }],
+  copy: [
+    { from: "schemas/*", to: "dist/schemas" },
+    // `to` is a directory — the file lands at `dist/sidebar.css`.
+    { from: "src/components/sidebar.css", to: "dist" },
+  ],
 });

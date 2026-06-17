@@ -70,6 +70,10 @@ program
         configDir,
         fmPath,
         hyperdownConfig.database?.contentDir,
+        {
+          index: hyperdownConfig.database?.index,
+          indexByCollection: hyperdownConfig.database?.indexByCollection,
+        },
       );
       await writer.writeDatabases();
       sp.stop("Databases generated successfully.");

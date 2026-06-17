@@ -1,4 +1,5 @@
 import type { FrontmatterField } from "./config.ts";
+import type { IndexMode } from "./sections.ts";
 
 /**
  * Derives every SQL statement for one content collection from its field
@@ -20,6 +21,8 @@ export class CollectionSchema {
   constructor(
     readonly name: string,
     private readonly fields: FrontmatterField[],
+    /** `"composed"` adds a `sections` tree column + per-section FTS tables. */
+    private readonly index: IndexMode = "page",
   ) {
     this.columnDefs = fields.map((f) => `${f.name} ${f.type === "draft" ? "INTEGER" : "TEXT"}`);
     this.ftsColumns = fields
@@ -41,8 +44,21 @@ export class CollectionSchema {
     return `${this.name}_tags`;
   }
 
+  get sectionsTable(): string {
+    return `${this.name}_sections`;
+  }
+
+  get sectionsFtsTable(): string {
+    return `${this.name}_sections_fts`;
+  }
+
   get hasArrayFields(): boolean {
     return this.arrayFields.length > 0;
+  }
+
+  /** `true` when section-level (`"composed"`) indexing is enabled for this collection. */
+  get isComposed(): boolean {
+    return this.index === "composed";
   }
 
   /** Whether this FTS column's value must be flattened from an array to tokens. */
@@ -51,10 +67,33 @@ export class CollectionSchema {
   }
 
   createTableSql(): string {
+    // `"composed"` stores the heading tree (JSON) so detail loaders can hand a
+    // sidebar its sections without re-parsing the body. Only present when enabled.
+    const sectionsCol = this.isComposed ? ", sections TEXT" : "";
     return (
       `CREATE TABLE IF NOT EXISTS ${this.name} ` +
       `(id INTEGER PRIMARY KEY AUTOINCREMENT, slug TEXT NOT NULL, locale TEXT NOT NULL, ` +
-      `${this.columnDefs.join(", ")}, UNIQUE(slug, locale));`
+      `${this.columnDefs.join(", ")}${sectionsCol}, UNIQUE(slug, locale));`
+    );
+  }
+
+  /** Per-section metadata (one row per heading) — joined to FTS hits for anchors. */
+  createSectionsTableSql(): string | null {
+    if (!this.isComposed) return null;
+    return (
+      `CREATE TABLE IF NOT EXISTS ${this.sectionsTable} ` +
+      `(id INTEGER PRIMARY KEY AUTOINCREMENT, content_id INTEGER NOT NULL, ` +
+      `slug TEXT NOT NULL, locale TEXT NOT NULL, heading_id TEXT NOT NULL, ` +
+      `title TEXT NOT NULL, level INTEGER NOT NULL);`
+    );
+  }
+
+  /** Contentless FTS over each section's title + body — section-level MATCH. */
+  createSectionsFtsSql(): string | null {
+    if (!this.isComposed) return null;
+    return (
+      `CREATE VIRTUAL TABLE IF NOT EXISTS ${this.sectionsFtsTable} ` +
+      `USING fts5(title, body, content="", tokenize="unicode61");`
     );
   }
 
@@ -81,10 +120,25 @@ export class CollectionSchema {
   insertRowSql(): string {
     const names = this.fields.map((f) => f.name);
     const placeholders = names.map((n) => `$${n}`).join(", ");
+    const sectionsCol = this.isComposed ? ", sections" : "";
+    const sectionsVal = this.isComposed ? ", $sections" : "";
     return (
-      `INSERT INTO ${this.name} (slug, locale, ${names.join(", ")}) ` +
-      `VALUES ($slug, $locale, ${placeholders}) RETURNING id;`
+      `INSERT INTO ${this.name} (slug, locale, ${names.join(", ")}${sectionsCol}) ` +
+      `VALUES ($slug, $locale, ${placeholders}${sectionsVal}) RETURNING id;`
     );
+  }
+
+  insertSectionSql(): string | null {
+    if (!this.isComposed) return null;
+    return (
+      `INSERT INTO ${this.sectionsTable} (content_id, slug, locale, heading_id, title, level) ` +
+      `VALUES ($cid, $slug, $locale, $heading_id, $title, $level) RETURNING id;`
+    );
+  }
+
+  insertSectionFtsSql(): string | null {
+    if (!this.isComposed) return null;
+    return `INSERT INTO ${this.sectionsFtsTable} (rowid, title, body) VALUES ($rowid, $title, $body);`;
   }
 
   insertFtsSql(): string {
@@ -120,6 +174,14 @@ export class CollectionSchema {
     if (this.hasArrayFields) {
       sqls.push(
         `CREATE INDEX IF NOT EXISTS idx_${this.name}_tags ON ${this.tagsTable}(field, value);`,
+      );
+    }
+
+    if (this.isComposed) {
+      // FTS rowid → section row is by PK; the `(slug, locale)` index serves the
+      // "sections of one article" lookup the sidebar/`#`-search rely on.
+      sqls.push(
+        `CREATE INDEX IF NOT EXISTS idx_${this.sectionsTable}_slug ON ${this.sectionsTable}(slug, locale);`,
       );
     }
 

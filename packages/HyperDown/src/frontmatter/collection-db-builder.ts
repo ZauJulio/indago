@@ -7,9 +7,11 @@ import { writerLog } from "../utils/logger.server.ts";
 import { runPool } from "../utils/pool.ts";
 import { CollectionSchema } from "./collection-schema.ts";
 import { draftFieldNames, isDraftData } from "./draft.ts";
+import { extractSectionRecords, parseSections } from "./sections.ts";
 
 import type { TypedFrontMatterContentType } from "./config.ts";
 import type { FrontmatterParser } from "./parser.ts";
+import type { IndexMode, SectionNode, SectionRecord } from "./sections.ts";
 import type { FrontmatterValidator } from "./validator.ts";
 import { readFile } from "node:fs/promises";
 
@@ -22,6 +24,10 @@ interface PreparedRow {
   locale: string;
   data: Record<string, unknown>;
   content: string;
+  /** Heading tree (composed mode only) — serialised into the `sections` column. */
+  sectionTree?: SectionNode[];
+  /** Flattened heading+body records (composed mode only) — fed to the sections FTS. */
+  sectionRecords?: SectionRecord[];
 }
 
 /** Everything `CollectionDbBuilder` needs to build one collection's `.db`. */
@@ -36,6 +42,8 @@ export interface CollectionBuildContext {
   dbPath: string;
   /** Locale assigned to files at the content root (no locale subfolder). */
   defaultLocale: string;
+  /** `"composed"` enables per-section FTS + a stored heading tree. */
+  index: IndexMode;
 }
 
 /**
@@ -57,7 +65,7 @@ export class CollectionDbBuilder {
     private readonly parser: FrontmatterParser,
     private readonly validator: FrontmatterValidator,
   ) {
-    this.schema = new CollectionSchema(ctx.name, ctx.contentType.fields);
+    this.schema = new CollectionSchema(ctx.name, ctx.contentType.fields, ctx.index);
     this.draftFields = draftFieldNames(ctx.contentType.fields);
   }
 
@@ -107,6 +115,10 @@ export class CollectionDbBuilder {
       locale: this.detectLocale(file),
       data,
       content,
+      // Parse the heading tree once here (Phase 1) so the serial persist stays cheap.
+      ...(this.schema.isComposed
+        ? { sectionTree: parseSections(content), sectionRecords: extractSectionRecords(content) }
+        : {}),
     };
   }
 
@@ -138,6 +150,12 @@ export class CollectionDbBuilder {
 
     const tagsTableSql = this.schema.createTagsTableSql();
     if (tagsTableSql) db.query(tagsTableSql).run();
+
+    const sectionsTableSql = this.schema.createSectionsTableSql();
+    if (sectionsTableSql) db.query(sectionsTableSql).run();
+
+    const sectionsFtsSql = this.schema.createSectionsFtsSql();
+    if (sectionsFtsSql) db.query(sectionsFtsSql).run();
   }
 
   /** Inserts every prepared row into the main, FTS and bridge tables, wrapped in
@@ -148,6 +166,11 @@ export class CollectionDbBuilder {
     const tagSql = this.schema.insertTagSql();
     const tagStmt = tagSql ? db.prepare(tagSql) : null;
 
+    const sectionSql = this.schema.insertSectionSql();
+    const sectionStmt = sectionSql ? db.prepare(sectionSql) : null;
+    const sectionFtsSql = this.schema.insertSectionFtsSql();
+    const sectionFtsStmt = sectionFtsSql ? db.prepare(sectionFtsSql) : null;
+
     db.query("BEGIN").run();
     for (const row of rows) {
       const { id } = metaStmt.get(this.metaParams(row)) as { id: number };
@@ -155,6 +178,20 @@ export class CollectionDbBuilder {
 
       if (tagStmt) {
         for (const params of this.tagParams(id, row)) tagStmt.run(params);
+      }
+
+      if (sectionStmt && sectionFtsStmt) {
+        for (const record of row.sectionRecords ?? []) {
+          const { id: sectionId } = sectionStmt.get({
+            $cid: id,
+            $slug: row.slug,
+            $locale: row.locale,
+            $heading_id: record.id,
+            $title: record.title,
+            $level: record.level,
+          }) as { id: number };
+          sectionFtsStmt.run({ $rowid: sectionId, $title: record.title, $body: record.body });
+        }
       }
     }
     db.query("COMMIT").run();
@@ -172,6 +209,8 @@ export class CollectionDbBuilder {
           ? JSON.stringify(val || [])
           : (val ?? null);
     }
+
+    if (this.schema.isComposed) params.$sections = JSON.stringify(row.sectionTree ?? []);
 
     return params as BindParams;
   }

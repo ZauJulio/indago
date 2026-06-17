@@ -30,6 +30,20 @@ export {
   createMdxComponents,
 } from "../src/components/MdxComponents.tsx";
 export type { ComponentMap } from "../src/components/MdxComponents.tsx";
+export { Sidebar } from "../src/components/Sidebar.tsx";
+export type { SidebarProps } from "../src/components/Sidebar.tsx";
+
+// ── Sections (composed index / sidebars) ──────────────────────────────────────
+// `parseSections` builds the same heading tree the writer stores on a composed
+// collection's `sections` column — handy for client-side or non-composed use.
+export { parseSections, extractSectionRecords } from "../src/frontmatter/sections.ts";
+export type {
+  IndexMode,
+  SectionBadge,
+  SectionNode,
+  SectionRecord,
+} from "../src/frontmatter/sections.ts";
+export type { SectionHit, SectionSearchParams } from "../src/db/repository-types.ts";
 
 // ── Frontmatter parser ───────────────────────────────────────────────────────
 export { parseFrontmatter } from "../src/frontmatter/parser.ts";

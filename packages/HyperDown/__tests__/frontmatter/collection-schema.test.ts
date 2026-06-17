@@ -144,3 +144,47 @@ describe("CollectionSchema DDL", () => {
     );
   });
 });
+
+describe("CollectionSchema composed (section) indexing", () => {
+  const page = new CollectionSchema("article", articleFields, "page");
+  const composed = new CollectionSchema("article", articleFields, "composed");
+
+  test("isComposed reflects the index mode", () => {
+    expect(page.isComposed).toBe(false);
+    expect(composed.isComposed).toBe(true);
+  });
+
+  test("page mode emits no section tables/columns", () => {
+    expect(page.createTableSql()).not.toContain("sections TEXT");
+    expect(page.createSectionsTableSql()).toBeNull();
+    expect(page.createSectionsFtsSql()).toBeNull();
+    expect(page.insertSectionSql()).toBeNull();
+    expect(page.insertSectionFtsSql()).toBeNull();
+    expect(page.insertRowSql()).not.toContain("sections");
+  });
+
+  test("composed mode adds a sections tree column + the section row/FTS insert", () => {
+    expect(composed.createTableSql()).toContain(", sections TEXT");
+    expect(composed.insertRowSql()).toContain("sections");
+    expect(composed.insertRowSql()).toContain("$sections");
+  });
+
+  test("composed mode declares the sections table + contentless FTS", () => {
+    expect(composed.createSectionsTableSql()).toContain(
+      "CREATE TABLE IF NOT EXISTS article_sections ",
+    );
+    expect(composed.createSectionsTableSql()).toContain("heading_id TEXT NOT NULL");
+
+    const fts = composed.createSectionsFtsSql() ?? "";
+    expect(fts).toContain("CREATE VIRTUAL TABLE IF NOT EXISTS article_sections_fts ");
+    expect(fts).toContain("USING fts5(title, body");
+    expect(fts).toContain('content=""');
+  });
+
+  test("composed mode indexes the sections (slug, locale) lookup", () => {
+    expect(composed.createIndexSqls()).toContain(
+      "CREATE INDEX IF NOT EXISTS idx_article_sections_slug ON article_sections(slug, locale);",
+    );
+    expect(page.createIndexSqls().some((s) => s.includes("article_sections"))).toBe(false);
+  });
+});

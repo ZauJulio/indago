@@ -1,5 +1,7 @@
 import type { ComponentType } from "react";
 
+import type { SectionNode } from "../frontmatter/sections.ts";
+
 // ─── Base Types ──────────────────────────────────────────────
 
 /** Common metadata for any markdown content. Stripped down to basics. */
@@ -7,6 +9,12 @@ export interface ContentMeta {
   id: number;
   slug: string;
   locale: string;
+  /**
+   * Heading tree, present only on detail lookups (`getMetaBySlug`) of a
+   * `"composed"`-indexed collection. Powers tutorial sidebars; `undefined`
+   * for `"page"`-indexed collections and stripped from listing/search results.
+   */
+  sections?: SectionNode[];
 }
 
 /** A compiled MDX React component — accepts an optional `components` prop for element overrides. */

@@ -9,6 +9,7 @@ import { FrontmatterParser } from "./parser.ts";
 import { FrontmatterValidator } from "./validator.ts";
 
 import type { FrontMatterPageFolder } from "./config.ts";
+import type { IndexMode } from "./sections.ts";
 
 /**
  * Orchestrates SQLite generation for every content collection declared in
@@ -28,9 +29,19 @@ export class HyperDownWriter {
     fmJsonPath = "../../frontmatter.json",
     /** `database.contentDir` (relative to configDir). */
     private contentDir = "./src/content",
+    /** `database.index` / `database.indexByCollection` — the indexing granularity. */
+    private indexConfig: {
+      index?: IndexMode;
+      indexByCollection?: Record<string, IndexMode>;
+    } = {},
   ) {
     const configManager = new FrontmatterConfigManager(resolve(configDir, fmJsonPath));
     this.validator = new FrontmatterValidator(configManager, resolve(configDir, "../.."));
+  }
+
+  /** Resolves a collection's index mode: per-collection override → global → `"page"`. */
+  private resolveIndexMode(name: string): IndexMode {
+    return this.indexConfig.indexByCollection?.[name] ?? this.indexConfig.index ?? "page";
   }
 
   public async writeDatabases(): Promise<void> {
@@ -84,7 +95,14 @@ export class HyperDownWriter {
     if (!contentType) return null;
 
     return new CollectionDbBuilder(
-      { name, contentType, targetDir, dbPath: join(targetDir, `${name}.db`), defaultLocale },
+      {
+        name,
+        contentType,
+        targetDir,
+        dbPath: join(targetDir, `${name}.db`),
+        defaultLocale,
+        index: this.resolveIndexMode(name),
+      },
       this.parser,
       this.validator,
     );
@@ -108,6 +126,10 @@ if (import.meta.main) {
     configDir,
     fmPath,
     hyperdownConfig.database?.contentDir,
+    {
+      index: hyperdownConfig.database?.index,
+      indexByCollection: hyperdownConfig.database?.indexByCollection,
+    },
   );
   await writer.writeDatabases();
 }

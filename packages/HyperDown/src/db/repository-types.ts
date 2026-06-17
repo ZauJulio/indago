@@ -67,6 +67,30 @@ export interface RelatedParams<T> {
   field?: [keyof T] extends [string] ? keyof T : string;
 }
 
+/** Parameters accepted by `ContentRepository.searchSections` (composed index only). */
+export interface SectionSearchParams {
+  /** Free-text query matched against the per-section FTS5 index (prefix matching). */
+  searchQuery: string;
+  /** Canonical DB locale to scope hits to. When omitted, spans every locale. */
+  locale?: string;
+  /** Restrict to a single article's sections (the `#`-prefixed "this page" search). */
+  slug?: string;
+  /** Maximum hits to return. Defaults to `20`. */
+  limit?: number;
+}
+
+/** One section-level search hit — enough to deep-link to the heading anchor. */
+export interface SectionHit {
+  /** Slug of the article the section belongs to. */
+  slug: string;
+  /** Anchor id of the heading (matches the rendered `id`). */
+  headingId: string;
+  /** Heading display title. */
+  title: string;
+  /** Heading depth (1–6). */
+  level: number;
+}
+
 /** Options for `ContentRepository.distinctValues`. */
 export interface DistinctValuesOptions<T> {
   /** Column to read distinct values from (e.g. `"tags"`, `"cuisine"`). */

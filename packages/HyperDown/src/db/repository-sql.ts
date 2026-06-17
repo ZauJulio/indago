@@ -121,8 +121,10 @@ export function parseJsonFields<T extends Record<string, unknown>>(row: T): T {
   return result as T;
 }
 
-/** Strips the internal pagination/ranking + content columns, returning parsed metadata. */
+/** Strips the internal pagination/ranking, content, and section-tree columns,
+ *  returning parsed metadata. The `sections` tree is detail-only (`getMetaBySlug`),
+ *  so listing/search rows drop it to keep payloads lean. */
 export function toMetaItem<T extends ContentMeta>(raw: Record<string, unknown>): T {
-  const { _total_count: _count, _rank: _r, content: _content, ...meta } = raw;
+  const { _total_count: _count, _rank: _r, content: _content, sections: _sections, ...meta } = raw;
   return parseJsonFields(meta) as unknown as T;
 }

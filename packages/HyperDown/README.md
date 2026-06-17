@@ -53,6 +53,9 @@ backend service, served via SSR (pre-rendered to static HTML by default).
 
 - 📝 **Markdown & MDX** content, compiled to React components.
 - 🔍 **FTS5 full-text search** with prefix matching, filters, sorting, and pagination.
+- 🧭 **Composed (section) indexing** — opt a collection into `index: "composed"` to
+  also index every heading section, deep-link search hits to `#anchors`, and get a
+  ready-made heading tree (`meta.sections`) + default `<Sidebar/>` for tutorials.
 - 🗜️ **Compact `.db`** — contentless FTS5 (`content=""`) stores only the inverted
   index, never the original text.
 - 🖥️ **SSR-only** — SQLite is queried in route loaders via `bun:sqlite` / `node:sqlite`;
@@ -344,6 +347,73 @@ Component-map helpers:
   `undefined` → defaults only, `[]` → empty map, `[...]` → defaults merged with each map.
 - `MermaidBlock` — renders a Mermaid diagram from a fenced ` ```mermaid ` code block
   (requires the optional `mermaid` peer dependency).
+
+### Composed (section) indexing & sidebars
+
+By default a collection is indexed **per page**: the whole body is tokenised into the
+contentless FTS index under the document's slug. Opt a collection into **composed**
+indexing to _also_ index each heading section:
+
+```jsonc
+// hyperdown.config.json
+{
+  "database": {
+    "contentDir": "./content",
+    "frontmatterJsonPath": "frontmatter.json",
+    "index": "page", // global default (optional)
+    "indexByCollection": { "article": "composed" }, // per-collection override
+  },
+}
+```
+
+A composed collection gains, at build time:
+
+- a `<type>_sections` table + contentless `<type>_sections_fts` index (one entry per heading);
+- a `sections` column on the main table holding the **heading tree** — returned by
+  `getMetaBySlug` as `meta.sections` (a `SectionNode[]`), stripped from listing/search rows.
+
+**Section search** — `ContentRepository.searchSections` matches the per-section FTS and
+returns hits you can deep-link to `…/<slug>#<headingId>`. Pass `slug` to search _within one
+article_; omit it to search sections across the collection. (Returns `[]` for a page-indexed
+collection, so it is safe to call opportunistically.)
+
+```ts
+const hits = await articleRepository.searchSections({ searchQuery: "install", locale: "en" });
+// → [{ slug, headingId, title, level }, …]
+```
+
+**Heading badges** — a heading may declare a sidebar pill inline with `#[label/#color]`:
+
+```md
+## Getting Started #[beta/#000000]
+```
+
+Add the exported `remarkHeadingBadges` remark plugin so the badge is stripped from the
+rendered body (and never pollutes the `rehype-slug` anchor) — it surfaces as a `badge` on
+the section node instead:
+
+```ts
+import { remarkHeadingBadges } from "@indago/hyper-down/plugins";
+
+hyperdownMdxPlugin({
+  remarkPlugins: [remarkHeadingBadges, remarkGfm],
+  rehypePlugins: [rehypeSlug],
+});
+```
+
+**Sidebar** — render the tree with the batteries-included `<Sidebar/>` (collapsible,
+auto-expands bold/active branches, renders badges, deep-links to anchors), or build your
+own from the same `SectionNode[]`:
+
+```tsx
+import { Sidebar } from "@indago/hyper-down";
+import "@indago/hyper-down/sidebar.css"; // optional default styling
+
+<Sidebar sections={article.sections ?? []} activeId={activeHeadingId} compress />;
+```
+
+`parseSections(markdown)` / `extractSectionRecords(markdown)` are also exported, so you can
+build the same tree client-side or for a page-indexed collection.
 
 ### Parser & i18n utilities
 

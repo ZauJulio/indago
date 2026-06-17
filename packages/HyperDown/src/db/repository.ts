@@ -16,6 +16,8 @@ import type {
   DistinctValuesOptions,
   RelatedParams,
   SearchResult,
+  SectionHit,
+  SectionSearchParams,
 } from "./repository-types.ts";
 import type { ContentMeta, ContentRow, DistinctValueRow } from "./types.ts";
 
@@ -28,6 +30,8 @@ export type {
   RelatedParams,
   SearchFilters,
   SearchResult,
+  SectionHit,
+  SectionSearchParams,
   SortConfig,
 } from "./repository-types.ts";
 
@@ -45,11 +49,15 @@ export type {
 export class ContentRepository<T extends ContentMeta = ContentMeta> {
   readonly contentName: string;
   readonly ftsTable: string;
+  readonly sectionsTable: string;
+  readonly sectionsFtsTable: string;
 
   /** @param options - Collection name and optional FTS5 table (default `${contentName}_fts`). */
   constructor(options: ContentRepositoryOptions) {
     this.contentName = options.contentName;
     this.ftsTable = options.ftsTable ?? `${options.contentName}_fts`;
+    this.sectionsTable = `${options.contentName}_sections`;
+    this.sectionsFtsTable = `${options.contentName}_sections_fts`;
   }
 
   /**
@@ -152,6 +160,48 @@ export class ContentRepository<T extends ContentMeta = ContentMeta> {
       totalPages,
       currentPage: pagination?.page ?? 1,
     };
+  }
+
+  /**
+   * Section-level full-text search (composed index only). Matches the per-section
+   * FTS index and returns heading hits with their anchor, so callers can deep-link
+   * to `…/<slug>#<headingId>`. Pass `slug` to scope to one article (the "search
+   * within this page" mode); omit it to search sections across the whole collection.
+   *
+   * Returns `[]` for a `"page"`-indexed collection (no sections table) rather than
+   * throwing, so callers can offer section search opportunistically.
+   */
+  async searchSections(params: SectionSearchParams): Promise<SectionHit[]> {
+    const { searchQuery, locale, slug, limit = 20 } = params;
+    if (!searchQuery.trim()) return [];
+
+    const where = [
+      `s.id IN (SELECT rowid FROM ${this.sectionsFtsTable} WHERE ${this.sectionsFtsTable} MATCH ?)`,
+    ];
+    const bind: SQLiteBindValue[] = [buildFtsQuery(searchQuery)];
+
+    if (locale) {
+      where.push("s.locale = ?");
+      bind.push(locale);
+    }
+    if (slug) {
+      where.push("s.slug = ?");
+      bind.push(slug);
+    }
+
+    const sql =
+      `SELECT s.slug AS slug, s.heading_id AS headingId, s.title AS title, s.level AS level ` +
+      `FROM ${this.sectionsTable} s WHERE ${where.join(" AND ")} ` +
+      `ORDER BY s.level ASC, s.id ASC LIMIT ?`;
+    bind.push(limit);
+
+    try {
+      return await hyperDownClient.query<SectionHit>(sql, bind, this.contentName);
+    } catch (err) {
+      // A page-indexed collection has no `<type>_sections` table — treat as "no hits".
+      contentLog.debug({ err }, "searchSections: sections table unavailable");
+      return [];
+    }
   }
 
   /**

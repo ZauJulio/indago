@@ -36,6 +36,16 @@ export interface HyperDownConfiguration {
      * Output path for the generated SQLite database, relative to the config file.
      */
     outputPath?: string;
+    /**
+     * Default indexing granularity for every collection. 'page' (default) indexes the whole document body under its slug. 'composed' additionally indexes each heading section, enabling section-level search and a section tree for sidebars.
+     */
+    index?: "page" | "composed";
+    /**
+     * Per-collection overrides for the 'index' mode, keyed by content-type name (e.g. { "article": "composed" }).
+     */
+    indexByCollection?: {
+      [k: string]: "page" | "composed";
+    };
   };
   /**
    * Sitemap generation configuration.

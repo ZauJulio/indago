@@ -27,6 +27,19 @@
         "outputPath": {
           "type": "string",
           "description": "Output path for the generated SQLite database, relative to the config file."
+        },
+        "index": {
+          "type": "string",
+          "enum": ["page", "composed"],
+          "description": "Default indexing granularity for every collection. 'page' (default) indexes the whole document body under its slug. 'composed' additionally indexes each heading section, enabling section-level search and a section tree for sidebars."
+        },
+        "indexByCollection": {
+          "type": "object",
+          "description": "Per-collection overrides for the 'index' mode, keyed by content-type name (e.g. { \"article\": \"composed\" }).",
+          "additionalProperties": {
+            "type": "string",
+            "enum": ["page", "composed"]
+          }
         }
       }
     },
