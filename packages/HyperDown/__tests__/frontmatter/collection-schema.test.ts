@@ -187,4 +187,16 @@ describe("CollectionSchema composed (section) indexing", () => {
     );
     expect(page.createIndexSqls().some((s) => s.includes("article_sections"))).toBe(false);
   });
+
+  test("composed mode drops the body column from the page FTS (body indexed once, in sections)", () => {
+    expect(page.pageFtsHasBody).toBe(true);
+    expect(page.createFtsSql()).toContain(", body");
+    expect(page.insertFtsSql()).toContain("$body");
+
+    expect(composed.pageFtsHasBody).toBe(false);
+    expect(composed.createFtsSql()).not.toContain(", body");
+    expect(composed.insertFtsSql()).not.toContain("$body");
+    // Frontmatter columns are still indexed in the page FTS.
+    expect(composed.createFtsSql()).toContain("title, description");
+  });
 });

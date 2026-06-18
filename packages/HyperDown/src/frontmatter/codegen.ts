@@ -11,6 +11,7 @@ import type {
   TypedFrontMatterContentType,
   FrontMatterPageFolder,
 } from "./config.ts";
+import type { IndexMode } from "./sections.ts";
 
 export class HyperDownCodegen {
   /** App directory — where `hyperdown.config.json` lives. Base for `.hyper-down`. */
@@ -18,6 +19,8 @@ export class HyperDownCodegen {
   private fmConfigPath: string;
   /** `database.contentDir` from hyperdown.config.json (relative to appDir). */
   private contentDir: string;
+  /** `database.index` / `database.indexByCollection` — the indexing granularity. */
+  private indexConfig: { index?: IndexMode; indexByCollection?: Record<string, IndexMode> } = {};
   private fmConfig: FrontmatterJson;
   private contentTypes: TypedFrontMatterContentType[];
   private pageFolders: FrontMatterPageFolder[];
@@ -39,6 +42,10 @@ export class HyperDownCodegen {
     }
     const hdConfig = JSON.parse(readFileSync(hdConfigPath, "utf-8"));
     this.contentDir = hdConfig.database?.contentDir || "./src/content";
+    this.indexConfig = {
+      index: hdConfig.database?.index,
+      indexByCollection: hdConfig.database?.indexByCollection,
+    };
 
     const fmPathRelative = hdConfig.database?.frontmatterJsonPath || "frontmatter.json";
     const fmConfigPath = resolve(this.appDir, fmPathRelative);
@@ -94,8 +101,17 @@ export class HyperDownCodegen {
   /** The collection's server-only `ContentRepository`, exported as a lazy proxy
    *  (`createLazyRepository`). The `new` is deferred past module-eval to dodge a
    *  Rolldown chunk init-order trap — see `createLazyRepository`. */
+  /** Resolves a collection's index mode: per-collection override → global → `"page"`.
+   *  Mirrors `HyperDownWriter.resolveIndexMode` so codegen and writer never diverge. */
+  private resolveIndexMode(name: string): IndexMode {
+    return this.indexConfig.indexByCollection?.[name] ?? this.indexConfig.index ?? "page";
+  }
+
   private generateBuilderCode(tableName: string): string {
     const interfaceName = tableName.charAt(0).toUpperCase() + tableName.slice(1) + "Meta";
+    // Composed collections store the body only in the section FTS, so the repo
+    // must search the body through there — flag it on construction.
+    const composed = this.resolveIndexMode(tableName) === "composed";
 
     let code = this.banner;
     code += `import { createLazyRepository } from "@indago/hyper-down/server";\n\n`;
@@ -104,6 +120,7 @@ export class HyperDownCodegen {
     code += `// loaders (SSR-only), never by browser code. Lazily instantiated.\n`;
     code += `export const ${tableName}Repository = createLazyRepository<${interfaceName}>({\n`;
     code += `  contentName: "${tableName}",\n`;
+    if (composed) code += `  composed: true,\n`;
     code += `});\n`;
     return code;
   }

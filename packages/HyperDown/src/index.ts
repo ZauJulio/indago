@@ -31,7 +31,7 @@ export {
 } from "../src/components/MdxComponents.tsx";
 export type { ComponentMap } from "../src/components/MdxComponents.tsx";
 export { Sidebar } from "../src/components/Sidebar.tsx";
-export type { SidebarProps } from "../src/components/Sidebar.tsx";
+export type { SidebarProps, TreeNode } from "../src/components/Sidebar.tsx";
 
 // ── Sections (composed index / sidebars) ──────────────────────────────────────
 // `parseSections` builds the same heading tree the writer stores on a composed

@@ -12,8 +12,8 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
-    "@indago/hyper-down": "^0.4.2",
-    "@indago/hyper-json": "^1.0.1",
+    "@indago/hyper-down": "^1.5.0",
+    "@indago/hyper-json": "^1.1.0",
     "@tanstack/react-router": "^1.170.0",
     "@tanstack/react-start": "^1.168.0",
     "i18next": "^25.6.0",

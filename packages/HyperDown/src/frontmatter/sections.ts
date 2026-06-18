@@ -81,6 +81,13 @@ function extractBadges(rawText: string): { badges: SectionBadge[]; text: string 
  * Parses a markdown body into flattened heading records (heading + body text).
  * Code fences are skipped so `#` lines inside them are never treated as headings.
  * Anchors are deduped per document, matching `rehype-slug`.
+ *
+ * A synthetic **section 0** (`id: ""`, `level: 0`) is prepended whenever there's
+ * text before the first heading — including a document with no headings at all,
+ * where it carries the whole body. This keeps the section FTS a *complete* body
+ * index: with the page FTS no longer storing the body, nothing (intro prose,
+ * heading-less docs) would otherwise be searchable. It's filtered out of the
+ * heading-level section search (`level > 0`) so it never shows as a fake heading.
  */
 export function extractSectionRecords(markdown: string): SectionRecord[] {
   const slugger = new GithubSlugger();
@@ -88,6 +95,7 @@ export function extractSectionRecords(markdown: string): SectionRecord[] {
 
   const records: SectionRecord[] = [];
   const bodyLines: string[][] = [];
+  const leadLines: string[] = [];
   let inFence = false;
 
   for (const line of lines) {
@@ -103,15 +111,22 @@ export function extractSectionRecords(markdown: string): SectionRecord[] {
       records.push({ id: slugger.slug(title), title, level, body: "" });
       bodyLines.push([]);
     } else if (records.length > 0) {
-      // Lead-in text before the first heading is dropped (the page owns it).
       bodyLines[bodyLines.length - 1].push(line);
+    } else {
+      // Text before the first heading (or the entire body when headingless).
+      leadLines.push(line);
     }
   }
 
-  return records.map((record, i) => ({
+  const out: SectionRecord[] = records.map((record, i) => ({
     ...record,
     body: stripInlineMarkdown(bodyLines[i].join(" ").replace(/\s+/g, " ")).trim(),
   }));
+
+  const lead = stripInlineMarkdown(leadLines.join(" ").replace(/\s+/g, " ")).trim();
+  if (lead) out.unshift({ id: "", title: "", level: 0, body: lead });
+
+  return out;
 }
 
 /**

@@ -67,6 +67,98 @@ export function MermaidBlock({ code }: { code: string }) {
   );
 }
 
+// ─── Code blocks ─────────────────────────────────────────────────────────────
+
+/** Display name + accent color for the "classic" languages shown in the top-bar. */
+const CODE_LANGS: Record<string, { label: string; color: string }> = {
+  c: { label: "C", color: "#a8b9cc" },
+  cpp: { label: "C++", color: "#00599c" },
+  "c++": { label: "C++", color: "#00599c" },
+  bash: { label: "Bash", color: "#4eaa25" },
+  sh: { label: "Shell", color: "#4eaa25" },
+  shell: { label: "Shell", color: "#4eaa25" },
+  java: { label: "Java", color: "#ea2d2e" },
+  csharp: { label: "C#", color: "#9b4f96" },
+  cs: { label: "C#", color: "#9b4f96" },
+  "c#": { label: "C#", color: "#9b4f96" },
+  python: { label: "Python", color: "#3776ab" },
+  py: { label: "Python", color: "#3776ab" },
+  javascript: { label: "JavaScript", color: "#f7df1e" },
+  js: { label: "JavaScript", color: "#f7df1e" },
+  jsx: { label: "JavaScript", color: "#f7df1e" },
+  typescript: { label: "TypeScript", color: "#3178c6" },
+  ts: { label: "TypeScript", color: "#3178c6" },
+  tsx: { label: "TypeScript", color: "#3178c6" },
+  go: { label: "Go", color: "#00add8" },
+  golang: { label: "Go", color: "#00add8" },
+  html: { label: "HTML", color: "#e34f26" },
+  css: { label: "CSS", color: "#1572b6" },
+};
+
+/** Recursively flattens a React node to its text content (for line counting). */
+function nodeText(node: React.ReactNode): string {
+  if (node === null || node === undefined || typeof node === "boolean") return "";
+  if (typeof node === "string" || typeof node === "number") return String(node);
+  if (Array.isArray(node)) return node.map(nodeText).join("");
+  if (React.isValidElement(node)) {
+    return nodeText((node.props as { children?: React.ReactNode }).children);
+  }
+  return "";
+}
+
+/** Pulls the `language-xxx` token out of a hljs/MDX code className. */
+function languageOf(className: unknown): string | null {
+  if (typeof className !== "string") return null;
+  const match = /language-([\w+#-]+)/.exec(className);
+  return match ? match[1].toLowerCase() : null;
+}
+
+/**
+ * A fenced code block: a topbar (language chip + name) over a body with a
+ * **non-selectable** line-number gutter and the highlighted code. `font-mono`
+ * resolves to the consumer's monospace stack (e.g. Geist Mono).
+ */
+function CodeBlock({ children }: { children: React.ReactNode }) {
+  // The single child is the `<code>` element (already passed through the `code`
+  // override): read its language + text from there.
+  const codeEl = React.Children.toArray(children).find((c) => React.isValidElement(c));
+  const className = React.isValidElement(codeEl)
+    ? (codeEl.props as { className?: string }).className
+    : undefined;
+
+  const lang = languageOf(className);
+  const meta = lang ? CODE_LANGS[lang] : undefined;
+  const label = meta?.label ?? lang ?? "code";
+
+  const text = nodeText(children).replace(/\n$/, "");
+  const lineCount = Math.max(1, text.split("\n").length);
+  const gutter = Array.from({ length: lineCount }, (_, i) => i + 1).join("\n");
+
+  return (
+    <div className="hd-code my-4 overflow-hidden rounded-xl border border-gray-800 bg-gray-900/80">
+      <div className="flex items-center gap-2 border-b border-gray-800 bg-gray-900/60 px-4 py-2">
+        <span
+          aria-hidden="true"
+          className="size-3 rounded-sm"
+          style={{ backgroundColor: meta?.color ?? "#6b7280" }}
+        />
+        <span className="text-xs font-medium text-gray-400">{label}</span>
+      </div>
+      <div className="flex text-sm">
+        <pre
+          aria-hidden="true"
+          className="shrink-0 select-none py-4 pr-3 pl-4 text-right font-mono leading-6 text-gray-600"
+        >
+          {gutter}
+        </pre>
+        <pre className="hd-code-scroll min-w-0 flex-1 overflow-x-auto py-4 pr-4 font-mono leading-6">
+          {children}
+        </pre>
+      </div>
+    </div>
+  );
+}
+
 // ─── Default component map ───────────────────────────────────────────────────
 
 /**
@@ -186,9 +278,7 @@ export const defaultMdxComponents: ComponentMap = {
     if (shouldHide) return null;
     if (hasMermaid) return <div className="my-6">{children}</div>;
 
-    return (
-      <pre className="bg-gray-900/80 rounded-xl p-4 overflow-x-auto my-4 text-sm">{children}</pre>
-    );
+    return <CodeBlock>{children}</CodeBlock>;
   },
 
   code: ({ className, children, ...props }: React.ComponentPropsWithoutRef<"code">) => {
@@ -211,8 +301,10 @@ export const defaultMdxComponents: ComponentMap = {
       );
     }
 
+    // Block code: the surrounding `CodeBlock` (the `pre` override) owns padding,
+    // line numbers and the topbar — here we only carry the hljs language classes.
     return (
-      <code className={`${className} font-mono py-4`} {...props}>
+      <code className={`${className} font-mono`} {...props}>
         {children}
       </code>
     );

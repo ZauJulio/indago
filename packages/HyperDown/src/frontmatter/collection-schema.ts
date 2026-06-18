@@ -97,13 +97,22 @@ export class CollectionSchema {
     );
   }
 
+  /** Whether the page FTS carries a `body` column. Composed collections index the
+   *  body once — in the per-section FTS — so their page FTS is frontmatter-only. */
+  get pageFtsHasBody(): boolean {
+    return !this.isComposed;
+  }
+
   /** Contentless FTS5 (content="") stores only the inverted index — not the
-   *  original text — keeping the `.db` compact. The extra `body` column indexes
-   *  the MD/MDX body so search reaches article content, not just frontmatter. */
+   *  original text — keeping the `.db` compact. A `body` column indexes the
+   *  MD/MDX body so search reaches article content, not just frontmatter — but
+   *  **composed** collections drop it: the body is tokenized once in the section
+   *  FTS instead (no double-indexing), and `search()` reaches it from there. */
   createFtsSql(): string {
+    const bodyCol = this.pageFtsHasBody ? ", body" : "";
     return (
       `CREATE VIRTUAL TABLE IF NOT EXISTS ${this.ftsTable} ` +
-      `USING fts5(${this.ftsColumns.join(", ")}, body, content="", tokenize="unicode61");`
+      `USING fts5(${this.ftsColumns.join(", ")}${bodyCol}, content="", tokenize="unicode61");`
     );
   }
 
@@ -143,9 +152,11 @@ export class CollectionSchema {
 
   insertFtsSql(): string {
     const placeholders = this.ftsColumns.map((c) => `$${c}`).join(", ");
+    const bodyCol = this.pageFtsHasBody ? ", body" : "";
+    const bodyVal = this.pageFtsHasBody ? ", $body" : "";
     return (
-      `INSERT INTO ${this.ftsTable} (rowid, ${this.ftsColumns.join(", ")}, body) ` +
-      `VALUES ($content_rowid, ${placeholders}, $body);`
+      `INSERT INTO ${this.ftsTable} (rowid, ${this.ftsColumns.join(", ")}${bodyCol}) ` +
+      `VALUES ($content_rowid, ${placeholders}${bodyVal});`
     );
   }
 

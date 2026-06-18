@@ -216,7 +216,10 @@ export class CollectionDbBuilder {
   }
 
   private ftsParams(id: number, row: PreparedRow): BindParams {
-    const params: Record<string, unknown> = { $content_rowid: id, $body: row.content };
+    const params: Record<string, unknown> = { $content_rowid: id };
+    // Composed collections' page FTS has no `body` column (the body lives in the
+    // section FTS) — binding `$body` would error against the narrower statement.
+    if (this.schema.pageFtsHasBody) params.$body = row.content;
 
     for (const column of this.schema.ftsColumns) {
       const val = row.data[column];

@@ -51,6 +51,8 @@ export class ContentRepository<T extends ContentMeta = ContentMeta> {
   readonly ftsTable: string;
   readonly sectionsTable: string;
   readonly sectionsFtsTable: string;
+  /** `true` when the body lives only in the section FTS (composed index). */
+  readonly composed: boolean;
 
   /** @param options - Collection name and optional FTS5 table (default `${contentName}_fts`). */
   constructor(options: ContentRepositoryOptions) {
@@ -58,6 +60,7 @@ export class ContentRepository<T extends ContentMeta = ContentMeta> {
     this.ftsTable = options.ftsTable ?? `${options.contentName}_fts`;
     this.sectionsTable = `${options.contentName}_sections`;
     this.sectionsFtsTable = `${options.contentName}_sections_fts`;
+    this.composed = options.composed ?? false;
   }
 
   /**
@@ -92,18 +95,26 @@ export class ContentRepository<T extends ContentMeta = ContentMeta> {
     }
 
     if (searchQuery.trim()) {
+      const fts = buildFtsQuery(searchQuery);
+
       // FTS matches across all locales, mapped back to slugs; the outer `locale`
       // filter then yields one selected-locale row per slug. (FTS rowid === row id.)
-      where.push(
-        `slug IN (SELECT slug FROM ${table}
-          WHERE id IN (
-            SELECT rowid FROM ${this.ftsTable}
-            WHERE ${this.ftsTable} MATCH ?
-          )
-        )`,
-      );
+      const frontmatterMatch = `slug IN (SELECT slug FROM ${table}
+            WHERE id IN (SELECT rowid FROM ${this.ftsTable} WHERE ${this.ftsTable} MATCH ?))`;
 
-      whereBind.push(buildFtsQuery(searchQuery));
+      if (this.composed) {
+        // The page FTS is frontmatter-only for composed collections; body text is
+        // reached through the section FTS, aggregated back to its slug. A slug
+        // matches if its frontmatter OR any of its sections match.
+        where.push(
+          `(${frontmatterMatch} OR slug IN (SELECT slug FROM ${this.sectionsTable}
+            WHERE id IN (SELECT rowid FROM ${this.sectionsFtsTable} WHERE ${this.sectionsFtsTable} MATCH ?)))`,
+        );
+        whereBind.push(fts, fts);
+      } else {
+        where.push(frontmatterMatch);
+        whereBind.push(fts);
+      }
     }
 
     const whereSql = where.join(" AND ");
@@ -177,6 +188,9 @@ export class ContentRepository<T extends ContentMeta = ContentMeta> {
 
     const where = [
       `s.id IN (SELECT rowid FROM ${this.sectionsFtsTable} WHERE ${this.sectionsFtsTable} MATCH ?)`,
+      // Exclude the synthetic section 0 (lead-in / headingless body) — it's a body
+      // index entry, not a real heading, so it must never surface as a hit.
+      "s.level > 0",
     ];
     const bind: SQLiteBindValue[] = [buildFtsQuery(searchQuery)];
 

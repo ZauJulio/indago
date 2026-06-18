@@ -107,4 +107,10 @@ export interface ContentRepositoryOptions {
   contentName: string;
   /** FTS5 virtual table name. Defaults to `${contentName}_fts`. */
   ftsTable?: string;
+  /**
+   * `"composed"`-indexed collection: the body is tokenized only in the per-section
+   * FTS (the page FTS is frontmatter-only), so `search()` reaches body text by
+   * matching the section FTS and aggregating hits back to their slug. Default `false`.
+   */
+  composed?: boolean;
 }
