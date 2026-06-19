@@ -46,9 +46,12 @@ jobs:
 
       # npm (not bun) handles the publish; pin a Node whose npm we then upgrade
       # to one new enough for Trusted Publishing (OIDC needs npm >= 11.5.1).
+      # `registry-url` writes the registry into ~/.npmrc — npm keys its OIDC
+      # token exchange off that line, so without it publish falls to ENEEDAUTH.
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+          registry-url: "https://registry.npmjs.org"
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
