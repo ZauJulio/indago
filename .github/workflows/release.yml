@@ -102,7 +102,11 @@ jobs:
         working-directory: ${{ matrix.dir }}
         run: |
           npm install -g npm@latest
-          npm config set registry https://registry.npmjs.org/
+          # Token-less project .npmrc: gives npm a loaded registry config (which
+          # the OIDC path needs) without the empty `_authToken` that setup-node's
+          # registry-url would add. `npm config set` can't be used here — it errors
+          # ENOWORKSPACES inside a workspace member dir.
+          printf 'registry=https://registry.npmjs.org/\n' > .npmrc
           echo "node $(node --version) · npm $(npm --version)"
           echo "OIDC request URL present: ${ACTIONS_ID_TOKEN_REQUEST_URL:+yes}"
           npm publish --access public
