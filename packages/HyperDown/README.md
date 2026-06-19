@@ -47,6 +47,35 @@ backend service, served via SSR (pre-rendered to static HTML by default).
 > **Starting fresh?** `bun create @indago/app` scaffolds a ready-made app (Vike,
 > React Router v7, TanStack Start, or Next.js) already wired to HyperDown + HyperJson.
 
+### Architecture at a glance
+
+```mermaid
+flowchart LR
+  subgraph Build["Build time · Vite plugins"]
+    MD["Markdown / MDX<br/>+ frontmatter.json"]
+    P2["hyperdownPlugin<br/>(validate + writer)"]
+    P1["hyperdownMdxPlugin<br/>(@mdx-js/rollup)"]
+    DB[("SQLite .db<br/>contentless FTS5")]
+    GLOB["import.meta.glob<br/>MDX module map"]
+    MD --> P2 --> DB
+    MD --> P1 --> GLOB
+  end
+  subgraph Server["Request time · SSR loader"]
+    REPO["ContentRepository&lt;T&gt;<br/>bun:sqlite / node:sqlite"]
+    DB --> REPO
+  end
+  subgraph View["Render · browser-safe"]
+    RES["createContentResolver"]
+    MDX["MdxRender"]
+    GLOB --> RES --> MDX
+  end
+  REPO -->|"serializable metadata"| MDX
+```
+
+At build time the plugins emit a tiny metadata-only SQLite database and a static MDX module
+map; at request time a server loader queries the `.db` through `ContentRepository`, and the
+matching MDX body is resolved lazily and rendered with `MdxRender`. No client-side database.
+
 ---
 
 ## Feature highlights
@@ -623,6 +652,20 @@ Creation tools require their full flag set — interactive prompts are disabled 
 
 ## Architecture notes
 
+### Request lifecycle
+
+```mermaid
+flowchart TD
+  URL["Route request<br/>?q · ?tag · ?page · ?sort"] --> Loader["Server loader"]
+  Loader --> Q{"Listing or detail?"}
+  Q -->|"listing"| Search["repo.search()<br/>FTS5 MATCH + filters + sort + page"]
+  Q -->|"detail"| Slug["repo.getMetaBySlug()<br/>+ related()"]
+  Search --> Meta["Serializable metadata"]
+  Slug --> Meta
+  Meta --> Resolve["getContent(slug, lang)<br/>resolve lazy MDX module"]
+  Resolve --> Render["MdxRender → HTML"]
+```
+
 ### SQLite holds only metadata
 
 The generated database stores **front-matter metadata only** — never the Markdown/MDX
@@ -636,6 +679,47 @@ index but **never stored**, keeping the `.db` tiny.
 `tags`/`categories` are stored as JSON strings in the main table, flattened into the FTS
 index, and mirrored into an indexed `<type>_tags` bridge table for sargable tag filters
 and facet counts.
+
+### FTS5 index size — `detail="column"` + build-time `optimize`
+
+The FTS index is the single biggest part of each `.db`, so the writer applies two
+**independent, additive** size optimizations.
+
+**1. `detail="column"`.** FTS5's default `detail=full` stores, for _every token
+occurrence_, the document, the column, **and the offset within that column**. The
+positional data is what enables phrase / `NEAR` queries and positional `bm25` weighting —
+none of which `ContentRepository` uses: it only emits prefix + boolean queries
+(`"word"* AND "word"*`) and treats the FTS as a pure membership filter
+(`id IN (SELECT rowid … WHERE … MATCH ?)`), never calling `bm25()`. So we drop to
+`detail="column"`, which keeps the per-column information (single term, prefix, boolean,
+and `column:term` queries all still work) but discards offsets.
+
+| `detail`        | stores per token        | still supports                                 | index size¹ |
+| --------------- | ----------------------- | ---------------------------------------------- | ----------- |
+| `full`          | doc + column + position | everything (phrase, `NEAR`, positional `bm25`) | **100%**    |
+| `column` (ours) | doc + column            | term, prefix, boolean, `column:term`           | ~58%        |
+| `none`          | doc only                | term, prefix, boolean only                     | ~46%        |
+
+> ¹ Ratios measured on this project's article corpus (post-`optimize` + `VACUUM`); the
+> absolute numbers vary with content, but the ordering holds.
+
+We picked **`column`** over the smaller `none` as the middle ground: it still allows a
+future `title:term` (search-only-in-titles) feature, while `none` would force a schema
+migration + full rebuild to add one back. Dropping to `none` (or back to `full` for phrase
+/ `NEAR` / positional `bm25` ranking) is a one-line change in `collection-schema.ts`.
+
+**2. Build-time `optimize`.** Row-by-row inserts leave the FTS index split across many
+on-disk **segments**, each carrying its own term dictionary and header — the same term's
+postings list ends up fragmented across all of them. After all inserts (and before
+`VACUUM`), the writer runs FTS5's `'optimize'` command on each FTS table, merging every
+segment into one and collapsing the duplicated overhead. This is **separate from
+`VACUUM`**: `VACUUM` recompacts the database file's free pages but never touches the FTS
+segment structure, so both run, back to back. `optimize` is `O(index size)`, but it runs
+**once at build time** — the `.db` is read-only at runtime, so every request reads the
+compacted index for free.
+
+Together (`column` + `optimize`) these cut the section-FTS index by roughly **40%** on
+this project's corpus versus the default `full`, unoptimized index.
 
 ### The body is loaded at runtime
 

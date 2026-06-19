@@ -40,6 +40,33 @@ A small set of **client-side React hooks** (filter / search / sort / paginate / 
 rounds it out for building content explorers and gallery UIs. HyperJson has **no dependency
 on front-matter** — all front-matter logic lives in HyperDown.
 
+### Architecture at a glance
+
+```mermaid
+flowchart LR
+  subgraph Repo["Your repo"]
+    S["schema.json"]
+    J["*.json content<br/>(en/ · pt-BR/)"]
+  end
+  subgraph Build["Build time · hyperjsonValidationPlugin"]
+    AJV["Ajv validation<br/>strict · failOnError"]
+    GEN["json-schema-to-typescript<br/>codegen · worker pool"]
+    S --> AJV
+    J --> AJV
+    S --> GEN
+    GEN --> T["Generated types +<br/>ambient module declarations"]
+  end
+  subgraph App["Your app"]
+    IMP["typed import<br/>@content/**/*.json"]
+    HOOKS["headless hooks<br/>filter · search · sort · paginate"]
+    T --> IMP --> HOOKS
+  end
+  AJV -->|"invalid ⇒ build exits non-zero"| FAIL["❌ build fails"]
+```
+
+Everything happens at build time: invalid content fails the build, valid content arrives
+fully typed at every import, and nothing runs at request time.
+
 ---
 
 ## Feature highlights

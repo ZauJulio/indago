@@ -136,6 +136,10 @@ export class CollectionDbBuilder {
       this.createSchema(db);
       this.insertRows(db, rows);
       for (const sql of this.schema.createIndexSqls()) db.query(sql).run();
+      // Merge the FTS segments left by the row-by-row inserts into one before the
+      // file-level compaction — the two wins are additive (`VACUUM` never touches
+      // the FTS segment structure). Both run once here, at build time.
+      for (const sql of this.schema.optimizeFtsSqls()) db.query(sql).run();
       db.query("VACUUM;").run();
     } finally {
       db.close();

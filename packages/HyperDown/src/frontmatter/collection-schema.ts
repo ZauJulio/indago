@@ -93,7 +93,7 @@ export class CollectionSchema {
     if (!this.isComposed) return null;
     return (
       `CREATE VIRTUAL TABLE IF NOT EXISTS ${this.sectionsFtsTable} ` +
-      `USING fts5(title, body, content="", tokenize="unicode61");`
+      `USING fts5(title, body, content="", tokenize="unicode61", detail="column");`
     );
   }
 
@@ -112,7 +112,7 @@ export class CollectionSchema {
     const bodyCol = this.pageFtsHasBody ? ", body" : "";
     return (
       `CREATE VIRTUAL TABLE IF NOT EXISTS ${this.ftsTable} ` +
-      `USING fts5(${this.ftsColumns.join(", ")}${bodyCol}, content="", tokenize="unicode61");`
+      `USING fts5(${this.ftsColumns.join(", ")}${bodyCol}, content="", tokenize="unicode61", detail="column");`
     );
   }
 
@@ -163,6 +163,24 @@ export class CollectionSchema {
   insertTagSql(): string | null {
     if (!this.hasArrayFields) return null;
     return `INSERT INTO ${this.tagsTable} (content_id, field, value) VALUES ($cid, $field, $value);`;
+  }
+
+  /** FTS5 `'optimize'` commands — one per FTS table. Row-by-row inserts leave the
+   *  index split across many on-disk segments (each with its own term dictionary
+   *  and header); `optimize` merges them into a single segment, collapsing the
+   *  duplicated overhead. Run once at build time (after all inserts, before
+   *  `VACUUM`) — it is O(index size) but the `.db` is read-only at runtime, so the
+   *  cost is paid once and every request reads the compacted index. This is a
+   *  separate, additive win from `VACUUM` (which only compacts the file's free
+   *  pages, never the FTS segment structure). */
+  optimizeFtsSqls(): string[] {
+    const sqls = [`INSERT INTO ${this.ftsTable}(${this.ftsTable}) VALUES('optimize');`];
+    if (this.isComposed) {
+      sqls.push(
+        `INSERT INTO ${this.sectionsFtsTable}(${this.sectionsFtsTable}) VALUES('optimize');`,
+      );
+    }
+    return sqls;
   }
 
   /** `UNIQUE(slug, locale)` already autoindexes `slug` (leftmost), and the composite
