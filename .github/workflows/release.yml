@@ -46,12 +46,13 @@ jobs:
 
       # npm (not bun) handles the publish; pin a Node whose npm we then upgrade
       # to one new enough for Trusted Publishing (OIDC needs npm >= 11.5.1).
-      # `registry-url` writes the registry into ~/.npmrc — npm keys its OIDC
-      # token exchange off that line, so without it publish falls to ENEEDAUTH.
+      # NB: do NOT pass `registry-url` here — it writes an `_authToken=${NODE_AUTH_TOKEN}`
+      # line to ~/.npmrc, and with no token that empty value makes npm attempt
+      # (failed) token auth instead of the OIDC exchange. We set a token-less
+      # registry in the publish step instead.
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          registry-url: "https://registry.npmjs.org"
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
@@ -94,12 +95,16 @@ jobs:
       # Trusted Publishing (OIDC): no long-lived token. With `id-token: write`
       # granted above, npm mints a short-lived token from the GitHub OIDC claim
       # and attaches build provenance automatically. Requires npm >= 11.5.1, so
-      # upgrade the runner's npm first.
+      # upgrade the runner's npm first. Set the registry token-lessly so the
+      # OIDC path engages (an empty `_authToken` would short-circuit it).
       - name: Publish to npm
         if: steps.published.outputs.exists == 'false'
         working-directory: ${{ matrix.dir }}
         run: |
           npm install -g npm@latest
+          npm config set registry https://registry.npmjs.org/
+          echo "node $(node --version) · npm $(npm --version)"
+          echo "OIDC request URL present: ${ACTIONS_ID_TOKEN_REQUEST_URL:+yes}"
           npm publish --access public
 
       # Tag/release only happen for a newly published version (or to repair a
