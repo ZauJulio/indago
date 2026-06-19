@@ -92,23 +92,19 @@ jobs:
         working-directory: ${{ matrix.dir }}
         run: bun run build
 
-      # Trusted Publishing (OIDC): no long-lived token. With `id-token: write`
-      # granted above, npm mints a short-lived token from the GitHub OIDC claim
-      # and attaches build provenance automatically. Requires npm >= 11.5.1, so
-      # upgrade the runner's npm first. Set the registry token-lessly so the
-      # OIDC path engages (an empty `_authToken` would short-circuit it).
+      # Publish with NPM_TOKEN. Trusted Publishing (OIDC) is wired up — `id-token:
+      # write` is granted and npm (>= 11.5.1) on the runner has the OIDC token —
+      # but the registry rejects the identity (ENEEDAUTH) until the npm-side
+      # Trusted Publisher entry matches this workflow's claim (repo ZauJulio/indago,
+      # workflow filename `release.yml`, no environment). Once that matches, drop
+      # the token + `.npmrc` line and `npm publish` alone publishes via OIDC.
       - name: Publish to npm
         if: steps.published.outputs.exists == 'false'
         working-directory: ${{ matrix.dir }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          npm install -g npm@latest
-          # Token-less project .npmrc: gives npm a loaded registry config (which
-          # the OIDC path needs) without the empty `_authToken` that setup-node's
-          # registry-url would add. `npm config set` can't be used here — it errors
-          # ENOWORKSPACES inside a workspace member dir.
-          printf 'registry=https://registry.npmjs.org/\n' > .npmrc
-          echo "node $(node --version) · npm $(npm --version)"
-          echo "OIDC request URL present: ${ACTIONS_ID_TOKEN_REQUEST_URL:+yes}"
+          printf '//registry.npmjs.org/:_authToken=%s\nregistry=https://registry.npmjs.org/\n' "$NODE_AUTH_TOKEN" > "$HOME/.npmrc"
           npm publish --access public
 
       # Tag/release only happen for a newly published version (or to repair a
